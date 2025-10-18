@@ -1,9 +1,9 @@
-package br.com.loja_online.services;
+package br.com.loja_online.service;
 
 import br.com.loja_online.dto.ProdutoDTO;
 import br.com.loja_online.model.Produto;
 import br.com.loja_online.mapper.ProdutoMapper;
-import br.com.loja_online.repositorios.ProdutoRepository;
+import br.com.loja_online.repository.ProdutoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

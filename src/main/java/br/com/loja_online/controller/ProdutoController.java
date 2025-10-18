@@ -1,7 +1,7 @@
 package br.com.loja_online.controller;
 
 import br.com.loja_online.dto.ProdutoDTO;
-import br.com.loja_online.services.ProdutoService;
+import br.com.loja_online.service.ProdutoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
