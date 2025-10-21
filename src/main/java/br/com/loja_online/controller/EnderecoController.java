@@ -3,7 +3,7 @@ package br.com.loja_online.controller;
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.mapper.EnderecoMapper;
 import br.com.loja_online.model.Endereco;
-import br.com.loja_online.services.EnderecoService;
+import br.com.loja_online.service.EnderecoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
