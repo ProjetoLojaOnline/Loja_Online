@@ -29,11 +29,4 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-build.log 
-target/ 
-*.log 
-.env 
-.idea/ 
-.vscode/ 
+
