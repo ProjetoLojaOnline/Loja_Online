@@ -6,23 +6,23 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record EnderecoDTO(
-     @NotBlank(message = "O logradouro não pode estar vazio.")
+     @NotBlank()
     String logradouro,
-    @NotNull(message = "O número não pode ser nulo.")
+    @NotNull()
     @Min(1)
     Integer numero,
-     @NotBlank(message = "O bairro não pode estar vazio.")
+     @NotBlank()
     String bairro,
-     @NotBlank(message = "O complemento não pode estar vazio.")
+     @NotBlank()
     String complemento,
-     @NotBlank(message = "A referência não pode estar vazia.")
+     @NotBlank()
      String referencia,
-     @NotBlank(message = "O CEP não pode estar vazio.")
-     @Pattern(regexp = "\\d{5}-\\d{3}", message = "O CEP deve estar no formato 12345-678.")
+     @NotBlank()
+     @Pattern(regexp = "\\d{5}-\\d{3}" )
     String cep,
-     @NotBlank(message = "A cidade não pode estar vazia.")
+     @NotBlank()
     String cidade,
-     @NotBlank(message = "O estado não pode estar vazio.")
+     @NotBlank()
     String estado
 ) {
 }
