@@ -32,7 +32,7 @@ public class ControllerAdviceHandler {
                                                                        HttpServletRequest request) {
     ValidationError validationError = new ValidationError(
             System.currentTimeMillis(),
-            404,
+            400,
             "Validation Error",
             "Erro de validação",
             request.getRequestURI()
@@ -42,6 +42,6 @@ public class ControllerAdviceHandler {
       validationError.addError(x.getField(), x.getDefaultMessage());
     }
 
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(validationError);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationError);
   }
 }
