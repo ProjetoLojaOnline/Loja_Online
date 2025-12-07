@@ -1,0 +1,24 @@
+### Listar Todos os Produtos
+GET http://localhost:8080/produto
+
+
+### Procurar Produto por ID
+GET http://localhost:8080/produto/1
+
+
+### Criar Novo Produto
+POST http://localhost:8080/produto
+Content-Type: application/json
+
+{
+  "nome": "Caderno Universitário",
+  "descricao": "Caderno de 10 matérias, capa dura.",
+  "categoria": "Escolar",
+  "quantidade": 50,
+  "preco": 19.99,
+  "cor": "Azul Marinho"
+}
+
+
+###  Deletar Produto por ID
+DELETE http://localhost:8080/produto/1

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Produtos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container py-4">
+    <h1 class="text-center mb-4">CRUD de Produtos</h1>
+    <p class="text-center">Mas por ora sem o U de update</p>
+    <!-- LISTAR PRODUTOS -->
+    <div class="card mb-4">
+        <div class="card-header">Listar Produtos</div>
+        <div class="card-body">
+
+            <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                <button class="btn btn-primary" onclick="listarProdutos(this)">Listar todos os produtos</button>
+            </div>
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Quantidade</th>
+                    <th>Preço</th>
+                    <th>Cor</th>
+                </tr>
+                </thead>
+                <tbody id="listaProdutos"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- BUSCAR POR ID -->
+    <div class="card mb-4">
+        <div class="card-header">Buscar Produto por ID</div>
+        <div class="card-body">
+            <input id="buscarId" class="form-control mb-2" placeholder="Ex: 10">
+            <button class="btn btn-dark" onclick="buscarPorId(this)">Buscar</button>
+            <div id="alertBuscar"></div>
+        </div>
+    </div>
+
+    <!-- CRIAR PRODUTO -->
+    <div class="card mb-4">
+        <div class="card-header">Criar Produto</div>
+        <div class="card-body">
+            <input id="prNome" class="form-control mb-2" placeholder="Nome">
+            <input id="prDescricao" class="form-control mb-2" placeholder="Descrição">
+            <input id="prCategoria" class="form-control mb-2" placeholder="Categoria">
+            <input id="prQuantidade" type="number" class="form-control mb-2" placeholder="Quantidade">
+            <input id="prPreco" type="number" step="0.01" class="form-control mb-2" placeholder="Preço">
+            <input id="prCor" class="form-control mb-2" placeholder="Cor">
+
+            <button class="btn btn-success" onclick="criarProduto(this)">Criar</button>
+            <div id="alertCriar"></div>
+        </div>
+    </div>
+
+    <!-- DELETAR PRODUTO -->
+    <div class="card mb-4">
+        <div class="card-header">Deletar Produto</div>
+        <div class="card-body">
+            <input id="delId" class="form-control mb-2" placeholder="ID do produto a deletar">
+            <button class="btn btn-danger" onclick="deletarProduto(this)">Deletar</button>
+            <div id="alertDelete"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const API = "http://localhost:8080/produto";
+
+    /* LOADING */
+    function startLoading(btn) {
+        btn.dataset.originalText = btn.innerHTML;
+        btn.innerHTML = `
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Aguarde...
+    `;
+        btn.disabled = true;
+    }
+
+    function stopLoading(btn) {
+        btn.innerHTML = btn.dataset.originalText;
+        btn.disabled = false;
+    }
+
+    /* ALERTA (AGORA FORMATADO PARA JSON) */
+    function showAlert(where, data, ok) {
+        let formatted = "";
+
+        if (typeof data === "string") {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                // se não for JSON, exibe como texto puro
+                formatted = data;
+            }
+        }
+
+        if (!formatted) {
+            formatted = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        document.getElementById(where).innerHTML = `
+        <div class="alert ${ok ? "alert-success" : "alert-danger"} mt-3">
+            ${formatted}
+        </div>
+    `;
+    }
+
+    /* LISTAR PRODUTOS */
+    async function listarProdutos(btn = null) {
+        if (btn) startLoading(btn);
+
+        const res = await fetch(API);
+        const data = await res.json();
+
+        const tbody = document.getElementById("listaProdutos");
+        tbody.innerHTML = "";
+
+        data.content.forEach(p => {
+            tbody.innerHTML += `
+            <tr>
+                <td>${p.id}</td>
+                <td>${p.nome}</td>
+                <td>${p.descricao}</td>
+                <td>${p.categoria}</td>
+                <td>${p.quantidade}</td>
+                <td>${p.preco}</td>
+                <td>${p.cor ?? ""}</td>
+            </tr>`;
+        });
+
+        if (btn) stopLoading(btn);
+    }
+
+    /* BUSCAR POR ID */
+    async function buscarPorId(btn) {
+        startLoading(btn);
+
+        const id = document.getElementById("buscarId").value;
+        const res = await fetch(`${API}/${id}`);
+
+        const txt = await res.text();
+
+        if (res.status === 200) {
+            showAlert("alertBuscar", JSON.parse(txt), true);
+        } else {
+            showAlert("alertBuscar", txt, false);
+        }
+
+        stopLoading(btn);
+    }
+
+    /* CRIAR PRODUTO */
+    async function criarProduto(btn) {
+        startLoading(btn);
+
+        const body = {
+            nome: document.getElementById("prNome").value,
+            descricao: document.getElementById("prDescricao").value,
+            categoria: document.getElementById("prCategoria").value,
+            quantidade: parseInt(document.getElementById("prQuantidade").value),
+            preco: parseFloat(document.getElementById("prPreco").value),
+            cor: document.getElementById("prCor").value
+        };
+
+        const res = await fetch(API, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+
+        const txt = await res.text();
+
+        if (res.status === 201) {
+            showAlert("alertCriar", "Produto criado com sucesso!", true);
+            listarProdutos();
+        } else {
+            showAlert("alertCriar", txt, false);
+        }
+
+        stopLoading(btn);
+    }
+
+    /* DELETAR PRODUTO */
+    async function deletarProduto(btn) {
+        startLoading(btn);
+
+        const id = document.getElementById("delId").value;
+
+        const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+
+        const txt = await res.text();
+
+        if (res.status === 204) {
+            showAlert("alertDelete", "Produto deletado com sucesso!", true);
+            listarProdutos();
+        } else {
+            showAlert("alertDelete", txt, false);
+        }
+
+        stopLoading(btn);
+    }
+
+    window.onload = listarProdutos;
+</script>
+
+</body>
+</html>

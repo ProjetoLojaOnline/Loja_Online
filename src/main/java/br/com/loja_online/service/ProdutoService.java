@@ -4,6 +4,7 @@ import br.com.loja_online.dto.ProdutoDTO;
 import br.com.loja_online.model.Produto;
 import br.com.loja_online.mapper.ProdutoMapper;
 import br.com.loja_online.repository.ProdutoRepository;
+import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,19 +29,24 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public ProdutoDTO findById(Integer id) {
-        Optional<Produto> produto = produtoRepository.findById(id);
-        return produto.map(ProdutoMapper::paraDto).orElse(null);
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado com o ID: " + id));
+        return ProdutoMapper.paraDto(produto);
     }
 
     @Transactional
     public ProdutoDTO insert(ProdutoDTO dto) {
         Produto novoProduto = ProdutoMapper.paraProduto(dto);
+        novoProduto.setId(null); // o Jpa exige receber um id nulo para criação com auto-generate de ids. Seria melhor usar um DTO específico para criação, sem id
         novoProduto = produtoRepository.save(novoProduto);
         return ProdutoMapper.paraDto(novoProduto);
     }
 
+
+
     @Transactional
     public void delete(Integer id) {
+        produtoRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado com o ID: " + id));
         produtoRepository.deleteById(id);
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -24,8 +26,8 @@ public class UsuarioController {
     }
 
     @GetMapping("/login/{login}")
-    public ResponseEntity<Usuario> buscarPorLogin(@PathVariable String login) {
-        Usuario usuario = usuarioService.findByLogin(login);
+    public ResponseEntity<Optional<Usuario>> buscarPorLogin(@PathVariable String login) {
+        Optional<Usuario> usuario = usuarioService.findByLogin(login);
         if (usuario == null) {
             return ResponseEntity.notFound().build();
         }

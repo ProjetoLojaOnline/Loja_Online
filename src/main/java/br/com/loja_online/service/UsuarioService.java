@@ -5,12 +5,14 @@ import br.com.loja_online.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
-    public Usuario findByLogin(String login){
-        return usuarioRepository.findByLogin(login).orElseThrow(() -> new IllegalArgumentException("Login não encontrado"));
+    public Optional<Usuario> findByLogin(String login){
+        return usuarioRepository.findByLogin(login);
     }
     public Usuario findById(Integer id){
         return usuarioRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
@@ -22,7 +24,7 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
     public void atualizaUsuario(Usuario usuario){
-        if (usuario.getId() == null || !usuarioRepository.existsById(usuario.getId())) {
+        if (!usuarioRepository.existsById(usuario.getId())) {
             throw new IllegalArgumentException("Usuário não encontrado para atualizar");
         }
         usuarioRepository.save(usuario);

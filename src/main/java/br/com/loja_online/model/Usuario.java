@@ -5,26 +5,29 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 @Entity
 @Table(name="tb_usuario")
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class Usuario{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
     private String nome;
     private String login;
     private String telefone;
     private String email;
     private String cpf;
-    private String dataNascimento;
+    private String dataNAscimento;
     private String genero;
+//    @OneToMany(mappedBy = "id_usuario", cascade = CascadeType.ALL)
+//    private Cartao cartao;
+    @OneToMany(mappedBy = "id_usuario", cascade = CascadeType.ALL)
+    private Endereco endereco;
     private String foto;
     private String tipo;
 }

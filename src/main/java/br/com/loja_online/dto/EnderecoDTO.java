@@ -2,23 +2,27 @@ package br.com.loja_online.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public record EnderecoDTO(
-     @NotBlank
+     @NotBlank()
     String logradouro,
+    @NotNull()
     @Min(1)
     Integer numero,
-     @NotBlank
+     @NotBlank()
     String bairro,
-     @NotBlank
+     @NotBlank()
     String complemento,
-     @NotBlank
+     @NotBlank()
      String referencia,
-     @NotBlank
+     @NotBlank()
+     @Pattern(regexp = "\\d{5}-\\d{3}" )
     String cep,
-     @NotBlank
+     @NotBlank()
     String cidade,
-     @NotBlank
+     @NotBlank()
     String estado
 ) {
 }

@@ -34,3 +34,6 @@ build/
 
 # Ignorar arquivo de configuração do Spring Boot
 src/main/resources/application.properties
+
+### .env files ###
+*.env

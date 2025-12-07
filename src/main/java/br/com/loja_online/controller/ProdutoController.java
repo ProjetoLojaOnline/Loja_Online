@@ -41,7 +41,7 @@ public class ProdutoController {
         return ResponseEntity.created(uri).body(produtoDTO);
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ProdutoDTO> delete(@PathVariable Integer id) {
         produtoService.delete(id);
         return ResponseEntity.noContent().build();
