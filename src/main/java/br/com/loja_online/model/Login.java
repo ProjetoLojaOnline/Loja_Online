@@ -1,4 +1,4 @@
-package br.com.loja_online.domain.login;
+package br.com.loja_online.model;
 
 import jakarta.persistence.*;
 
@@ -16,8 +16,9 @@ public class Login {
     @Column(name = "senha", nullable = false, length = 255)
     private String senha;
 
-    @Column(name = "id_usuario") // se for FK futura, depois vira @ManyToOne
-    private Integer idUsuario;
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
 
     protected Login() {}
 
@@ -51,11 +52,11 @@ public class Login {
         this.senha = senha;
     }
 
-    public Integer getIdUsuario() {
-        return idUsuario;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }
