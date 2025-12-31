@@ -10,8 +10,8 @@ public class Login {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false, unique = true, length = 120)
-    private String username;
+    @Column(name = "login", nullable = false, unique = true, length = 120)
+    private String login;
 
     @Column(name = "senha", nullable = false, length = 255)
     private String senha;
@@ -22,8 +22,8 @@ public class Login {
 
     protected Login() {}
 
-    public Login(String username, String senha) {
-        this.username = username;
+    public Login(String login, String senha) {
+        this.login = login;
         this.senha = senha;
     }
 
@@ -36,12 +36,12 @@ public class Login {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getSenha() {

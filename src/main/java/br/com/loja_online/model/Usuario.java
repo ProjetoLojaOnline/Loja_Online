@@ -4,30 +4,35 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
+
+import java.util.List;
 
 @Entity
-@Table(name="tb_usuario")
+@Table(name = "tb_usuario")
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Usuario{
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String nome;
     private String login;
     private String telefone;
     private String email;
     private String cpf;
-    private String dataNAscimento;
+    private String dataNascimento;
     private String genero;
-//    @OneToMany(mappedBy = "id_usuario", cascade = CascadeType.ALL)
-//    private Cartao cartao;
-    @OneToMany(mappedBy = "id_usuario", cascade = CascadeType.ALL)
-    private Endereco endereco;
+//    @OneToMany(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "id_usuario")
+//    private List<Cartao> cartoes;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_usuario")
+    private List<Endereco> enderecos;
     private String foto;
     private String tipo;
 }

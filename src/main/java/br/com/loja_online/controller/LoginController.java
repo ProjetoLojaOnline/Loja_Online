@@ -2,6 +2,7 @@ package br.com.loja_online.controller;
 
 import br.com.loja_online.model.Login;
 import br.com.loja_online.service.LoginService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,8 @@ public class LoginController {
     }
 
     @GetMapping("/{login}")
-    public Login buscarPorLogin(@PathVariable String login) {
-        return service.buscarPorLogin(login);
+    public ResponseEntity<Login> buscarPorLogin(@PathVariable String login) {
+        Login loginEncontrado = service.buscarPorLogin(login);
+        return ResponseEntity.ok(loginEncontrado);
     }
 }

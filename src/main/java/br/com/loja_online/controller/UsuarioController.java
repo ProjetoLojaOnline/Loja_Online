@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -17,20 +15,14 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
         Usuario usuario = usuarioService.findById(id);
-        if (usuario == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(usuario);
     }
 
     @GetMapping("/login/{login}")
-    public ResponseEntity<Optional<Usuario>> buscarPorLogin(@PathVariable String login) {
-        Optional<Usuario> usuario = usuarioService.findByLogin(login);
-        if (usuario == null) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Usuario> buscarPorLogin(@PathVariable String login) {
+        Usuario usuario = usuarioService.findByLogin(login);
         return ResponseEntity.ok(usuario);
     }
 
@@ -41,14 +33,14 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
+    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         usuario.setId(id);
         usuarioService.atualizaUsuario(usuario);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         usuarioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
