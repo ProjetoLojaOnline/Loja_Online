@@ -3,24 +3,26 @@ package br.com.loja_online.dto;
 import java.sql.Date;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartaoDTO {
-    @NotBlank()
-    @NotEmpty()
-    @NotNull()
+    @NotNull
     private Long numeroCartao;
-    @NotBlank()
-    @NotEmpty()
-    @NotNull()
+    
+    @NotBlank
     private String nomeCartao;
-    @NotBlank()
-    @NotEmpty()
-    @NotNull()
+    
+    @NotNull
     private Date dataValidade;
-    @NotBlank()
-    @NotEmpty()
-    @NotNull()
+    
+    @NotNull
     private Integer cvv;
 }
