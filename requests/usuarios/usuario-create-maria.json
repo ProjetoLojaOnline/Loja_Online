@@ -1,0 +1,11 @@
+{
+  "nome": "Maria Souza",
+  "login": "maria",
+  "telefone": "21988889999",
+  "email": "maria@exemplo.com",
+  "cpf": "98765432100",
+  "dataNascimento": "1992-05-10",
+  "genero": "F",
+  "foto": null,
+  "tipo": "CLIENTE"
+}
