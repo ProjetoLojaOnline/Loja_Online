@@ -27,9 +27,9 @@ public class Usuario {
     private String cpf;
     private String dataNascimento;
     private String genero;
-//    @OneToMany(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "id_usuario")
-//    private List<Cartao> cartoes;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_usuario")
+    private List<Cartao> cartoes;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
     private List<Endereco> enderecos;
