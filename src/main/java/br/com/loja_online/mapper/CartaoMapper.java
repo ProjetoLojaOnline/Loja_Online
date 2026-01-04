@@ -13,7 +13,8 @@ public class CartaoMapper {
                 cartao.getNumeroCartao(),
                 cartao.getNomeCartao(),
                 cartao.getDataValidade(),
-                cartao.getCvv()
+                cartao.getCvv(),
+                cartao.getdefaultCard()
         );
     }
 
@@ -26,6 +27,7 @@ public class CartaoMapper {
                 .nomeCartao(dto.getNomeCartao())
                 .dataValidade(dto.getDataValidade())
                 .cvv(dto.getCvv())
+                .defaultCard(dto.getDefaultCard())
                 .build();
     }
 }

@@ -27,6 +27,7 @@ public class Cartao {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cartoes")
     private Usuario usuario;
+    private Boolean defaultCard;
 }
 
 

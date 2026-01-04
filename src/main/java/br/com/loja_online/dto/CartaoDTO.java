@@ -15,14 +15,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CartaoDTO {
     @NotNull
+    @NotBlank
     private Long numeroCartao;
     
+    @NotNull
     @NotBlank
     private String nomeCartao;
     
     @NotNull
+    @NotBlank
     private Date dataValidade;
     
     @NotNull
+    @NotBlank
     private Integer cvv;
+
+    @NotNull
+    @NotBlank
+    private Boolean defaultCard;
 }
