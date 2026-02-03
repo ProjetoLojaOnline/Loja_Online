@@ -1,7 +1,6 @@
 package br.com.loja_online.controller;
 
 import br.com.loja_online.model.Login;
-import br.com.loja_online.service.LoginService;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
