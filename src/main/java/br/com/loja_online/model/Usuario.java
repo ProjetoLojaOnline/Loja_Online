@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.List;
 
-@Entity()
+@Entity
 @Table(name = "tb_usuario")
 @Getter
 @Setter
@@ -16,7 +16,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String nome;
     private String telefone;
     private String email;
@@ -30,6 +30,6 @@ public class Usuario {
     @JoinColumn(name = "id_usuario")
     private List<Endereco> enderecos;
 
-    public Usuario(Integer id, String nome, String telefone, String email, String s, String cpf, String genero, String foto, String tipo) {
+    public Usuario(String nome, String telefone, String email, String s, String cpf, String genero, String foto, String tipo) {
     }
 }

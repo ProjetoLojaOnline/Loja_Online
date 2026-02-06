@@ -1,6 +1,5 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.ProdutoDTO;
 import br.com.loja_online.dto.UsuarioDTO;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.service.UsuarioService;
@@ -37,17 +36,17 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<Void> criar(@Valid @RequestBody UsuarioDTO usuarioDTO) {
         usuarioDTO = usuarioService.insert(usuarioDTO);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(usuarioDTO.id())
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(usuarioDTO.tipo())
                 .toUri();
         return ResponseEntity.status(HttpStatus.CREATED).build();
         
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
+    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         usuario.setId(id);
         usuarioService.atualizaUsuario(usuario);
-        return ResponseEntity.ok().build();g
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
