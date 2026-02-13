@@ -1,5 +1,6 @@
 package br.com.loja_online.controller;
 
+import br.com.loja_online.dto.AutenticacaoDTO;
 import br.com.loja_online.dto.UsuarioDTO;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.service.UsuarioService;
@@ -34,9 +35,9 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> criar(@Valid @RequestBody UsuarioDTO usuarioDTO) {
-        usuarioDTO = usuarioService.insert(usuarioDTO);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(usuarioDTO.tipo())
+    public ResponseEntity<Void> criar(@Valid @RequestBody AutenticacaoDTO autenticacaoDTO) {
+        var usuarioSalvo = usuarioService.insert(autenticacaoDTO);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(autenticacaoDTO.tipo())
                 .toUri();
         return ResponseEntity.status(HttpStatus.CREATED).build();
         

@@ -18,11 +18,11 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
-    private String telefone;
-    private String email;
-    private String dataNascimento;
-    private String cpf;
     private String senha;
+    private String email;
+    private String telefone;
+    private String cpf;
+    private String dataNascimento;
     private String genero;
     private String foto;
     private String tipo;
@@ -30,6 +30,24 @@ public class Usuario {
     @JoinColumn(name = "id_usuario")
     private List<Endereco> enderecos;
 
-    public Usuario(String nome, String telefone, String email, String s, String cpf, String genero, String foto, String tipo) {
+    public Usuario(String nome,
+                   String senha,
+                   String email,
+                   String telefone,
+                   String cpf,
+                   String dataNascimento,
+                   String genero,
+                   String foto,
+                   String tipo) {
+        this.nome = nome;
+        this.senha = senha;
+        this.email = email;
+        this.telefone = telefone;
+        this.cpf = cpf;
+        this.dataNascimento = dataNascimento;
+        this.genero = genero;
+        this.foto = foto;
+        this.tipo = tipo;
+
     }
 }
