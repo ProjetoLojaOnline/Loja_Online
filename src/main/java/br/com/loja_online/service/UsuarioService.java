@@ -8,7 +8,6 @@ import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 @Service
 public class UsuarioService {
     @Autowired
