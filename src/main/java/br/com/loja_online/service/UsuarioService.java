@@ -35,8 +35,7 @@ public class UsuarioService {
         }
         usuarioRepository.save(usuario);
     }
-
-    public UsuarioDTO insert(@Valid AutenticacaoDTO autenticacaoDTO) {
+    public UsuarioDTO criar(@Valid AutenticacaoDTO autenticacaoDTO) {
         Usuario novoUsuario = UsuarioMapper.paraUsuario(autenticacaoDTO);
         novoUsuario.setId(null);
         novoUsuario = usuarioRepository.save(novoUsuario);

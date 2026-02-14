@@ -28,7 +28,7 @@ public class UsuarioController {
 
     }
 
-    @GetMapping("/login/{login}")
+    @GetMapping("/login/{email}")
     public ResponseEntity<UsuarioDTO> buscarPorLogin(@PathVariable String email) {
         UsuarioDTO usuario = usuarioService.findByLogin(email);
         return ResponseEntity.ok(usuario);
@@ -36,15 +36,15 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Void> criar(@Valid @RequestBody AutenticacaoDTO autenticacaoDTO) {
-        var usuarioSalvo = usuarioService.insert(autenticacaoDTO);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(autenticacaoDTO.tipo())
+        var usuarioSalvo = usuarioService.criar(autenticacaoDTO);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(autenticacaoDTO.id())
                 .toUri();
         return ResponseEntity.status(HttpStatus.CREATED).build();
         
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<Void> atualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
         usuario.setId(id);
         usuarioService.atualizaUsuario(usuario);
         return ResponseEntity.ok().build();
