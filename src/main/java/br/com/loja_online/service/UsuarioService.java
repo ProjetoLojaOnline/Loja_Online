@@ -36,9 +36,8 @@ public class UsuarioService {
     }
 
     public @Valid UsuarioDTO insert(@Valid UsuarioDTO usuarioDTO) {
-        // criar um novo usuario com dto
         Usuario novoUsuario = UsuarioMapper.paraUsuario(usuarioDTO);
-        novoUsuario.setId(null); // o Jpa exige receber um id nulo para criação com auto-generate de ids. Seria melhor usar um DTO específico para criação, sem id
+        novoUsuario.setId(null);
         novoUsuario = usuarioRepository.save(novoUsuario);
         return UsuarioMapper.paraDto(novoUsuario);
     }

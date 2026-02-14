@@ -16,7 +16,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String nome;
     private String telefone;
     private String email;
@@ -29,9 +29,6 @@ public class Usuario {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
     private List<Cartao> cartoes;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario")
-    private List<Endereco> enderecos;
 
     public Usuario(String nome, String telefone, String email, String s, String cpf, String genero, String foto, String tipo) {
     }
