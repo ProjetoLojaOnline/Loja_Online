@@ -28,7 +28,7 @@ public class Usuario {
     private String tipo;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
-    private List<Endereco> enderecos;
+    private List<Cartao> cartoes;
 
     public Usuario(String nome,
                    String senha,
@@ -39,6 +39,7 @@ public class Usuario {
                    String genero,
                    String foto,
                    String tipo) {
+
         this.nome = nome;
         this.senha = senha;
         this.email = email;
