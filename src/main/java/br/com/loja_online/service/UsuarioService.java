@@ -19,17 +19,17 @@ public class UsuarioService {
         return UsuarioMapper.paraDto(usuario);
 
     }
-    public UsuarioDTO findById(Integer id){
-        Usuario usuario =usuarioRepository.findById(id.intValue())
+    public UsuarioDTO findById(Long id){
+        Usuario usuario =usuarioRepository.findById(id.longValue())
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
         return UsuarioMapper.paraDto(usuario);
     }
-    public void deleteById(Integer id){
-        usuarioRepository.deleteById(id.intValue());
+    public void deleteById(@org.jetbrains.annotations.UnknownNullability Long id){
+        usuarioRepository.deleteById(id.longValue());
     }
 
     public void atualizaUsuario(Usuario usuario){
-        if (!usuarioRepository.existsById(usuario.getId().intValue())) {
+        if (!usuarioRepository.existsById(usuario.getId().longValue())) {
             throw new ObjectNotFoundException("Usuário não encontrado para atualizar");
         }
         usuarioRepository.save(usuario);
