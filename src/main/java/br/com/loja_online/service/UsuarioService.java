@@ -9,32 +9,36 @@ import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 @Service
 public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public UsuarioDTO findByLogin(String email){
-        Usuario usuario = usuarioRepository.findByLogin(email)
-                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o login: " + email));
+    public UsuarioDTO findByEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o email: " + email));
         return UsuarioMapper.paraDTO(usuario);
 
     }
-    public UsuarioDTO findById(Long id){
-        Usuario usuario =usuarioRepository.findById(id.longValue())
+
+    public UsuarioDTO findById(Long id) {
+        Usuario usuario = usuarioRepository.findById(id.longValue())
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
         return UsuarioMapper.paraDTO(usuario);
     }
-    public void deleteById(Long id){
+
+    public void deleteById(Long id) {
         usuarioRepository.deleteById(id.longValue());
     }
 
-    public void atualizaUsuario(Usuario usuario){
+    public void atualizaUsuario(Usuario usuario) {
         if (!usuarioRepository.existsById(usuario.getId().longValue())) {
             throw new ObjectNotFoundException("Usuário não encontrado para atualizar");
         }
         usuarioRepository.save(usuario);
     }
+
     public UsuarioDTO criar(@Valid AutenticacaoDTO autenticacaoDTO) {
         Usuario novoUsuario = UsuarioMapper.paraUsuario(autenticacaoDTO);
         novoUsuario.setId(null);

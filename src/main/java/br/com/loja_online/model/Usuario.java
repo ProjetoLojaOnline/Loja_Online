@@ -21,7 +21,6 @@ public class Usuario {
     private String senha;
     private String email;
     private String telefone;
-    private String cpf;
     private String dataNascimento;
     private String genero;
     private String foto;
@@ -34,7 +33,6 @@ public class Usuario {
                    String senha,
                    String email,
                    String telefone,
-                   String cpf,
                    String dataNascimento,
                    String genero,
                    String foto,
@@ -44,7 +42,6 @@ public class Usuario {
         this.senha = senha;
         this.email = email;
         this.telefone = telefone;
-        this.cpf = cpf;
         this.dataNascimento = dataNascimento;
         this.genero = genero;
         this.foto = foto;

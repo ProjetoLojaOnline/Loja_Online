@@ -13,6 +13,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+import static org.aspectj.runtime.internal.Conversions.longValue;
+
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -23,14 +25,14 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
-        UsuarioDTO usuario = usuarioService.findById(Math.toIntExact(id));
+        UsuarioDTO usuario = usuarioService.findById(id);
         return ResponseEntity.ok(usuario);
 
     }
 
     @GetMapping("/login/{email}")
     public ResponseEntity<UsuarioDTO> buscarPorLogin(@PathVariable String email) {
-        UsuarioDTO usuario = usuarioService.findByLogin(email);
+        UsuarioDTO usuario = usuarioService.findByEmail(email);
         return ResponseEntity.ok(usuario);
     }
 
@@ -40,7 +42,7 @@ public class UsuarioController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(autenticacaoDTO.id())
                 .toUri();
         return ResponseEntity.status(HttpStatus.CREATED).build();
-        
+
     }
 
     @PutMapping("/{id}")

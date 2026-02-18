@@ -15,7 +15,6 @@ public record AutenticacaoDTO(
         @Email(message = "O formato de email é inválido.")
         String email,
         String telefone,
-        String cpf,
         String dataNascimento,
         String genero,
         String foto,

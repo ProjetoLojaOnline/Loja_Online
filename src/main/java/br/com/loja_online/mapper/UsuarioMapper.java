@@ -9,13 +9,12 @@ public class UsuarioMapper {
 
         public static Usuario paraUsuario(@Valid AutenticacaoDTO autenticacaoDTO) {
             return new Usuario(autenticacaoDTO.nome(), autenticacaoDTO.senha(), autenticacaoDTO.email(),
-                    autenticacaoDTO.telefone(), autenticacaoDTO.cpf(), autenticacaoDTO.dataNascimento(),
+                    autenticacaoDTO.telefone(), autenticacaoDTO.dataNascimento(),
                     autenticacaoDTO.genero(), autenticacaoDTO.foto(), autenticacaoDTO.tipo());
         }
         public static UsuarioDTO paraDTO(Usuario usuario) {
             return new UsuarioDTO(usuario.getNome(), usuario.getEmail(), usuario.getTelefone(),
-                    usuario.getCpf(), usuario.getDataNascimento(), usuario.getGenero(),
-                    usuario.getFoto(), usuario.getTipo());
+                    usuario.getDataNascimento(), usuario.getGenero(), usuario.getFoto(), usuario.getTipo());
         }
     }
 
