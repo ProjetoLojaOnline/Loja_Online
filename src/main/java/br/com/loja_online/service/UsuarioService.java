@@ -16,13 +16,13 @@ public class UsuarioService {
     public UsuarioDTO findByLogin(String email){
         Usuario usuario = usuarioRepository.findByLogin(email)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o login: " + email));
-        return UsuarioMapper.paraDto(usuario);
+        return UsuarioMapper.paraDTO(usuario);
 
     }
     public UsuarioDTO findById(Long id){
         Usuario usuario =usuarioRepository.findById(id.longValue())
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
-        return UsuarioMapper.paraDto(usuario);
+        return UsuarioMapper.paraDTO(usuario);
     }
     public void deleteById(@org.jetbrains.annotations.UnknownNullability Long id){
         usuarioRepository.deleteById(id.longValue());
@@ -39,6 +39,6 @@ public class UsuarioService {
         Usuario novoUsuario = UsuarioMapper.paraUsuario(usuarioDTO);
         novoUsuario.setId(null);
         novoUsuario = usuarioRepository.save(novoUsuario);
-        return UsuarioMapper.paraDto(novoUsuario);
+        return UsuarioMapper.paraDTO(novoUsuario);
     }
 }
