@@ -28,7 +28,10 @@ public class Usuario {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
     private List<Cartao> cartoes;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_usuario")
+    private List<Endereco> enderecos;
 
-    public Usuario(String nome, String telefone, String email, String s,  String genero, String foto, String tipo) {
+    public Usuario(String nome, String telefone, String email, String s, String genero, String foto, String tipo, List<Cartao> cartoes, List<Endereco> enderecos) {
     }
 }

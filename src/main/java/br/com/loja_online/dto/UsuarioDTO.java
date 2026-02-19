@@ -1,6 +1,10 @@
 package br.com.loja_online.dto;
 
 
+import br.com.loja_online.model.Cartao;
+import br.com.loja_online.model.Endereco;
+
+import java.util.List;
 
 public record UsuarioDTO(
         String nome,
@@ -9,7 +13,9 @@ public record UsuarioDTO(
         String dataNascimento,
         String genero,
         String foto,
-        String tipo
+        String tipo,
+        List<Cartao> cartoes,
+        List<Endereco> enderecos
 ) {
     public UsuarioDTO(
             String nome,
@@ -18,7 +24,9 @@ public record UsuarioDTO(
             String dataNascimento,
             String genero,
             String foto,
-            String tipo
+            String tipo,
+            List<Cartao> cartoes,
+            List<Endereco> enderecos
     ) {
         this.nome = nome;
         this.telefone = telefone;
@@ -27,6 +35,8 @@ public record UsuarioDTO(
         this.genero = genero;
         this.foto = foto;
         this.tipo = tipo;
+        this.cartoes = cartoes;
+        this.enderecos = enderecos;
     }
 
 }
