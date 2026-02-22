@@ -24,7 +24,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
         return UsuarioMapper.paraDTO(usuario);
     }
-    public void deleteById(@org.jetbrains.annotations.UnknownNullability Long id){
+    public void deleteById(Long id){
         usuarioRepository.deleteById(id.longValue());
     }
 

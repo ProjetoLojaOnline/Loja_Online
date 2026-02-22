@@ -17,6 +17,7 @@ public class UsuarioMapper {
         }
         return new UsuarioDTO(
                 usuario.getNome(),
+                usuario.getLogin(),
                 usuario.getTelefone(),
                 usuario.getEmail(),
                 usuario.getDataNascimento(),
@@ -36,6 +37,7 @@ public class UsuarioMapper {
 
         return new Usuario(
                 usuarioDTO.nome(),
+                usuarioDTO.login(),
                 usuarioDTO.telefone(),
                 usuarioDTO.email(),
                 usuarioDTO.dataNascimento(),

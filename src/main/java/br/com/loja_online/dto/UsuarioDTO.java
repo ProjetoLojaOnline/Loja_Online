@@ -8,6 +8,7 @@ import java.util.List;
 
 public record UsuarioDTO(
         String nome,
+        String login,
         String telefone,
         String email,
         String dataNascimento,
@@ -19,6 +20,7 @@ public record UsuarioDTO(
 ) {
     public UsuarioDTO(
             String nome,
+            String login,
             String telefone,
             String email,
             String dataNascimento,
@@ -29,6 +31,7 @@ public record UsuarioDTO(
             List<Endereco> enderecos
     ) {
         this.nome = nome;
+        this.login = login;
         this.telefone = telefone;
         this.email = email;
         this.dataNascimento = dataNascimento;
