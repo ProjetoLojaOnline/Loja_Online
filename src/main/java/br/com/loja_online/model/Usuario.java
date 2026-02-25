@@ -1,11 +1,7 @@
 package br.com.loja_online.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -17,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Usuario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,15 +21,18 @@ public class Usuario {
     private String login;
     private String telefone;
     private String email;
-    private String cpf;
     private String dataNascimento;
+    private String senha;
     private String genero;
+    private String foto;
+    private String tipo;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
     private List<Cartao> cartoes;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
     private List<Endereco> enderecos;
-    private String foto;
-    private String tipo;
+
+    public Usuario(String nome, String login, String telefone, String email, String s, String genero, String foto, String tipo, List<Cartao> cartoes, List<Endereco> enderecos) {
+    }
 }

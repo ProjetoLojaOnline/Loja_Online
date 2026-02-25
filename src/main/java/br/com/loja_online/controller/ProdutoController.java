@@ -33,6 +33,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produto);
     }
 
+    // método para criar um novo produto
     @PostMapping
     public ResponseEntity<ProdutoDTO> save(@Valid @RequestBody ProdutoDTO produtoDTO) {
         produtoDTO = produtoService.insert(produtoDTO);
