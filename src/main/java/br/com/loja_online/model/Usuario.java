@@ -18,34 +18,18 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
-    private String senha;
-    private String email;
     private String telefone;
+    private String email;
     private String dataNascimento;
+    private String cpf;
+    private String senha;
     private String genero;
     private String foto;
     private String tipo;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
-    private List<Cartao> cartoes;
+    private List<Endereco> enderecos;
 
-    public Usuario(String nome,
-                   String senha,
-                   String email,
-                   String telefone,
-                   String dataNascimento,
-                   String genero,
-                   String foto,
-                   String tipo) {
-
-        this.nome = nome;
-        this.senha = senha;
-        this.email = email;
-        this.telefone = telefone;
-        this.dataNascimento = dataNascimento;
-        this.genero = genero;
-        this.foto = foto;
-        this.tipo = tipo;
-
+    public Usuario(String nome, String telefone, String email, String s, String cpf, String genero, String foto, String tipo) {
     }
 }
