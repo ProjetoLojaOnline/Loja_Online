@@ -13,16 +13,16 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public UsuarioDTO findByLogin(String email){
-        Usuario usuario = usuarioRepository.findByLogin(email)
-                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o login: " + email));
-        return UsuarioMapper.paraDto(usuario);
+    public UsuarioDTO findByLogin(String login){
+        Usuario usuario = usuarioRepository.findByLogin(login)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o login: " + login));
+        return UsuarioMapper.paraDTO(usuario);
 
     }
     public UsuarioDTO findById(Integer id){
         Usuario usuario =usuarioRepository.findById(id.intValue())
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
-        return UsuarioMapper.paraDto(usuario);
+        return UsuarioMapper.paraDTO(usuario);
     }
     public void deleteById(Integer id){
         usuarioRepository.deleteById(id.intValue());
@@ -36,10 +36,9 @@ public class UsuarioService {
     }
 
     public @Valid UsuarioDTO insert(@Valid UsuarioDTO usuarioDTO) {
-        // criar um novo usuario com dto
         Usuario novoUsuario = UsuarioMapper.paraUsuario(usuarioDTO);
-        novoUsuario.setId(null); // o Jpa exige receber um id nulo para criação com auto-generate de ids. Seria melhor usar um DTO específico para criação, sem id
+        novoUsuario.setId(null);
         novoUsuario = usuarioRepository.save(novoUsuario);
-        return UsuarioMapper.paraDto(novoUsuario);
+        return UsuarioMapper.paraDTO(novoUsuario);
     }
 }

@@ -28,15 +28,15 @@ public class UsuarioController {
     }
 
     @GetMapping("/login/{login}")
-    public ResponseEntity<UsuarioDTO> buscarPorLogin(@PathVariable String email) {
-        UsuarioDTO usuario = usuarioService.findByLogin(email);
+    public ResponseEntity<UsuarioDTO> buscarPorLogin(@PathVariable String login) {
+        UsuarioDTO usuario = usuarioService.findByLogin(login);
         return ResponseEntity.ok(usuario);
     }
 
     @PostMapping
     public ResponseEntity<Void> criar(@Valid @RequestBody UsuarioDTO usuarioDTO) {
         usuarioDTO = usuarioService.insert(usuarioDTO);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(usuarioDTO.tipo())
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(usuarioDTO.id())
                 .toUri();
         return ResponseEntity.status(HttpStatus.CREATED).build();
         

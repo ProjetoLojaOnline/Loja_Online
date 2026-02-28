@@ -1,14 +1,15 @@
 package br.com.loja_online.controller;
 
 import br.com.loja_online.model.Login;
+import br.com.loja_online.service.LoginService;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
@@ -22,13 +23,13 @@ class LoginControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private LoginService loginService;
 
     @Test
     @DisplayName("GET /logins/user1 deve retornar 200 quando encontrado")
     void buscarPorLogin_ok() throws Exception {
-        Login login = new Login("user1", "senha");
+        Login login = new Login();
         when(loginService.buscarPorLogin("user1")).thenReturn(login);
 
         mockMvc.perform(get("/logins/user1").accept(MediaType.APPLICATION_JSON))
