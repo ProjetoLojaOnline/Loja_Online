@@ -23,19 +23,10 @@ public class LoginService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
     public Login buscarPorLogin(String login) {
         Optional<Login> loginOptional = repository.findByLogin(login);
         return loginOptional.orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
 
     }
-    public @Valid LoginDTO salvar(LoginDTO dto) {
-        if(repository.existsByLogin(dto.login())){
-            throw new RuntimeException("Login já existe");
-        }
-        Login login = Login.builder().login(dto.login())
-                .senha(passwordEncoder.encode(dto.senha()))
-                .build();
-        return repository.save(login);
-    }
+
 }

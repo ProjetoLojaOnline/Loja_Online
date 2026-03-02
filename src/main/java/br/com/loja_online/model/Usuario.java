@@ -24,9 +24,9 @@ public class Usuario {
     private String genero;
     private String foto;
     private String tipo;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "login_id")
-    private List<Login> logins;
+    private Login login;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_usuario")
     private List<Cartao> cartoes;

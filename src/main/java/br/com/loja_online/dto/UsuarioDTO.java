@@ -16,7 +16,8 @@ public record UsuarioDTO(
         String genero,
         String foto,
         String tipo,
-        List<Login> logins,
+        String login,
+        String senha,
         List<Cartao> cartoes,
         List<Endereco> enderecos
 ) {
@@ -29,7 +30,8 @@ public record UsuarioDTO(
             String genero,
             String foto,
             String tipo,
-            List<Login> logins,
+            String login,
+            String senha,
             List<Cartao> cartoes,
             List<Endereco> enderecos
     ) {
@@ -41,7 +43,8 @@ public record UsuarioDTO(
         this.genero = genero;
         this.foto = foto;
         this.tipo = tipo;
-        this.logins = logins;
+        this.login = login;
+        this.senha = senha;
         this.cartoes = cartoes;
         this.enderecos = enderecos;
     }
