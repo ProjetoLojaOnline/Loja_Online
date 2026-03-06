@@ -1,5 +1,6 @@
 package br.com.loja_online.controller;
 
+import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.service.LoginService;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
@@ -27,22 +28,22 @@ class LoginControllerTest {
     private LoginService loginService;
 
     @Test
-    @DisplayName("GET /logins/user1 deve retornar 200 quando encontrado")
+    @DisplayName("GET /api/logins/user1 deve retornar 200 quando encontrado")
     void buscarPorLogin_ok() throws Exception {
-        Login login = new Login();
-        when(loginService.buscarPorLogin("user1")).thenReturn(login);
+        LoginDTO loginDto = new LoginDTO(1L, "user1", null);
+        when(loginService.buscarPorLogin("user1")).thenReturn(loginDto);
 
-        mockMvc.perform(get("/logins/user1").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/logins/user1").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @DisplayName("GET /logins/inexistente deve retornar 404 quando não encontrado")
+    @DisplayName("GET /api/logins/inexistente deve retornar 404 quando não encontrado")
     void buscarPorLogin_notFound() throws Exception {
         when(loginService.buscarPorLogin("inexistente"))
                 .thenThrow(new ObjectNotFoundException("Login não encontrado: inexistente"));
 
-        mockMvc.perform(get("/logins/inexistente").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/logins/inexistente").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 }

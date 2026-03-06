@@ -20,19 +20,25 @@ public class Usuario {
     private String nome;
     private String telefone;
     private String email;
+    private String cpf;
     private String dataNascimento;
     private String genero;
     private String foto;
     private String tipo;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "login_id")
-    private Login login;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario")
-    private List<Cartao> cartoes;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario")
-    private List<Endereco> enderecos;
 
+    // "Eu sou o dono do Login. O mapa está no campo 'usuario' da classe Login"
+    // 1. Relacionamento 1:1 com Login
+    // O mappedBy="usuario" diz que o campo 'usuario' está lá na classe Login
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Login login;
+
+    // "Eu sou o dono dos Cartões. O mapa está no campo 'usuario' da classe Cartao"
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Cartao> cartoes = new java.util.ArrayList<>();
+
+    // "Eu sou o dono dos Endereços. O mapa está no campo 'usuario' da classe
+    // Endereco"
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Endereco> enderecos = new java.util.ArrayList<>();
 
 }

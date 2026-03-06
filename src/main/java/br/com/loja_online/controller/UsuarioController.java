@@ -1,16 +1,18 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.UsuarioDTO;
-import br.com.loja_online.model.Usuario;
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.dto.UsuarioCadastroWrapper;
+import br.com.loja_online.dto.UsuarioResponseDTO;
+import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -19,34 +21,32 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(usuarioService.findAll());
+    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
-        UsuarioDTO usuario = usuarioService.findById(id);
-        return ResponseEntity.ok(usuario);
-
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.findById(id));
     }
 
     @GetMapping("/login/{login}")
-    public ResponseEntity<UsuarioDTO> buscarPorLogin(@PathVariable String login) {
-        UsuarioDTO usuario = usuarioService.findByLogin(login);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<UsuarioResponseDTO> buscarPorLogin(@PathVariable String login) {
+        return ResponseEntity.ok(usuarioService.findByLogin(login));
     }
 
     @PostMapping
-    public ResponseEntity<Void> criar(@Valid @RequestBody UsuarioDTO usuarioDTO) {
-        usuarioDTO = usuarioService.insert(usuarioDTO);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(usuarioDTO.id())
-                .toUri();
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-        
+    public ResponseEntity<UsuarioResponseDTO> criar(@Valid @RequestBody UsuarioCadastroWrapper request) {
+        UsuarioResponseDTO resultado = usuarioService.insert(request.usuario(), request.login());
+        return ResponseEntity.status(201).body(resultado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
-        usuario.setId(id);
-        usuarioService.atualizaUsuario(usuario);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id,
+            @Valid @RequestBody UsuarioRequestDTO dto) {
+        UsuarioResponseDTO resultado = usuarioService.atualizaUsuario(id, dto);
+        return ResponseEntity.ok(resultado);
     }
 
     @DeleteMapping("/{id}")

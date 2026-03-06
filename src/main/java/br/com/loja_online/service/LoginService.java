@@ -1,6 +1,7 @@
 package br.com.loja_online.service;
 
 import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.mapper.LoginMapper;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
@@ -18,15 +19,16 @@ public class LoginService {
     private LoginRepository repository;
 
     private final PasswordEncoder passwordEncoder;
+
     public LoginService(LoginRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Login buscarPorLogin(String login) {
-        Optional<Login> loginOptional = repository.findByLogin(login);
-        return loginOptional.orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
-
+    public LoginDTO buscarPorLogin(String login) {
+        return repository.findByLogin(login)
+                .map(LoginMapper::paraDTO)
+                .orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
     }
 
 }

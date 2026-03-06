@@ -1,11 +1,15 @@
 {
-  "nome": "João Silva",
-  "login": "joao",
-  "telefone": "11999999999",
-  "email": "joao@exemplo.com",
-  "cpf": "12345678900",
-  "dataNascimento": "1990-01-01",
-  "genero": "M",
-  "foto": null,
-  "tipo": "CLIENTE"
+  "usuario": {
+    "nome": "João Silva",
+    "telefone": "11999999999",
+    "email": "joao@exemplo.com",
+    "dataNascimento": "1990-01-01",
+    "genero": "M",
+    "foto": null,
+    "tipo": "CLIENTE"
+  },
+  "login": {
+    "login": "joao",
+    "senha": "password123"
+  }
 }

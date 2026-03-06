@@ -12,7 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/logins")
+@RequestMapping("/api/logins")
 public class LoginController {
 
     private final LoginService service;
@@ -22,17 +22,9 @@ public class LoginController {
     }
 
     @GetMapping("/{login}")
-    public ResponseEntity<Login> buscarPorLogin(@PathVariable String login) {
-        Login loginEncontrado = service.buscarPorLogin(login);
+    public ResponseEntity<LoginDTO> buscarPorLogin(@PathVariable String login) {
+        LoginDTO loginEncontrado = service.buscarPorLogin(login);
         return ResponseEntity.ok(loginEncontrado);
-    }
-    
-        @PostMapping
-        public ResponseEntity<Void> criar(@Valid @RequestBody LoginDTO loginDTO) {
-            loginDTO = service.salvar(loginDTO);
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(loginDTO.id())
-                    .toUri();
-            return ResponseEntity.status(HttpStatus.CREATED).build();
 
-        }
+    }
 }

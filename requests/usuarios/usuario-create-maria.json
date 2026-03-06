@@ -1,11 +1,15 @@
 {
-  "nome": "Maria Souza",
-  "login": "maria",
-  "telefone": "21988889999",
-  "email": "maria@exemplo.com",
-  "cpf": "98765432100",
-  "dataNascimento": "1992-05-10",
-  "genero": "F",
-  "foto": null,
-  "tipo": "CLIENTE"
+  "usuario": {
+    "nome": "Maria Souza",
+    "telefone": "11888888888",
+    "email": "maria@exemplo.com",
+    "dataNascimento": "1995-05-05",
+    "genero": "F",
+    "foto": null,
+    "tipo": "CLIENTE"
+  },
+  "login": {
+    "login": "maria",
+    "senha": "password456"
+  }
 }
