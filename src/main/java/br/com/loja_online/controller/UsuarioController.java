@@ -1,9 +1,6 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.dto.UsuarioCadastroWrapper;
-import br.com.loja_online.dto.UsuarioResponseDTO;
-import br.com.loja_online.dto.UsuarioRequestDTO;
+import br.com.loja_online.dto.*;
 import br.com.loja_online.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +40,11 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id,
-            @Valid @RequestBody UsuarioRequestDTO dto) {
-        UsuarioResponseDTO resultado = usuarioService.atualizaUsuario(id, dto);
-        return ResponseEntity.ok(resultado);
+    public ResponseEntity<UsuarioResponseDTO> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody UsuarioUpdateDTO dto) {
+            UsuarioResponseDTO responseDTO = usuarioService.atualizaUsuario(id, dto);
+            return ResponseEntity.ok(responseDTO);
     }
 
     @DeleteMapping("/{id}")

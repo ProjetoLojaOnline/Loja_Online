@@ -2,6 +2,9 @@ package br.com.loja_online.dto;
 
 import br.com.loja_online.model.Cartao;
 import br.com.loja_online.model.Endereco;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -14,10 +17,21 @@ import java.util.List;
 @Builder
 public class UsuarioRequestDTO {
 
+    @NotBlank(message = "O nome é obrigatório")
     private String nome;
+
+    @NotBlank(message = "O telefone é obrigatório")
+    @Size(min = 10, max = 11, message = "Telefone deve ter entre 10 e 11 dígitos")
     private String telefone;
+
+    @NotBlank(message = "O e-mail é obrigatório")
+    @Email(message = "Formato de e-mail inválido")
     private String email;
+
+    @NotBlank(message = "O CPF é obrigatório")
+    @Size(min = 11, max = 11, message = "O CPF deve ter exatamente 11 dígitos")
     private String cpf;
+
     private String dataNascimento;
     private String genero;
     private String foto;

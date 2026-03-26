@@ -30,7 +30,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("GET /api/logins/user1 deve retornar 200 quando encontrado")
     void buscarPorLogin_ok() throws Exception {
-        LoginDTO loginDto = new LoginDTO(1L, "user1", null);
+        LoginDTO loginDto = new LoginDTO(1l, "user1", null);
         when(loginService.buscarPorLogin("user1")).thenReturn(loginDto);
 
         mockMvc.perform(get("/api/logins/user1").accept(MediaType.APPLICATION_JSON))

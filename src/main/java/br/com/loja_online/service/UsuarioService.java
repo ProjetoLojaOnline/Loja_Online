@@ -3,7 +3,9 @@ package br.com.loja_online.service;
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
+import br.com.loja_online.dto.UsuarioUpdateDTO;
 import br.com.loja_online.mapper.UsuarioMapper;
+import br.com.loja_online.mapper.UsuarioUpadateMapper;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
@@ -46,6 +48,12 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmail(usuarioDTO.getEmail())) {
             throw new RuntimeException("Este e-mail já está cadastrado!");
         }
+        if(usuarioRepository.existsByCpf(usuarioDTO.getCpf())) {
+            throw new RuntimeException("Este CPF já está cadastrado!");
+        }
+        if(usuarioRepository.existsByTelefone(usuarioDTO.getTelefone())) {
+            throw new RuntimeException("Esse telefone já está em usso!");
+        }
 
         Usuario novoUsuario = UsuarioMapper.paraUsuario(usuarioDTO);
         novoUsuario.setId(null);
@@ -80,17 +88,12 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO atualizaUsuario(Long id, UsuarioRequestDTO dto) {
-        Usuario usuarioExistente = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado"));
+    public UsuarioResponseDTO atualizaUsuario(Long id, @Valid  UsuarioUpdateDTO dto) {
+        Usuario dados = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuario Não encontrado com o ID: " + id));
+        UsuarioUpadateMapper.updateUsuarioDTO(dto, dados);
+        Usuario salvo = usuarioRepository.save(dados);
 
-        // Atualiza os campos permitidos usando os dados do DTO
-        usuarioExistente.setNome(dto.getNome());
-        usuarioExistente.setEmail(dto.getEmail());
-        usuarioExistente.setTelefone(dto.getTelefone());
-        usuarioExistente.setCpf(dto.getCpf());
-
-        usuarioExistente = usuarioRepository.save(usuarioExistente);
-        return UsuarioMapper.paraDTO(usuarioExistente);
+        return UsuarioMapper.paraDTO(salvo);
     }
 }

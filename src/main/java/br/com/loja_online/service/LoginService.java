@@ -30,5 +30,4 @@ public class LoginService {
                 .map(LoginMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
     }
-
 }

@@ -3,6 +3,8 @@ services:
     image: mysql:8.0
     container_name: loja_online_db
     restart: always
+    ports:
+      - "3306:3306"
     environment:
       - MYSQL_DATABASE=loja_online
       - MYSQL_ROOT_PASSWORD=root
