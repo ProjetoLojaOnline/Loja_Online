@@ -48,7 +48,7 @@ public class UsuarioServiceTest {
         usuarioDTO.setTelefone("449999999");
         usuarioDTO.setCpf("3002434987456");
 
-        LoginDTO loginDTO = new LoginDTO(1l, "Batman", "123456");
+        LoginDTO loginDTO = new LoginDTO("Batman", "123456");
 
         UsuarioResponseDTO resultado = usuarioService.insert(usuarioDTO, loginDTO);
 
@@ -67,7 +67,7 @@ public class UsuarioServiceTest {
         usuario1.setTelefone("449999999");
         usuario1.setCpf("3002434987456");
 
-        LoginDTO login1 = new LoginDTO(1l, "Batman", "123456");
+        LoginDTO login1 = new LoginDTO("Batman", "123456");
 
         usuarioService.insert(usuario1, login1);
 
@@ -77,7 +77,7 @@ public class UsuarioServiceTest {
         usuario2.setTelefone("447777777");
         usuario2.setCpf("20034535986347");
 
-        LoginDTO login2 = new LoginDTO(2l, "Batman", "123456");
+        LoginDTO login2 = new LoginDTO("Batman", "123456");
 
         RuntimeException erro = assertThrows(RuntimeException.class, () -> {
             usuarioService.insert(usuario2, login2);
@@ -93,7 +93,7 @@ public class UsuarioServiceTest {
         usuario1.setTelefone("339999999");
         usuario1.setCpf("3002434987456");
 
-        LoginDTO login1 = new LoginDTO(1l, "Batman", "123456");
+        LoginDTO login1 = new LoginDTO("Batman", "123456");
 
         usuarioService.insert(usuario1, login1);
 
@@ -103,7 +103,7 @@ public class UsuarioServiceTest {
         usuario2.setTelefone("453333333");
         usuario2.setCpf("3002434987456");
 
-        LoginDTO login2 = new LoginDTO(2l, "Coringa", "123456");
+        LoginDTO login2 = new LoginDTO("Coringa", "123456");
 
         RuntimeException erro = assertThrows(RuntimeException.class, () -> {
             usuarioService.insert(usuario2, login2);
@@ -118,7 +118,7 @@ public class UsuarioServiceTest {
         usuario1.setEmail("Mazur@teste.com");
         usuario1.setTelefone("5511111111");
         usuario1.setCpf("3002434987456");
-        LoginDTO login1 = new LoginDTO(null, "mazur", "123456");
+        LoginDTO login1 = new LoginDTO("mazur", "123456");
 
         usuarioService.insert(usuario1, login1);
 
@@ -127,7 +127,7 @@ public class UsuarioServiceTest {
         usuario2.setEmail("Bueno@teste.com");
         usuario2.setTelefone("55222222");
         usuario2.setCpf("3002434987456");
-        LoginDTO login2 = new LoginDTO(null, "Batman", "123456");
+        LoginDTO login2 = new LoginDTO("Batman", "123456");
 
         RuntimeException erro = assertThrows(RuntimeException.class, () -> {
             usuarioService.insert(usuario2, login2);
@@ -142,7 +142,7 @@ public class UsuarioServiceTest {
         usuarioDTO.setEmail("Alfred@teste.com");
         usuarioDTO.setTelefone("559999999");
         usuarioDTO.setCpf("3002434987456");
-        LoginDTO login1 = new LoginDTO(null, "Batman", "123456");
+        LoginDTO login1 = new LoginDTO("Batman", "123456");
 
         usuarioService.insert(usuarioDTO, login1);
 
@@ -151,7 +151,7 @@ public class UsuarioServiceTest {
         usuarioDTO2.setEmail("coringa@teste.com");
         usuarioDTO2.setTelefone("559999999");
         usuarioDTO2.setCpf("29932380741");
-        LoginDTO login2 = new LoginDTO(null, "Coringa", "123456");
+        LoginDTO login2 = new LoginDTO("Coringa", "123456");
 
         RuntimeException erro = assertThrows(RuntimeException.class, () -> {
             usuarioService.insert(usuarioDTO2, login2);
@@ -167,7 +167,7 @@ public class UsuarioServiceTest {
         usuarioDTO.setTelefone("559999999");
         usuarioDTO.setCpf("3002434987456");
 
-        LoginDTO loginDTO = new LoginDTO(1l,"alfred", "123456");
+        LoginDTO loginDTO = new LoginDTO("alfred", "123456");
 
         usuarioService.insert(usuarioDTO, loginDTO);
 
@@ -212,7 +212,7 @@ public class UsuarioServiceTest {
         usuarioDTO.setTelefone("44666666");
         usuarioDTO.setCpf("29932380741");
 
-        LoginDTO login = new LoginDTO(1l, "Batman", "123456");
+        LoginDTO login = new LoginDTO("Batman", "123456");
 
         UsuarioResponseDTO usuario = usuarioService.insert(usuarioDTO, login);
         Long iD = usuario.getId();
@@ -233,7 +233,7 @@ public class UsuarioServiceTest {
         usuarioDTO.setEmail("mazur@teste.com");
         usuarioDTO.setCpf("12345678901");
         usuarioDTO.setTelefone("5511111111");
-        LoginDTO login = new LoginDTO(null, "Batman", "123456");
+        LoginDTO login = new LoginDTO("Batman", "123456");
 
         UsuarioResponseDTO resultado = usuarioService.insert(usuarioDTO, login);
         Long id = resultado.getId();

@@ -6,7 +6,7 @@ import br.com.loja_online.model.Usuario;
 
 public class LoginMapper {
   public static LoginDTO paraDTO(Login login) {
-    return new LoginDTO(login.getId(), login.getLogin(), null);
+    return new LoginDTO(login.getLogin(), null);
   }
 
   public static Login paraLogin(LoginDTO loginDTO) {

@@ -12,10 +12,8 @@ import lombok.*;
 @Entity
 @Table(name = "login")
 public class Login {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+    @Id
     @Column(name = "login", nullable = false, unique = true, length = 120)
     private String login;
 
