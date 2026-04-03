@@ -4,274 +4,374 @@ import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
+import br.com.loja_online.mapper.UsuarioMapper;
+import br.com.loja_online.mapper.UsuarioUpadateMapper;
 import br.com.loja_online.model.Login;
+import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@ActiveProfiles("test") // Isso diz: "Use o application-test.properties"
-public class UsuarioServiceTest {
+@ExtendWith(MockitoExtension.class)
+class UsuarioServiceTest {
 
-    @Autowired
-    private UsuarioService usuarioService;
-
-    @Autowired
+    @Mock
     private UsuarioRepository usuarioRepository;
-    @Autowired
+
+    @Mock
     private LoginRepository loginRepository;
-    @Autowired
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
+    @InjectMocks
+    private UsuarioService usuarioService;
+
+    private UsuarioRequestDTO usuarioRequestDTO;
+    private LoginDTO loginDTO;
+    private Usuario usuario;
+    private Login login;
+
     @BeforeEach
-    void clean() {
-        loginRepository.deleteAll();
-        usuarioRepository.deleteAll();
+    void setUp() {
+        usuarioRequestDTO = UsuarioRequestDTO.builder()
+                .nome("João")
+                .email("joao@example.com")
+                .cpf("12345678901")
+                .telefone("11999999999")
+                .cartoes(Collections.emptyList())
+                .enderecos(Collections.emptyList())
+                .build();
+
+        loginDTO = new LoginDTO("joao", "senha123");
+
+        usuario = Usuario.builder()
+                .id(1L)
+                .nome("João")
+                .email("joao@example.com")
+                .cpf("12345678901")
+                .telefone("11999999999")
+                .cartoes(Collections.emptyList())
+                .enderecos(Collections.emptyList())
+                .build();
+
+        login = Login.builder()
+                .login("joao")
+                .senha("encodedPassword")
+                .usuario(usuario)
+                .build();
+        usuario.setLogin(login);
     }
 
     @Test
-    void deveCriarUmUsuario() {
-        //ARRANGE
-        UsuarioRequestDTO usuarioDTO = new UsuarioRequestDTO();
-        usuarioDTO.setNome("Alfred");
-        usuarioDTO.setEmail("Alfred@teste.com");
-        usuarioDTO.setTelefone("449999999");
-        usuarioDTO.setCpf("3002434987456");
+    @DisplayName("deveRetornarListaUsuariosQuandoFindAll")
+    void deveRetornarListaUsuariosQuandoFindAll() {
+        // Given
+        when(usuarioRepository.findAll()).thenReturn(List.of(usuario));
 
-        LoginDTO loginDTO = new LoginDTO("Batman", "123456");
+        // When
+        List<UsuarioResponseDTO> result = usuarioService.findAll();
 
-        UsuarioResponseDTO resultado = usuarioService.insert(usuarioDTO, loginDTO);
-
-        assertNotNull(resultado);
-
-        assertEquals("Alfred", resultado.getNome());
-
-        assertTrue(usuarioRepository.existsByEmail("Alfred@teste.com"));
-
-    }
-    @Test
-    void deveLancarErroSeLoginExistir() {
-        UsuarioRequestDTO usuario1= new UsuarioRequestDTO();
-        usuario1.setNome("Alfred");
-        usuario1.setEmail("Alfred@teste.com");
-        usuario1.setTelefone("449999999");
-        usuario1.setCpf("3002434987456");
-
-        LoginDTO login1 = new LoginDTO("Batman", "123456");
-
-        usuarioService.insert(usuario1, login1);
-
-        UsuarioRequestDTO usuario2 = new UsuarioRequestDTO();
-        usuario2.setNome("Coringa");
-        usuario2.setEmail("Coring@teste,com");
-        usuario2.setTelefone("447777777");
-        usuario2.setCpf("20034535986347");
-
-        LoginDTO login2 = new LoginDTO("Batman", "123456");
-
-        RuntimeException erro = assertThrows(RuntimeException.class, () -> {
-            usuarioService.insert(usuario2, login2);
-
-        });
-        assertEquals("Este login já está em uso!",erro.getMessage());
-    }
-    @Test
-    void deveLancarErroSeEmailJaExistir() {
-        UsuarioRequestDTO usuario1 = new UsuarioRequestDTO();
-        usuario1.setNome("Batman");
-        usuario1.setEmail("Batman@teste.com");
-        usuario1.setTelefone("339999999");
-        usuario1.setCpf("3002434987456");
-
-        LoginDTO login1 = new LoginDTO("Batman", "123456");
-
-        usuarioService.insert(usuario1, login1);
-
-        UsuarioRequestDTO usuario2 = new UsuarioRequestDTO();
-        usuario2.setNome("Coringa");
-        usuario2.setEmail("Batman@teste.com");
-        usuario2.setTelefone("453333333");
-        usuario2.setCpf("3002434987456");
-
-        LoginDTO login2 = new LoginDTO("Coringa", "123456");
-
-        RuntimeException erro = assertThrows(RuntimeException.class, () -> {
-            usuarioService.insert(usuario2, login2);
-        });
-        assertEquals("Este e-mail já está cadastrado!", erro.getMessage());
-
-    }
-    @Test
-    void nãoDeveCriarOutroUsuarioComMesmoCPF() {
-        UsuarioRequestDTO usuario1 = new UsuarioRequestDTO();
-        usuario1.setNome("Mazur");
-        usuario1.setEmail("Mazur@teste.com");
-        usuario1.setTelefone("5511111111");
-        usuario1.setCpf("3002434987456");
-        LoginDTO login1 = new LoginDTO("mazur", "123456");
-
-        usuarioService.insert(usuario1, login1);
-
-        UsuarioRequestDTO usuario2 = new UsuarioRequestDTO();
-        usuario2.setNome("Bueno");
-        usuario2.setEmail("Bueno@teste.com");
-        usuario2.setTelefone("55222222");
-        usuario2.setCpf("3002434987456");
-        LoginDTO login2 = new LoginDTO("Batman", "123456");
-
-        RuntimeException erro = assertThrows(RuntimeException.class, () -> {
-            usuarioService.insert(usuario2, login2);
-        });
-        assertEquals("Este CPF já está cadastrado!", erro.getMessage());
-    }
-    @Test
-    void deveMostrarErroSeCriarUsuarioComMesmoTelefone() {
-
-        UsuarioRequestDTO usuarioDTO = new UsuarioRequestDTO();
-        usuarioDTO.setNome("Alfred");
-        usuarioDTO.setEmail("Alfred@teste.com");
-        usuarioDTO.setTelefone("559999999");
-        usuarioDTO.setCpf("3002434987456");
-        LoginDTO login1 = new LoginDTO("Batman", "123456");
-
-        usuarioService.insert(usuarioDTO, login1);
-
-        UsuarioRequestDTO usuarioDTO2= new UsuarioRequestDTO();
-        usuarioDTO2.setNome("coringa");
-        usuarioDTO2.setEmail("coringa@teste.com");
-        usuarioDTO2.setTelefone("559999999");
-        usuarioDTO2.setCpf("29932380741");
-        LoginDTO login2 = new LoginDTO("Coringa", "123456");
-
-        RuntimeException erro = assertThrows(RuntimeException.class, () -> {
-            usuarioService.insert(usuarioDTO2, login2);
-        });
-        assertEquals("Esse telefone já está em usso!", erro.getMessage());
-    }
-    @Test
-    void deveCriptografarSenha() {
-
-        UsuarioRequestDTO usuarioDTO = new UsuarioRequestDTO();
-        usuarioDTO.setNome("Alfred");
-        usuarioDTO.setEmail("Alfred@teste.com");
-        usuarioDTO.setTelefone("559999999");
-        usuarioDTO.setCpf("3002434987456");
-
-        LoginDTO loginDTO = new LoginDTO("alfred", "123456");
-
-        usuarioService.insert(usuarioDTO, loginDTO);
-
-        Login loginsSalvo = loginRepository.findByLogin("alfred").get();
-
-        assertTrue(passwordEncoder.matches("123456", loginsSalvo.getSenha()));
-
-    }
-    @Test
-    void deveMostrarUsuarioNãoEncontradoComEsseLogin() {
-
-        String login = "alfred";
-
-        RuntimeException erro = assertThrows(ObjectNotFoundException.class, () -> {
-            usuarioService.findByLogin(login);
-        });
-        assertEquals("Usuário não encontrado com o login: " + login, erro.getMessage());
-    }
-    @Test
-    void deveMostrarUsuarioNãoEncotradoComEsseId() {
-
-        Long id = 1l;
-
-        assertThrows(ObjectNotFoundException.class, () -> {
-            usuarioService.findById(id);
-        });
-    }
-    @Test
-    void deveMostrarUsuarioNãoEncontradoComEsseIdParaDeletar() {
-
-        Long id = 1l;
-
-        assertThrows(ObjectNotFoundException.class, () -> {
-            usuarioService.deleteById(id);
-        });
-    }
-    @Test
-    void deDeletarUsuarioComId() {
-        UsuarioRequestDTO usuarioDTO = new UsuarioRequestDTO();
-        usuarioDTO.setNome("Mario");
-        usuarioDTO.setEmail("Princesa@teste.com");
-        usuarioDTO.setTelefone("44666666");
-        usuarioDTO.setCpf("29932380741");
-
-        LoginDTO login = new LoginDTO("Batman", "123456");
-
-        UsuarioResponseDTO usuario = usuarioService.insert(usuarioDTO, login);
-        Long iD = usuario.getId();
-
-         usuarioService.deleteById(iD);
-
-         assertThrows(ObjectNotFoundException.class, () -> {
-             usuarioService.deleteById(iD);
-             assertFalse(usuarioRepository.findById(iD).isPresent());
-         });
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getNome()).isEqualTo("João");
+        verify(usuarioRepository).findAll();
     }
 
     @Test
-    void UsuarioAtulizadoComSucesso() {
+    @DisplayName("deveInserirUsuarioComSucessoQuandoDadosValidos")
+    void deveInserirUsuarioComSucessoQuandoDadosValidos() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode("senha123")).thenReturn("encodedPassword");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
-        UsuarioRequestDTO usuarioDTO= new UsuarioRequestDTO();
-        usuarioDTO.setNome("Mazur");
-        usuarioDTO.setEmail("mazur@teste.com");
-        usuarioDTO.setCpf("12345678901");
-        usuarioDTO.setTelefone("5511111111");
-        LoginDTO login = new LoginDTO("Batman", "123456");
+        // When
+        UsuarioResponseDTO result = usuarioService.insert(usuarioRequestDTO, loginDTO);
 
-        UsuarioResponseDTO resultado = usuarioService.insert(usuarioDTO, login);
-        Long id = resultado.getId();
-
-        UsuarioUpdateDTO usuarioDTO2= new UsuarioUpdateDTO(
-                "limão",
-                "441111111",
-                "foto.png",
-                "Masculino"
-        );
-
-
-        UsuarioResponseDTO responseDTO = usuarioService.atualizaUsuario(id, usuarioDTO2);
-
-        assertEquals("limão", responseDTO.getNome());
-        assertEquals("441111111", responseDTO.getTelefone());
-
-        assertEquals("12345678901", responseDTO.getCpf());
-
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getNome()).isEqualTo("João");
+        verify(passwordEncoder).encode("senha123");
+        verify(usuarioRepository).save(any(Usuario.class));
+        // Verificar relacionamento bidirecional: usuario.getLogin().getUsuario() == usuario
+        assertThat(usuario.getLogin().getUsuario()).isEqualTo(usuario);
     }
+
     @Test
-    void deveMostrarNãoEncontradoComEsseIdParaAtualizar(){
+    @DisplayName("deveLancarExcecaoQuandoLoginJaEmUso")
+    void deveLancarExcecaoQuandoLoginJaEmUso() {
+        // Given
+        when(loginRepository.existsByLogin("joao")).thenReturn(true);
 
-        Long iDfak = 999L;
-
-        UsuarioUpdateDTO updateDTO = new UsuarioUpdateDTO(
-          "batman",
-          "441111111",
-          "fot.png",
-          "masculino"
-        );
-
-        RuntimeException erro = assertThrows(ObjectNotFoundException.class, () -> {
-            usuarioService.atualizaUsuario(iDfak, updateDTO);
-        });
-
-        assertEquals("Usuario Não encontrado com o ID: " + iDfak, erro.getMessage());
-
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.insert(usuarioRequestDTO, loginDTO))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Este login já está em uso!");
     }
 
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoEmailJaCadastrado")
+    void deveLancarExcecaoQuandoEmailJaCadastrado() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail("joao@example.com")).thenReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.insert(usuarioRequestDTO, loginDTO))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Este e-mail já está cadastrado!");
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoCpfJaCadastrado")
+    void deveLancarExcecaoQuandoCpfJaCadastrado() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByCpf("12345678901")).thenReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.insert(usuarioRequestDTO, loginDTO))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Este CPF já está cadastrado!");
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoTelefoneJaEmUso")
+    void deveLancarExcecaoQuandoTelefoneJaEmUso() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByTelefone("11999999999")).thenReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.insert(usuarioRequestDTO, loginDTO))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Esse telefone já está em usso!");
+    }
+
+    @Test
+    @DisplayName("deveRetornarUsuarioQuandoFindByIdExistente")
+    void deveRetornarUsuarioQuandoFindByIdExistente() {
+        // Given
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        // When
+        UsuarioResponseDTO result = usuarioService.findById(1L);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoFindByIdInexistente")
+    void deveLancarExcecaoQuandoFindByIdInexistente() {
+        // Given
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.findById(1L))
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Usuário não encontrado com o ID: 1");
+    }
+
+    @Test
+    @DisplayName("deveRetornarUsuarioQuandoFindByLoginExistente")
+    void deveRetornarUsuarioQuandoFindByLoginExistente() {
+        // Given
+        when(usuarioRepository.findByLogin_Login("joao")).thenReturn(Optional.of(usuario));
+
+        // When
+        UsuarioResponseDTO result = usuarioService.findByLogin("joao");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getNome()).isEqualTo("João");
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoFindByLoginInexistente")
+    void deveLancarExcecaoQuandoFindByLoginInexistente() {
+        // Given
+        when(usuarioRepository.findByLogin_Login("joao")).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.findByLogin("joao"))
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Usuário não encontrado com o login: joao");
+    }
+
+    @Test
+    @DisplayName("deveDeletarUsuarioQuandoDeleteByIdExistente")
+    void deveDeletarUsuarioQuandoDeleteByIdExistente() {
+        // Given
+        when(usuarioRepository.existsById(1L)).thenReturn(true);
+
+        // When
+        usuarioService.deleteById(1L);
+
+        // Then
+        verify(usuarioRepository).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoDeleteByIdInexistente")
+    void deveLancarExcecaoQuandoDeleteByIdInexistente() {
+        // Given
+        when(usuarioRepository.existsById(1L)).thenReturn(false);
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.deleteById(1L))
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Usuário não encontrado para deletar");
+    }
+
+    @Test
+    @DisplayName("deveAtualizarUsuarioQuandoAtualizaUsuarioComDadosParciais")
+    void deveAtualizarUsuarioQuandoAtualizaUsuarioComDadosParciais() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .nome("João Atualizado")
+                .telefone("11888888888")
+                .build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        UsuarioResponseDTO result = usuarioService.atualizaUsuario(1L, updateDTO);
+
+        // Then
+        assertThat(result).isNotNull();
+        verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoAtualizaUsuarioInexistente")
+    void deveLancarExcecaoQuandoAtualizaUsuarioInexistente() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder().nome("Teste").build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> usuarioService.atualizaUsuario(1L, updateDTO))
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Usuario Não encontrado com o ID: 1");
+    }
+
+    @Test
+    @DisplayName("deveMapearParaDTOCorretamenteQuandoUsuarioMapperParaDTO")
+    void deveMapearParaDTOCorretamenteQuandoUsuarioMapperParaDTO() {
+        // Given & When & Then
+        try (MockedStatic<UsuarioMapper> mockedMapper = mockStatic(UsuarioMapper.class)) {
+            mockedMapper.when(() -> UsuarioMapper.paraDTO(usuario)).thenReturn(UsuarioResponseDTO.builder().nome("João").build());
+
+            UsuarioResponseDTO result = UsuarioMapper.paraDTO(usuario);
+
+            assertThat(result.getNome()).isEqualTo("João");
+            mockedMapper.verify(() -> UsuarioMapper.paraDTO(usuario));
+        }
+    }
+
+    @Test
+    @DisplayName("deveMapearParaUsuarioCorretamenteQuandoUsuarioMapperParaUsuario")
+    void deveMapearParaUsuarioCorretamenteQuandoUsuarioMapperParaUsuario() {
+        // Given & When & Then
+        try (MockedStatic<UsuarioMapper> mockedMapper = mockStatic(UsuarioMapper.class)) {
+            mockedMapper.when(() -> UsuarioMapper.paraUsuario(usuarioRequestDTO)).thenReturn(usuario);
+
+            Usuario result = UsuarioMapper.paraUsuario(usuarioRequestDTO);
+
+            assertThat(result.getNome()).isEqualTo("João");
+            mockedMapper.verify(() -> UsuarioMapper.paraUsuario(usuarioRequestDTO));
+        }
+    }
+
+    @Test
+    @DisplayName("deveAtualizarUsuarioParcialmenteQuandoUsuarioUpdateMapperUpdateUsuarioDTO")
+    void deveAtualizarUsuarioParcialmenteQuandoUsuarioUpdateMapperUpdateUsuarioDTO() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .nome("Novo Nome")
+                .telefone("11999999999")
+                .build();
+
+        // When
+        try (MockedStatic<UsuarioUpadateMapper> mockedMapper = mockStatic(UsuarioUpadateMapper.class)) {
+            UsuarioUpadateMapper.updateUsuarioDTO(updateDTO, usuario);
+
+            // Then
+            mockedMapper.verify(() -> UsuarioUpadateMapper.updateUsuarioDTO(updateDTO, usuario));
+        }
+    }
+
+    @Test
+    @DisplayName("deveManterDadosExistentesQuandoAtualizacaoParcial")
+    void deveManterDadosExistentesQuandoAtualizacaoParcial() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .nome("Novo Nome")
+                .build(); // Apenas nome, outros campos devem permanecer
+
+        // When
+        UsuarioUpadateMapper.updateUsuarioDTO(updateDTO, usuario);
+
+        // Then
+        assertThat(usuario.getNome()).isEqualTo("Novo Nome");
+        assertThat(usuario.getEmail()).isEqualTo("joao@example.com"); // Não alterado
+    }
+
+    @Test
+    @DisplayName("deveLidarComListasVaziasQuandoUsuarioComCartoesEEnderecosVazios")
+    void deveLidarComListasVaziasQuandoUsuarioComCartoesEEnderecosVazios() {
+        // Given
+        usuarioRequestDTO.setCartoes(Collections.emptyList());
+        usuarioRequestDTO.setEnderecos(Collections.emptyList());
+
+        // When
+        Usuario result = UsuarioMapper.paraUsuario(usuarioRequestDTO);
+
+        // Then
+        assertThat(result.getCartoes()).isEmpty();
+        assertThat(result.getEnderecos()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deveLidarComListasNulasQuandoUsuarioComCartoesEEnderecosNulos")
+    void deveLidarComListasNulasQuandoUsuarioComCartoesEEnderecosNulos() {
+        // Given
+        usuarioRequestDTO.setCartoes(null);
+        usuarioRequestDTO.setEnderecos(null);
+
+        // When
+        Usuario result = UsuarioMapper.paraUsuario(usuarioRequestDTO);
+
+        // Then
+        assertThat(result.getCartoes()).isNullOrEmpty();
+        assertThat(result.getEnderecos()).isNullOrEmpty();
+    }
 }

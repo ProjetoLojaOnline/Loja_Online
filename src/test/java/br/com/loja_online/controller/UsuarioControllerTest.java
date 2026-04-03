@@ -1,213 +1,324 @@
 package br.com.loja_online.controller;
 
-// 1. Imports das classes (DTOs e Service)
-import br.com.loja_online.dto.*;
-import br.com.loja_online.service.UsuarioService;
-
-// 2. Imports do Jackson e Utilidades
-import br.com.loja_online.service.exceptions.ObjectNotFoundException;
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.dto.UsuarioCadastroWrapper;
+import br.com.loja_online.dto.UsuarioRequestDTO;
+import br.com.loja_online.dto.UsuarioUpdateDTO;
+import br.com.loja_online.repository.LoginRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-
-// 3. Imports do JUnit e Mockito
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-// 4. Imports do Spring Test
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-// 5. IMPORTS ESTÁTICOS (para o any, get, post, etc.)
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-@WebMvcTest(UsuarioController.class)
-@AutoConfigureMockMvc(addFilters = false)
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class UsuarioControllerTest {
 
         @Autowired
         private MockMvc mockMvc;
 
-        @MockitoBean
-        private UsuarioService usuarioService;
-
         @Autowired
         private ObjectMapper objectMapper;
 
-        @Test
-        @DisplayName("Deve Listar todos os usuários e retorna status 200")
-        void deveListarUsuariosComSucesso() throws Exception {
-                // GIVEN: Preparando os dados simulados
-                UsuarioResponseDTO usuario = UsuarioResponseDTO.builder()
-                        .id(1L)
-                        .nome("Alfred")
-                        .email("alfred@gmail.com")
-                        .build();
-                List<UsuarioResponseDTO> listaUsuarios = List.of(usuario);
+        @Autowired
+        private UsuarioRepository usuarioRepository;
 
-                // Simulando a chamada do service
-                Mockito.when(usuarioService.findAll()).thenReturn(listaUsuarios);
+        @Autowired
+        private LoginRepository loginRepository;
 
-                // WHEN & THEN: Executando a requisição e validando
-                mockMvc.perform(get("/api/usuarios")
-                                .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$[0].nome").value("Alfred"))
-                        .andExpect(jsonPath("$.size()").value(1));
+        @BeforeEach
+        void setUp() {
+                loginRepository.deleteAll();
+                usuarioRepository.deleteAll();
         }
+
         @Test
-        @DisplayName("Deve buscar um usuáio por ID e retorna status 200")
-        void deveBuscarUsuarioComIdComSucesso() throws Exception {
-
-                Long id = 1l;
-                UsuarioResponseDTO usuario = UsuarioResponseDTO.builder()
-                        .id(1L)
-                        .nome("Alfred")
-                        .email("alfred@gmail.com")
-                        .build();
-
-                Mockito.when(usuarioService.findById(id)).thenReturn(usuario);
-
-                mockMvc.perform(get("/api/usuarios/{id}",id)
-                        .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.id").value(id))
-                        .andExpect(jsonPath("$.nome").value("Alfred"))
-                        .andExpect(jsonPath("$.email").value("alfred@gmail.com"));
-        }
-        @Test
-        @DisplayName("Deve buscar um usuário por login e retorna status 200")
-        void deveBuscarUsuarioPorLoginComSucesso() throws Exception {
-
-                String login = "MazurLogin";
-                UsuarioResponseDTO usuario = UsuarioResponseDTO.builder()
-                        .id(1l)
-                        .nome("Alfred")
-                        .email("alfred@gmail.com")
-                        .build();
-
-                Mockito.when(usuarioService.findByLogin(login)).thenReturn(usuario);
-
-                mockMvc.perform(get("/api/usuarios/login/{login}",login)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.nome").value("Alfred"))
-                        .andExpect(jsonPath("$.email").value("alfred@gmail.com"));
-        }
-        @Test
-        @DisplayName("Deve cadastrar um usuário com sucesso e retornar 201 Created")
-        void deveCadastrarUsuarioComSucesso() throws Exception {
-                UsuarioRequestDTO dadosUsuario = UsuarioRequestDTO.builder()
-                        .nome("Oliveira")
-                        .telefone("44997437334")
-                        .email("oliveira@gmail.com")
+        @DisplayName("deveRetornarListaUsuariosQuandoGetAll")
+        void deveRetornarListaUsuariosQuandoGetAll() throws Exception {
+                // Given: Criar usuário
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
                         .cpf("12345678901")
+                        .telefone("11999999999")
                         .build();
-
-                LoginDTO login = LoginDTO.builder()
-                        .login("Oliveira_dev")
-                        .senha("123456")
-                        .build();
-
-                UsuarioCadastroWrapper request = new UsuarioCadastroWrapper(dadosUsuario, login);
-
-                UsuarioResponseDTO repostaService = UsuarioResponseDTO.builder()
-                        .id(1L)
-                        .nome("Oliveira")
-                        .email("oliveira@gmail.com")
-                        .build();
-
-                Mockito.when(usuarioService.insert(any(UsuarioRequestDTO.class), any(LoginDTO.class)))
-                        .thenReturn(repostaService);
-
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
                 mockMvc.perform(post("/api/usuarios")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                        .andExpect(status().isCreated())
-                        .andExpect(jsonPath("$.id").value(1))
-                        .andExpect(jsonPath("$.nome").value("Oliveira"))
-                        .andExpect(jsonPath("$.email").value("oliveira@gmail.com"));
-        }
-        @Test
-        @DisplayName("Deve atulizar um usuário com sucesso")
-
-        void deveAtulizarUsuarioComSucesso() throws Exception {
-                UsuarioUpdateDTO dadosUsuario = UsuarioUpdateDTO.builder()
-                        .nome("Oliveira_Bueno")
-                        .telefone("44997837734")
-                        .build();
-
-                UsuarioResponseDTO responseDTO = UsuarioResponseDTO.builder()
-                        .id(1L)
-                        .nome("Oliveira_Bueno")
-                        .telefone("44997837734")
-                        .build();
-
-                Mockito.when(usuarioService.atualizaUsuario(Mockito.eq(1L), Mockito.any()))
-                        .thenReturn(responseDTO);
-
-                mockMvc.perform(MockMvcRequestBuilders.put("/api/usuarios/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dadosUsuario)))
-
-
-                        .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.nome").value("Oliveira_Bueno"))
-                        .andExpect(jsonPath("$.telefone").value("44997837734"));
-
-        }
-        @Test
-        @DisplayName("Deve deltar usuário com sucesso")
-        void deveDeletarUsuarioComSuecsso() throws Exception {
-
-                mockMvc.perform(MockMvcRequestBuilders.delete("/api/usuarios/1"))
-
-                        .andExpect(status().isNoContent());
-
-                Mockito.verify(usuarioService).deleteById(1L);
-        }
-        @Test
-        void deveRetornar404QuandoUsuarioNaoExiste() throws Exception {
-
-                UsuarioUpdateDTO dto = new UsuarioUpdateDTO(
-                        "Nome válido",
-                        "44999999999",
-                        null,
-                        null
-                );
-
-                Mockito.when(usuarioService.atualizaUsuario(Mockito.eq(1L), Mockito.any()))
-                        .thenThrow(new ObjectNotFoundException("Usuario Não encontrado com o ID: 1"));
-
-                mockMvc.perform(MockMvcRequestBuilders.put("/api/usuarios/1")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(dto)))
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated());
 
+                // When & Then
+                mockMvc.perform(get("/api/usuarios"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$[0].nome").value("João"));
+        }
+
+        @Test
+        @DisplayName("deveCriarUsuarioQuandoPostValido")
+        void deveCriarUsuarioQuandoPostValido() throws Exception {
+                // Given
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+
+                // When & Then
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.nome").value("João"))
+                        .andExpect(jsonPath("$.email").value("joao@example.com"));
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoPostComCamposObrigatoriosVazios")
+        void deveRetornar400QuandoPostComCamposObrigatoriosVazios() throws Exception {
+                // Given
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("")
+                        .email("")
+                        .cpf("")
+                        .telefone("")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("", "");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+
+                // When & Then
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoPostComEmailInvalido")
+        void deveRetornar400QuandoPostComEmailInvalido() throws Exception {
+                // Given
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("email-invalido")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+
+                // When & Then
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoPostComCpfInvalido")
+        void deveRetornar400QuandoPostComCpfInvalido() throws Exception {
+                // Given
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("abc123")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+
+                // When & Then
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRecuperarUsuarioAposCriacaoQuandoPostESeguidoDeGet")
+        void deveRecuperarUsuarioAposCriacaoQuandoPostESeguidoDeGet() throws Exception {
+                // Given: Criar usuário
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+                String response = mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                Long userId = objectMapper.readTree(response).get("id").asLong();
+
+                // When & Then: Recuperar
+                mockMvc.perform(get("/api/usuarios/{id}", userId))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id").value(userId))
+                        .andExpect(jsonPath("$.nome").value("João"));
+        }
+
+        @Test
+        @DisplayName("deveRetornar404QuandoGetPorIdInexistente")
+        void deveRetornar404QuandoGetPorIdInexistente() throws Exception {
+                // When & Then
+                mockMvc.perform(get("/api/usuarios/{id}", 999L))
                         .andExpect(status().isNotFound());
         }
+
         @Test
-        void deveRetorna400QuandoDadoInvalidados() throws Exception {
+        @DisplayName("deveRetornarUsuarioQuandoGetPorLoginExistente")
+        void deveRetornarUsuarioQuandoGetPorLoginExistente() throws Exception {
+                // Given: Criar usuário
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated());
 
-                UsuarioUpdateDTO dto = new UsuarioUpdateDTO(
-                        "",
-                                "",
-                        null,
-                        null
-                );
+                // When & Then
+                mockMvc.perform(get("/api/usuarios/login/{login}", "joao"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.nome").value("João"));
+        }
 
-                mockMvc.perform(MockMvcRequestBuilders.put("/api/usuarios/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+        @Test
+        @DisplayName("deveRetornar404QuandoGetPorLoginInexistente")
+        void deveRetornar404QuandoGetPorLoginInexistente() throws Exception {
+                // When & Then
+                mockMvc.perform(get("/api/usuarios/login/{login}", "nonexistent"))
+                        .andExpect(status().isNotFound());
+        }
 
-                        .andExpect(status().isBadRequest());
+        @Test
+        @DisplayName("deveAtualizarUsuarioQuandoPutValido")
+        void deveAtualizarUsuarioQuandoPutValido() throws Exception {
+                // Given: Criar usuário
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+                String response = mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                Long userId = objectMapper.readTree(response).get("id").asLong();
+
+                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                        .nome("João Atualizado")
+                        .telefone("11888888888")
+                        .build();
+
+                // When & Then
+                mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateDTO)))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.nome").value("João Atualizado"))
+                        .andExpect(jsonPath("$.telefone").value("11888888888"));
+        }
+
+        @Test
+        @DisplayName("deveRetornar404QuandoPutParaIdInexistente")
+        void deveRetornar404QuandoPutParaIdInexistente() throws Exception {
+                // Given
+                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder().nome("Teste").build();
+
+                // When & Then
+                mockMvc.perform(put("/api/usuarios/{id}", 999L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateDTO)))
+                        .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("deveDeletarUsuarioQuandoDeletePorIdExistente")
+        void deveDeletarUsuarioQuandoDeletePorIdExistente() throws Exception {
+                // Given: Criar usuário
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+                String response = mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                Long userId = objectMapper.readTree(response).get("id").asLong();
+
+                // When & Then
+                mockMvc.perform(delete("/api/usuarios/{id}", userId))
+                        .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("deveRetornar404QuandoDeletePorIdInexistente")
+        void deveRetornar404QuandoDeletePorIdInexistente() throws Exception {
+                // When & Then
+                mockMvc.perform(delete("/api/usuarios/{id}", 999L))
+                        .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("deveNaoExporSenhaQuandoGetPorLogin")
+        void deveNaoExporSenhaQuandoGetPorLogin() throws Exception {
+                // Given: Criar usuário
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isCreated());
+
+                // When & Then: Verificar que senha não está no JSON
+                mockMvc.perform(get("/api/logins/{login}", "joao"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.senha").doesNotExist()); // Senha não deve estar presente
+        }
+
+        @Test
+        @DisplayName("devePermitirAcessoSemAutenticacaoQuandoGetAll")
+        void devePermitirAcessoSemAutenticacaoQuandoGetAll() throws Exception {
+                // When & Then: Deve funcionar sem auth headers
+                mockMvc.perform(get("/api/usuarios"))
+                        .andExpect(status().isOk());
         }
 }
