@@ -61,7 +61,7 @@ class LoginControllerTest {
                 .andExpect(status().isCreated());
 
         // When & Then: Buscar por login
-        mockMvc.perform(get("/api/logins/{login}", "joao"))
+        mockMvc.perform(get("/login/buscar/{login}", "joao"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("joao"))
                 .andExpect(jsonPath("$.senha").doesNotExist()); // Senha não exposta
@@ -73,7 +73,7 @@ class LoginControllerTest {
         // Given: Nenhum login criado
 
         // When & Then: Buscar por login inexistente
-        mockMvc.perform(get("/api/logins/{login}", "nonexistent"))
+        mockMvc.perform(get("/login/buscar/{login}", "nonexistent"))
                 .andExpect(status().isNotFound());
     }
 
@@ -95,7 +95,7 @@ class LoginControllerTest {
                 .andExpect(status().isCreated());
 
         // When & Then: Verificar que senha não está no JSON
-        mockMvc.perform(get("/api/logins/{login}", "maria"))
+        mockMvc.perform(get("/login/buscar/{login}", "maria"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("maria"))
                 .andExpect(jsonPath("$.senha").doesNotExist()); // Segurança: senha não exposta
@@ -119,7 +119,7 @@ class LoginControllerTest {
                 .andExpect(status().isCreated());
 
         // When & Then: Deve funcionar sem auth headers (permitAll)
-        mockMvc.perform(get("/api/logins/{login}", "carlos"))
+        mockMvc.perform(get("/login/buscar/{login}", "carlos"))
                 .andExpect(status().isOk());
     }
 
@@ -127,7 +127,7 @@ class LoginControllerTest {
     @DisplayName("deveRetornar404QuandoGetPorLoginComParametroVazio")
     void deveRetornar404QuandoGetPorLoginComParametroVazio() throws Exception {
         // When & Then
-        mockMvc.perform(get("/api/logins/{login}", ""))
+        mockMvc.perform(get("/login/buscar/{login}", ""))
                 .andExpect(status().isNotFound());
     }
 
@@ -135,7 +135,7 @@ class LoginControllerTest {
     @DisplayName("deveRetornar404QuandoGetPorLoginComParametroNulo")
     void deveRetornar404QuandoGetPorLoginComParametroNulo() throws Exception {
         // When & Then: Path variable não pode ser nula, mas simular inexistente
-        mockMvc.perform(get("/api/logins/{login}", "null"))
+        mockMvc.perform(get("/login/buscar/{login}", "null"))
                 .andExpect(status().isNotFound());
     }
 
@@ -170,11 +170,11 @@ class LoginControllerTest {
                 .andExpect(status().isCreated());
 
         // When & Then: Buscar cada um corretamente
-        mockMvc.perform(get("/api/logins/{login}", "joao"))
+        mockMvc.perform(get("/login/buscar/{login}", "joao"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("joao"));
 
-        mockMvc.perform(get("/api/logins/{login}", "maria"))
+        mockMvc.perform(get("/login/buscar/{login}", "maria"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("maria"));
     }

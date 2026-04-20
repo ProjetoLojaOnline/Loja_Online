@@ -13,7 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/login")
 public class LoginController {
 
     private final LoginService service;
@@ -22,20 +22,16 @@ public class LoginController {
         this.service = service;
     }
 
-    @GetMapping("/api/logins/{login}")
+    @GetMapping("/buscar/{login}")
     public ResponseEntity<LoginDTO> buscarPorLogin(@PathVariable String login) {
         LoginDTO loginEncontrado = service.buscarPorLogin(login);
         return ResponseEntity.ok(loginEncontrado);
 
     }
 
-    @PostMapping("/login")
+    @PostMapping("/authenticate")
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        try {
-            String mensagem = service.login(loginRequest.getEmail(), loginRequest.getSenha());
-            return ResponseEntity.ok(mensagem);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+      String msg = service.login(loginRequest.getEmail(), loginRequest.getSenha());
+      return ResponseEntity.ok(msg);
         }
     }
-}

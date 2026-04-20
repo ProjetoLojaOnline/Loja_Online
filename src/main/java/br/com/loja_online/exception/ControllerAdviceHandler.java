@@ -1,5 +1,6 @@
 package br.com.loja_online.exception;
 
+import br.com.loja_online.service.exceptions.AuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,5 +44,18 @@ public class ControllerAdviceHandler {
     }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationError);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<StandardError> authenticationException(AuthenticationException ex,
+                                                               HttpServletRequest request) {
+    StandardError standardError = new StandardError(
+            System.currentTimeMillis(),
+            401,
+            "Unauthorized",
+            ex.getMessage(),
+            request.getRequestURI()
+    );
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(standardError);
   }
 }

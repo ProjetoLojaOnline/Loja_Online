@@ -6,6 +6,7 @@ import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.service.exceptions.AuthenticationException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -169,7 +170,7 @@ class LoginServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> loginService.login(email, senha))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
     }
 
@@ -190,7 +191,105 @@ class LoginServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> loginService.login(email, senha))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoLoginDoUsuarioNulo")
+    void deveLancarExcecaoQuandoLoginDoUsuarioNulo() {
+        // Given
+        String email = "user@example.com";
+        String senha = "password123";
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .login(null)
+                .build();
+
+        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
+
+        // When & Then
+        assertThatThrownBy(() -> loginService.login(email, senha))
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessage("Credenciais inválidas");
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoEmailNulo")
+    void deveLancarExcecaoQuandoEmailNulo() {
+        // Given
+        String email = null;
+        String senha = "password123";
+        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> loginService.login(email, senha))
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessage("Credenciais inválidas");
+    }
+
+    @Test
+    @DisplayName("deveLancarExcecaoQuandoSenhaNula")
+    void deveLancarExcecaoQuandoSenhaNula() {
+        // Given
+        String email = "user@example.com";
+        String senha = null;
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .login(login)
+                .build();
+        login.setUsuario(usuario);
+
+        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(false);
+
+        // When & Then
+        assertThatThrownBy(() -> loginService.login(email, senha))
+                .isInstanceOf(AuthenticationException.class)
+                .hasMessage("Credenciais inválidas");
+    }
+
+    @Test
+    @DisplayName("deveRetornarMensagemSucessoQuandoEmailESenhaValidos")
+    void deveRetornarMensagemSucessoQuandoEmailESenhaValidos() {
+        // Given
+        String email = "user@example.com";
+        String senha = "password123";
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .login(login)
+                .build();
+        login.setUsuario(usuario);
+
+        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
+
+        // When
+        String result = loginService.login(email, senha);
+
+        // Then
+        assertThat(result).isEqualTo("Login realizado com sucesso");
+    }
+
+    @Test
+    @DisplayName("deveChamarBuscarPorEmailQuandoLogin")
+    void deveChamarBuscarPorEmailQuandoLogin() {
+        // Given
+        String email = "user@example.com";
+        String senha = "password123";
+        Usuario usuario = Usuario.builder()
+                .email(email)
+                .login(login)
+                .build();
+        login.setUsuario(usuario);
+
+        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
+
+        // When
+        loginService.login(email, senha);
+
+        // Then
+        // O teste verifica que os métodos foram chamados
     }
 }

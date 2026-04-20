@@ -23,7 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class UsuarioControllerTest {
+class
+UsuarioControllerTest {
 
         @Autowired
         private MockMvc mockMvc;
@@ -250,7 +251,10 @@ class UsuarioControllerTest {
         @DisplayName("deveRetornar404QuandoPutParaIdInexistente")
         void deveRetornar404QuandoPutParaIdInexistente() throws Exception {
                 // Given
-                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder().nome("Teste").build();
+                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                        .nome("Teste")
+                        .telefone("11999999999")
+                        .build();
 
                 // When & Then
                 mockMvc.perform(put("/api/usuarios/{id}", 999L)
@@ -309,7 +313,7 @@ class UsuarioControllerTest {
                         .andExpect(status().isCreated());
 
                 // When & Then: Verificar que senha não está no JSON
-                mockMvc.perform(get("/api/logins/{login}", "joao"))
+                mockMvc.perform(get("/api/usuarios/login/{login}", "joao"))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.senha").doesNotExist()); // Senha não deve estar presente
         }
@@ -320,5 +324,153 @@ class UsuarioControllerTest {
                 // When & Then: Deve funcionar sem auth headers
                 mockMvc.perform(get("/api/usuarios"))
                         .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("deveRetornarListaVaziaQuandoNenhumUsuario")
+        void deveRetornarListaVaziaQuandoNenhumUsuario() throws Exception {
+                mockMvc.perform(get("/api/usuarios"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$").isArray())
+                        .andExpect(jsonPath("$").isEmpty());
+        }
+
+        @Test
+        @DisplayName("deveCriarMultiplosUsuariosQuandoVariosPosts")
+        void deveCriarMultiplosUsuariosQuandoVariosPosts() throws Exception {
+                UsuarioRequestDTO usuario1 = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO login1 = new LoginDTO("joao", "senha123");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario1, login1))))
+                        .andExpect(status().isCreated());
+
+                UsuarioRequestDTO usuario2 = UsuarioRequestDTO.builder()
+                        .nome("Maria")
+                        .email("maria@example.com")
+                        .cpf("98765432100")
+                        .telefone("11888888888")
+                        .build();
+                LoginDTO login2 = new LoginDTO("maria", "senha456");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario2, login2))))
+                        .andExpect(status().isCreated());
+
+                mockMvc.perform(get("/api/usuarios"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.length()").value(2));
+        }
+
+        @Test
+        @DisplayName("deveAtualizarNomeQuandoPutNomeValido")
+        void deveAtualizarNomeQuandoPutNomeValido() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                String response = mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                Long userId = objectMapper.readTree(response).get("id").asLong();
+
+                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                        .nome("João Atualizado")
+                        .telefone("11999999999")
+                        .build();
+                mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateDTO)))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.nome").value("João Atualizado"));
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoPutComNomeVazio")
+        void deveRetornar400QuandoPutComNomeVazio() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                String response = mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                Long userId = objectMapper.readTree(response).get("id").asLong();
+
+                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                        .nome("")
+                        .telefone("11999999999")
+                        .build();
+                mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateDTO)))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRetornar415QuandoContentTypeInvalido")
+        void deveRetornar415QuandoContentTypeInvalido() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_XML)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
+                        .andExpect(status().isUnsupportedMediaType());
+        }
+
+        @Test
+        @DisplayName("deveAtualizarTelefoneQuandoPutTelefoneValido")
+        void deveAtualizarTelefoneQuandoPutTelefoneValido() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                String response = mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
+                        .andExpect(status().isCreated())
+                        .andReturn().getResponse().getContentAsString();
+                Long userId = objectMapper.readTree(response).get("id").asLong();
+
+                UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                        .nome("João")
+                        .telefone("11888888888")
+                        .build();
+                mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateDTO)))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.telefone").value("11888888888"));
+        }
+
+        @Test
+        @DisplayName("deveRetornar404QuandoDeleteComIdZero")
+        void deveRetornar404QuandoDeleteComIdZero() throws Exception {
+                mockMvc.perform(delete("/api/usuarios/{id}", 0L))
+                        .andExpect(status().isNotFound());
         }
 }

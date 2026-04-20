@@ -6,8 +6,8 @@ import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.service.exceptions.AuthenticationException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,27 +30,28 @@ public class LoginService {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
+//resolver
     public LoginDTO buscarPorLogin(String login) {
         return repository.findByLogin(login)
                 .map(LoginMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
     }
-
+//
     public String login(String email, String senha) {
         // Buscar o usuário no banco pelo email
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
         if (usuarioOpt.isEmpty()) {
-            throw new RuntimeException("Credenciais inválidas");
+            throw new AuthenticationException("Credenciais inválidas");
         }
         Usuario usuario = usuarioOpt.get();
         Login login = usuario.getLogin();
+
         if (login == null) {
-            throw new RuntimeException("Credenciais inválidas");
+            throw new AuthenticationException("Credenciais inválidas");
         }
         // Validar a senha usando PasswordEncoder
         if (!passwordEncoder.matches(senha, login.getSenha())) {
-            throw new RuntimeException("Credenciais inválidas");
+            throw new AuthenticationException("Credenciais inválidas");
         }
         return "Login realizado com sucesso";
     }

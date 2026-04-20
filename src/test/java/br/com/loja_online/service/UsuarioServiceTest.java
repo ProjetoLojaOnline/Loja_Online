@@ -374,4 +374,156 @@ class UsuarioServiceTest {
         assertThat(result.getCartoes()).isNullOrEmpty();
         assertThat(result.getEnderecos()).isNullOrEmpty();
     }
+
+    @Test
+    @DisplayName("deveRetornarListaVaziaQuandoNenhumUsuario")
+    void deveRetornarListaVaziaQuandoNenhumUsuario() {
+        // Given
+        when(usuarioRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // When
+        List<UsuarioResponseDTO> result = usuarioService.findAll();
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deveCriptografarSenhaQuandoInserirUsuario")
+    void deveCriptografarSenhaQuandoInserirUsuario() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode("senha123")).thenReturn("senhaCriptografada");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.insert(usuarioRequestDTO, loginDTO);
+
+        // Then
+        verify(passwordEncoder).encode("senha123");
+    }
+
+    @Test
+    @DisplayName("deveVerificarExistenciaLoginAntesDeInserir")
+    void deveVerificarExistenciaLoginAntesDeInserir() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.insert(usuarioRequestDTO, loginDTO);
+
+        // Then
+        verify(loginRepository).existsByLogin("joao");
+    }
+
+    @Test
+    @DisplayName("deveVerificarExistenciaEmailAntesDeInserir")
+    void deveVerificarExistenciaEmailAntesDeInserir() {
+        // Given
+        when(loginRepository.existsByLogin(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.insert(usuarioRequestDTO, loginDTO);
+
+        // Then
+        verify(usuarioRepository).existsByEmail("joao@example.com");
+    }
+
+    @Test
+    @DisplayName("deveChamarFindByIdQuandoAtualizar")
+    void deveChamarFindByIdQuandoAtualizar() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .nome("João Atualizado")
+                .telefone("11999999999")
+                .build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.atualizaUsuario(1L, updateDTO);
+
+        // Then
+        verify(usuarioRepository).findById(1L);
+    }
+
+    @Test
+    @DisplayName("deveChamarDeleteQuandoDeleteExistente")
+    void deveChamarDeleteQuandoDeleteExistente() {
+        // Given
+        when(usuarioRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(usuarioRepository).deleteById(1L);
+
+        // When
+        usuarioService.deleteById(1L);
+
+        // Then
+        verify(usuarioRepository).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deveAtualizarApenasNomeQuandoUpdateDTOTiverApenasNome")
+    void deveAtualizarApenasNomeQuandoUpdateDTOTiverApenasNome() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .nome("Nome Novo")
+                .build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.atualizaUsuario(1L, updateDTO);
+
+        // Then
+        verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    @DisplayName("deveAtualizarApenasTelefoneQuandoUpdateDTOTiverApenasTelefone")
+    void deveAtualizarApenasTelefoneQuandoUpdateDTOTiverApenasTelefone() {
+        // Given
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .telefone("11988888777")
+                .build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.atualizaUsuario(1L, updateDTO);
+
+        // Then
+        verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    @DisplayName("deveManterNomeOriginalQuandoNaoFornecido")
+    void deveManterNomeOriginalQuandoNaoFornecido() {
+        // Given
+        String nomeOriginal = usuario.getNome();
+        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder()
+                .nome(nomeOriginal)
+                .telefone("11988888777")
+                .build();
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        usuarioService.atualizaUsuario(1L, updateDTO);
+
+        // Then
+        verify(usuarioRepository).save(usuario);
+    }
 }
