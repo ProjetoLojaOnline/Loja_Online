@@ -30,13 +30,13 @@ public class LoginService {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
-//resolver
+
     public LoginDTO buscarPorLogin(String login) {
         return repository.findByLogin(login)
                 .map(LoginMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
     }
-//
+
     public String login(String email, String senha) {
         // Buscar o usuário no banco pelo email
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);

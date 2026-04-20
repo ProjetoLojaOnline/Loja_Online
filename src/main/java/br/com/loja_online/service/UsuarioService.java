@@ -10,6 +10,7 @@ import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.service.exceptions.ConflictException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -43,16 +44,16 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponseDTO insert(@Valid UsuarioRequestDTO usuarioDTO, @Valid LoginDTO loginDTO) {
         if (loginRepository.existsByLogin(loginDTO.login())) {
-            throw new RuntimeException("Este login já está em uso!");
+            throw new ConflictException("Este login já está em uso!");
         }
         if (usuarioRepository.existsByEmail(usuarioDTO.getEmail())) {
-            throw new RuntimeException("Este e-mail já está cadastrado!");
+            throw new ConflictException("Este e-mail já está cadastrado!");
         }
         if(usuarioRepository.existsByCpf(usuarioDTO.getCpf())) {
-            throw new RuntimeException("Este CPF já está cadastrado!");
+            throw new ConflictException("Este CPF já está cadastrado!");
         }
         if(usuarioRepository.existsByTelefone(usuarioDTO.getTelefone())) {
-            throw new RuntimeException("Esse telefone já está em usso!");
+            throw new ConflictException("Esse telefone já está em uso!");
         }
 
         Usuario novoUsuario = UsuarioMapper.paraUsuario(usuarioDTO);

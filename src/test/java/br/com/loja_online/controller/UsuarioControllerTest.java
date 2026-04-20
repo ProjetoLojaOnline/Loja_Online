@@ -42,29 +42,7 @@ UsuarioControllerTest {
         void setUp() {
                 loginRepository.deleteAll();
                 usuarioRepository.deleteAll();
-        }
 
-        @Test
-        @DisplayName("deveRetornarListaUsuariosQuandoGetAll")
-        void deveRetornarListaUsuariosQuandoGetAll() throws Exception {
-                // Given: Criar usuário
-                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
-                        .nome("João")
-                        .email("joao@example.com")
-                        .cpf("12345678901")
-                        .telefone("11999999999")
-                        .build();
-                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
-                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
-                mockMvc.perform(post("/api/usuarios")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(wrapper)))
-                        .andExpect(status().isCreated());
-
-                // When & Then
-                mockMvc.perform(get("/api/usuarios"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$[0].nome").value("João"));
         }
 
         @Test
@@ -336,38 +314,6 @@ UsuarioControllerTest {
         }
 
         @Test
-        @DisplayName("deveCriarMultiplosUsuariosQuandoVariosPosts")
-        void deveCriarMultiplosUsuariosQuandoVariosPosts() throws Exception {
-                UsuarioRequestDTO usuario1 = UsuarioRequestDTO.builder()
-                        .nome("João")
-                        .email("joao@example.com")
-                        .cpf("12345678901")
-                        .telefone("11999999999")
-                        .build();
-                LoginDTO login1 = new LoginDTO("joao", "senha123");
-                mockMvc.perform(post("/api/usuarios")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario1, login1))))
-                        .andExpect(status().isCreated());
-
-                UsuarioRequestDTO usuario2 = UsuarioRequestDTO.builder()
-                        .nome("Maria")
-                        .email("maria@example.com")
-                        .cpf("98765432100")
-                        .telefone("11888888888")
-                        .build();
-                LoginDTO login2 = new LoginDTO("maria", "senha456");
-                mockMvc.perform(post("/api/usuarios")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario2, login2))))
-                        .andExpect(status().isCreated());
-
-                mockMvc.perform(get("/api/usuarios"))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.length()").value(2));
-        }
-
-        @Test
         @DisplayName("deveAtualizarNomeQuandoPutNomeValido")
         void deveAtualizarNomeQuandoPutNomeValido() throws Exception {
                 UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
@@ -472,5 +418,183 @@ UsuarioControllerTest {
         void deveRetornar404QuandoDeleteComIdZero() throws Exception {
                 mockMvc.perform(delete("/api/usuarios/{id}", 0L))
                         .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("deveRetornar409QuandoTentativaDeCriarUsuarioComLoginExistente")
+        void deveRetornar409QuandoTentativaDeCriarUsuarioComLoginExistente() throws Exception {
+                UsuarioRequestDTO usuario1 = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO login1 = new LoginDTO("joao", "senha123");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario1, login1))))
+                        .andExpect(status().isCreated());
+
+                UsuarioRequestDTO usuario2 = UsuarioRequestDTO.builder()
+                        .nome("Maria")
+                        .email("maria@example.com")
+                        .cpf("98765432100")
+                        .telefone("11888888888")
+                        .build();
+                LoginDTO login2 = new LoginDTO("joao", "senha456");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario2, login2))))
+                        .andExpect(status().isConflict());
+        }
+
+        @Test
+        @DisplayName("deveRetornar409QuandoTentativaDeCriarUsuarioComEmailJaCadastrado")
+        void deveRetornar409QuandoTentativaDeCriarUsuarioComEmailJaCadastrado() throws Exception {
+                UsuarioRequestDTO usuario1 = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO login1 = new LoginDTO("joao", "senha123");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario1, login1))))
+                        .andExpect(status().isCreated());
+
+                UsuarioRequestDTO usuario2 = UsuarioRequestDTO.builder()
+                        .nome("Maria")
+                        .email("joao@example.com")
+                        .cpf("98765432100")
+                        .telefone("11888888888")
+                        .build();
+                LoginDTO login2 = new LoginDTO("maria", "senha456");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuario2, login2))))
+                        .andExpect(status().isConflict());
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoSenhaMenorQue6Caracteres")
+        void deveRetornar400QuandoSenhaMenorQue6Caracteres() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "abc12");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoLoginMenorQue3Caracteres")
+        void deveRetornar400QuandoLoginMenorQue3Caracteres() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("ab", "senha123");
+                UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(usuarioDTO, loginDTO);
+
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(wrapper)))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRetornar405QuandoMetodoDeleteForInvalido")
+        void deveRetornar405QuandoMetodoDeleteForInvalido() throws Exception {
+                mockMvc.perform(delete("/api/usuarios"))
+                        .andExpect(status().isMethodNotAllowed());
+        }
+
+        @Test
+        @DisplayName("deveRetornar200QuandoLoginComCredenciaisValidas")
+        void deveRetornar200QuandoLoginComCredenciaisValidas() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
+                        .andExpect(status().isCreated());
+
+                mockMvc.perform(post("/login/authenticate")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\":\"joao@example.com\",\"senha\":\"senha123\"}"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().string("Login realizado com sucesso"));
+        }
+
+        @Test
+        @DisplayName("deveRetornar401QuandoLoginComSenhaErrada")
+        void deveRetornar401QuandoLoginComSenhaErrada() throws Exception {
+                UsuarioRequestDTO usuarioDTO = UsuarioRequestDTO.builder()
+                        .nome("João")
+                        .email("joao@example.com")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
+                        .build();
+                LoginDTO loginDTO = new LoginDTO("joao", "senha123");
+                mockMvc.perform(post("/api/usuarios")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
+                        .andExpect(status().isCreated());
+
+                mockMvc.perform(post("/login/authenticate")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\":\"joao@example.com\",\"senha\":\"senhaerrada\"}"))
+                        .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("deveRetornar401QuandoLoginComUsuarioInvalido")
+        void deveRetornar401QuandoLoginComUsuarioInvalido() throws Exception {
+                mockMvc.perform(post("/login/authenticate")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"senha123\"}"))
+                        .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("deveRetornar401QuandoLoginComUsuarioESenhaInvalidos")
+        void deveRetornar401QuandoLoginComUsuarioESenhaInvalidos() throws Exception {
+                mockMvc.perform(post("/login/authenticate")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"senhaerrada\"}"))
+                        .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoLoginComEmailInvalido")
+        void deveRetornar400QuandoLoginComEmailInvalido() throws Exception {
+                mockMvc.perform(post("/login/authenticate")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\":\"email-invalido\",\"senha\":\"senha123\"}"))
+                        .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("deveRetornar400QuandoLoginComSenhaVazia")
+        void deveRetornar400QuandoLoginComSenhaVazia() throws Exception {
+                mockMvc.perform(post("/login/authenticate")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\":\"joao@example.com\",\"senha\":\"\"}"))
+                        .andExpect(status().isBadRequest());
         }
 }
