@@ -26,18 +26,12 @@ public class Usuario {
     private String foto;
     private String tipo;
 
-    // "Eu sou o dono do Login. O mapa está no campo 'usuario' da classe Login"
-    // 1. Relacionamento 1:1 com Login
-    // O mappedBy="usuario" diz que o campo 'usuario' está lá na classe Login
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Login login;
 
-    // "Eu sou o dono dos Cartões. O mapa está no campo 'usuario' da classe Cartao"
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cartao> cartoes = new java.util.ArrayList<>();
 
-    // "Eu sou o dono dos Endereços. O mapa está no campo 'usuario' da classe
-    // Endereco"
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Endereco> enderecos = new java.util.ArrayList<>();
 

@@ -2,6 +2,8 @@ package br.com.loja_online.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter
@@ -14,16 +16,16 @@ import lombok.*;
 public class Login {
 
     @Id
-    @Column(name = "login", nullable = false, unique = true, length = 120)
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
 
     @Column(name = "senha", nullable = false, length = 255)
-
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, max = 72, message = "Senha deve ter entre 6 e 72 caracteres")
     private String senha;
 
     @OneToOne
     @JoinColumn(name = "id_usuario")
-    @JsonIgnore
     private Usuario usuario;
 
 }
