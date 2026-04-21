@@ -15,7 +15,6 @@ import lombok.*;
 @Table(name = "login")
 public class Login {
 
-    @Id
     @Column(name = "login", nullable = false, unique = true)
     private String login;
 
