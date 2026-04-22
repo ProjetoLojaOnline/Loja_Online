@@ -1,9 +1,8 @@
 package br.com.loja_online.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 
 @Entity
@@ -27,7 +26,6 @@ public class Endereco implements Serializable {
   private String estado;
   @ManyToOne
   @JoinColumn(name = "id_usuario")
-  @JsonIgnore
   private Usuario usuario;
 
   public Endereco(String logradouro, Integer numero, String bairro, String complemento, String referencia, String cep, String cidade, String estado) {

@@ -1,8 +1,6 @@
 package br.com.loja_online.model;
 
 import java.sql.Date;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +25,6 @@ public class Cartao {
     private Integer cvv;
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-    @JsonIgnore
     private Usuario usuario;
     private Boolean defaultCard;
 }
