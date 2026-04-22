@@ -1,53 +1,61 @@
 package br.com.loja_online.mapper;
 
-import br.com.loja_online.dto.ProdutoDTO;
-import br.com.loja_online.dto.UsuarioDTO;
-import br.com.loja_online.model.Cartao;
-import br.com.loja_online.model.Endereco;
-import br.com.loja_online.model.Produto;
-import br.com.loja_online.model.Usuario;
+import br.com.loja_online.dto.UsuarioResponseDTO;
+import br.com.loja_online.dto.UsuarioRequestDTO;
+import br.com.loja_online.model.*;
 
 import java.util.List;
 import java.util.ArrayList;
 
 public class UsuarioMapper {
-    public static UsuarioDTO paraDTO(Usuario usuario) {
+    public static UsuarioResponseDTO paraDTO(Usuario usuario) {
         if (usuario == null) {
             return null;
         }
-        return new UsuarioDTO(
-                usuario.getNome(),
-                usuario.getLogin(),
-                usuario.getTelefone(),
-                usuario.getEmail(),
-                usuario.getDataNascimento(),
-                usuario.getGenero(),
-                usuario.getFoto(),
-                usuario.getTipo(),
-                usuario.getCartoes() != null ? usuario.getCartoes() : new ArrayList<>(),
-                usuario.getEnderecos() != null ? usuario.getEnderecos() : new ArrayList<>()
-        );
+        return UsuarioResponseDTO.builder()
+                .id(usuario.getId())
+                .nome(usuario.getNome())
+                .telefone(usuario.getTelefone())
+                .email(usuario.getEmail())
+                .cpf(usuario.getCpf())
+                .dataNascimento(usuario.getDataNascimento())
+                .genero(usuario.getGenero())
+                .foto(usuario.getFoto())
+                .tipo(usuario.getTipo())
+                .cartoes(usuario.getCartoes())
+                .enderecos(usuario.getEnderecos())
+                .build();
     }
 
-
-    public static Usuario paraUsuario(UsuarioDTO usuarioDTO) {
-        if (usuarioDTO == null) {
+    public static Usuario paraUsuario(UsuarioRequestDTO usuarioDTO) {
+        if (usuarioDTO == null)
             return null;
+
+        // 1. Criamos o "Pai" (Usuario) primeiro
+        Usuario usuario = Usuario.builder()
+                .nome(usuarioDTO.getNome())
+                .telefone(usuarioDTO.getTelefone())
+                .email(usuarioDTO.getEmail())
+                .cpf(usuarioDTO.getCpf())
+                .dataNascimento(usuarioDTO.getDataNascimento())
+                .genero(usuarioDTO.getGenero())
+                .foto(usuarioDTO.getFoto())
+                .tipo(usuarioDTO.getTipo())
+                .build();
+
+        // 3. Vinculamos os Cartões e avisamos o dono para cada um
+        if (usuarioDTO.getCartoes() != null) {
+            usuarioDTO.getCartoes().forEach(cartao -> cartao.setUsuario(usuario));
+            usuario.setCartoes(usuarioDTO.getCartoes());
         }
 
-        return new Usuario(
-                usuarioDTO.nome(),
-                usuarioDTO.login(),
-                usuarioDTO.telefone(),
-                usuarioDTO.email(),
-                usuarioDTO.dataNascimento(),
-                usuarioDTO.genero(),
-                usuarioDTO.foto(),
-                usuarioDTO.tipo(),
-                usuarioDTO.cartoes() != null ? usuarioDTO.cartoes() : new ArrayList<>(),
-                usuarioDTO.enderecos() != null ? usuarioDTO.enderecos() : new ArrayList<>()
-        );
-
+        // 4. Vinculamos os Endereços e avisamos o dono para cada um
+        if (usuarioDTO.getEnderecos() != null) {
+            usuarioDTO.getEnderecos().forEach(endereco -> endereco.setUsuario(usuario));
+            usuario.setEnderecos(usuarioDTO.getEnderecos());
         }
+
+        return usuario;
     }
 
+}

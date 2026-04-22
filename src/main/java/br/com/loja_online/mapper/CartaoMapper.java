@@ -14,7 +14,7 @@ public class CartaoMapper {
                 cartao.getNomeCartao(),
                 cartao.getDataValidade(),
                 cartao.getCvv(),
-                cartao.getdefaultCard()
+                cartao.getDefaultCard()
         );
     }
 

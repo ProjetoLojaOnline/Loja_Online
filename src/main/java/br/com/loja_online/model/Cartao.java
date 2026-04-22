@@ -1,7 +1,6 @@
 package br.com.loja_online.model;
 
 import java.sql.Date;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +23,8 @@ public class Cartao {
     private String nomeCartao;
     private Date dataValidade;
     private Integer cvv;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cartoes")
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
     private Boolean defaultCard;
 }

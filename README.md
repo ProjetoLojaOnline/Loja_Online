@@ -54,3 +54,23 @@ Esta página é um front-end básico que executa:
 - ❌ **Atualização de produto (PUT)** — *ainda não implementado*
 
 ---
+
+## 🧪 Executando os Testes
+
+O projeto conta com testes automatizados para garantir a estabilidade do sistema. A suíte de testes contempla:
+- **Testes Unitários**: Validam pequenas unidades do código de forma isolada (como services e regras matemáticas).
+- **Testes de Integração**: Testam a conexão de componentes, como as rotas da API integradas ao banco de dados. Utilizamos um banco em memória (H2) para que rodem de forma independente e não modifiquem o banco de dados principal (MySQL), evitando necessitar que o Docker esteja rodando.
+
+### 1. Execute os testes (Unitários e de Integração)
+Para rodar ambas as suítes de teste de uma única vez, basta executar o seguinte comando utilizando o Maven Wrapper na raiz do projeto:
+
+```bash
+./mvnw test
+```
+
+### ❓ Por que testar a aplicação?
+* **Garantia de Qualidade:** Verifica automaticamente se as regras de negócio cumprem o que prometem.
+* **Prevenção de Regressões (Quebras):** Se você alterar ou adicionar uma funcionalidade hoje, os testes avisam se a alteração bagunçou o que já funcionava.
+* **Segurança na Refatoração:** Te dá confiança para reestruturar e otimizar o projeto sem medo de o sistema parar de funcionar.
+
+---

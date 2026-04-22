@@ -18,21 +18,21 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
-    private String login;
     private String telefone;
     private String email;
+    private String cpf;
     private String dataNascimento;
-    private String senha;
     private String genero;
     private String foto;
     private String tipo;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario")
-    private List<Cartao> cartoes;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario")
-    private List<Endereco> enderecos;
 
-    public Usuario(String nome, String login, String telefone, String email, String s, String genero, String foto, String tipo, List<Cartao> cartoes, List<Endereco> enderecos) {
-    }
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Login login;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Cartao> cartoes = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Endereco> enderecos = new java.util.ArrayList<>();
+
 }
