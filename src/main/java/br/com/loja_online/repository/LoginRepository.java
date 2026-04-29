@@ -1,15 +1,16 @@
 package br.com.loja_online.repository;
 
 import br.com.loja_online.model.Login;
-import br.com.loja_online.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Optional;
 
-@Repository
 public interface LoginRepository extends JpaRepository<Login, Long> {
 
-    boolean existsByLogin(String login);
+    UserDetails findByLogin(String login);
 
-    Optional<Login> findByLogin(String login);
+    Optional<Login> findLoginByLogin(String login);
+
+    boolean existsByLogin(String login);
 }
