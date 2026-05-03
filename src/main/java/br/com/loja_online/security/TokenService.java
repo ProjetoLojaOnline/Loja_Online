@@ -1,5 +1,6 @@
 package br.com.loja_online.security;
 
+import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -22,12 +23,12 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String gerarToken(Usuario usuario) {
+    public String gerarToken(Login login) {
         try {
             var algoritmo = Algorithm.HMAC256(secret);
             return JWT.create()
                     .withIssuer("auth0")
-                    .withSubject(usuario.getLogin().getLogin())
+                    .withSubject(login.getLogin())
                     .withExpiresAt(dataExpiracao())
                     .sign(algoritmo);
         } catch (JWTCreationException exception) {

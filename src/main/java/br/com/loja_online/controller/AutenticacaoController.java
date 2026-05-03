@@ -1,6 +1,7 @@
 package br.com.loja_online.controller;
 
 import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.security.DadosToken;
 import br.com.loja_online.security.TokenService;
@@ -29,7 +30,7 @@ public class AutenticacaoController {
         var token = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
         var autenticacao = authenticationManager.authenticate(token);
 
-        String tokenJWT = tokenService.gerarToken((Usuario) autenticacao.getPrincipal());
+        String tokenJWT = tokenService.gerarToken((Login) autenticacao.getPrincipal());
 
         return ResponseEntity.ok(new DadosToken(tokenJWT));
     }

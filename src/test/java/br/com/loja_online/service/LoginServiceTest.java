@@ -4,6 +4,7 @@ import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.mapper.LoginMapper;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.repository.LoginRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -26,6 +28,12 @@ class LoginServiceTest {
 
     @Mock
     private LoginRepository loginRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private LoginService loginService;
@@ -43,27 +51,27 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveRetornarLoginDTOQuandoBuscarPorLoginExistente")
     void deveRetornarLoginDTOQuandoBuscarPorLoginExistente() {
-        // Given
-        String loginStr = "testuser";
-        when(loginRepository.findByLogin(loginStr)).thenReturn(Optional.of(login));
 
-        // When
+        String loginStr = "testuser";
+        when(loginRepository.findLoginByLogin(loginStr)).thenReturn(Optional.of(login));
+
+
         LoginDTO result = loginService.buscarPorLogin(loginStr);
 
-        // Then
+
         assertThat(result).isNotNull();
         assertThat(result.login()).isEqualTo("testuser");
-        assertThat(result.senha()).isNull(); // Senha nula conforme LoginMapper
+        assertThat(result.senha()).isNull();
     }
 
     @Test
     @DisplayName("deveLancarExcecaoQuandoBuscarPorLoginInexistente")
     void deveLancarExcecaoQuandoBuscarPorLoginInexistente() {
-        // Given
-        String loginStr = "nonexistent";
-        when(loginRepository.findByLogin(loginStr)).thenReturn(Optional.empty());
 
-        // When & Then
+        String loginStr = "nonexistent";
+        when(loginRepository.findLoginByLogin(loginStr)).thenReturn(Optional.empty());
+
+
         assertThatThrownBy(() -> loginService.buscarPorLogin(loginStr))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Login não encontrado: nonexistent");
@@ -72,7 +80,7 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveMapearParaDTOCorretamenteQuandoLoginMapperParaDTO")
     void deveMapearParaDTOCorretamenteQuandoLoginMapperParaDTO() {
-        // Given & When & Then
+
         try (MockedStatic<LoginMapper> mockedMapper = mockStatic(LoginMapper.class)) {
             mockedMapper.when(() -> LoginMapper.paraDTO(login)).thenReturn(new LoginDTO("testuser", null));
 
@@ -87,10 +95,10 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveMapearParaLoginCorretamenteQuandoLoginMapperParaLogin")
     void deveMapearParaLoginCorretamenteQuandoLoginMapperParaLogin() {
-        // Given
+
         LoginDTO loginDTO = new LoginDTO("testuser", "password");
 
-        // When & Then
+
         try (MockedStatic<LoginMapper> mockedMapper = mockStatic(LoginMapper.class)) {
             mockedMapper.when(() -> LoginMapper.paraLogin(loginDTO)).thenReturn(login);
 
@@ -105,10 +113,10 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLidarComLoginNuloQuandoBuscarPorLoginComParametroNulo")
     void deveLidarComLoginNuloQuandoBuscarPorLoginComParametroNulo() {
-        // Given
-        when(loginRepository.findByLogin(null)).thenReturn(Optional.empty());
 
-        // When & Then
+        when(loginRepository.findLoginByLogin(null)).thenReturn(Optional.empty());
+
+
         assertThatThrownBy(() -> loginService.buscarPorLogin(null))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Login não encontrado: null");
@@ -117,11 +125,10 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLidarComLoginVazioQuandoBuscarPorLoginComParametroVazio")
     void deveLidarComLoginVazioQuandoBuscarPorLoginComParametroVazio() {
-        // Given
-        String loginStr = "";
-        when(loginRepository.findByLogin(loginStr)).thenReturn(Optional.empty());
 
-        // When & Then
+        String loginStr = "";
+        when(loginRepository.findLoginByLogin(loginStr)).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> loginService.buscarPorLogin(loginStr))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Login não encontrado: ");
