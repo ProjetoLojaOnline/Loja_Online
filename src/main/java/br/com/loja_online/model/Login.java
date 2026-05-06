@@ -15,6 +15,10 @@ import lombok.*;
 @Table(name = "login")
 public class Login {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "login", nullable = false, unique = true)
     private String login;
 
