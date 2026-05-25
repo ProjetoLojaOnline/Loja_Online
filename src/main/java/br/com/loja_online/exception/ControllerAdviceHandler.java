@@ -1,10 +1,10 @@
 package br.com.loja_online.exception;
 
-import br.com.loja_online.service.exceptions.AuthenticationException;
 import br.com.loja_online.service.exceptions.ConflictException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -47,19 +47,6 @@ public class ControllerAdviceHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationError);
   }
 
-  @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<StandardError> authenticationException(AuthenticationException ex,
-                                                               HttpServletRequest request) {
-    StandardError standardError = new StandardError(
-            System.currentTimeMillis(),
-            401,
-            "Unauthorized",
-            ex.getMessage(),
-            request.getRequestURI()
-    );
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(standardError);
-  }
-
   @ExceptionHandler(ConflictException.class)
   public ResponseEntity<StandardError> conflictException(ConflictException ex,
                                                          HttpServletRequest request) {
@@ -71,5 +58,31 @@ public class ControllerAdviceHandler {
             request.getRequestURI()
     );
     return ResponseEntity.status(HttpStatus.CONFLICT).body(standardError);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<StandardError> badCredentialsException(BadCredentialsException ex,
+                                                               HttpServletRequest request) {
+    StandardError standardError = new StandardError(
+            System.currentTimeMillis(),
+            401,
+            "Unauthorized",
+            "Credenciais inválidas",
+            request.getRequestURI()
+    );
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(standardError);
+                                                                }
+
+  @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+  public ResponseEntity<StandardError> handleSpringAuthentication(org.springframework.security.core.AuthenticationException ex,
+                                                                  HttpServletRequest request) {
+    StandardError standardError = new StandardError(
+            System.currentTimeMillis(),
+            401,
+            "Unauthorized",
+            "Credenciais inválidas",
+            request.getRequestURI()
+    );
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(standardError);
   }
 }

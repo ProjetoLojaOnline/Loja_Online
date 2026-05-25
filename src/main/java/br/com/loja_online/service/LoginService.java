@@ -22,7 +22,7 @@ public class LoginService {
     }
 
     public LoginDTO buscarPorLogin(String login) {
-        return repository.findLoginByLogin(login)
+        return repository.findByLogin(login)
                 .map(LoginMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
     }

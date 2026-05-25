@@ -1,5 +1,6 @@
 package br.com.loja_online.model;
 
+import br.com.loja_online.model.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,8 +19,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "login")
-public class Login implements UserDetails {  //implementar UserDetails
-
+public class Login implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,10 +36,14 @@ public class Login implements UserDetails {  //implementar UserDetails
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    //métodos obrigatórios do UserDetails
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
     }
 
     @Override

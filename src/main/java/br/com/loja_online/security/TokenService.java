@@ -6,6 +6,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import static com.auth0.jwt.JWT.require;
@@ -23,11 +25,18 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    @PostConstruct
+    public void validaSecret() {
+        if (secret == null || secret.isBlank() || secret.length() < 32) {
+            throw new RuntimeException("Secret do JWT inválida");
+        }
+    }
+
     public String gerarToken(Login login) {
         try {
             var algoritmo = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withIssuer("auth0")
+                    .withIssuer("loja-online")
                     .withSubject(login.getLogin())
                     .withExpiresAt(dataExpiracao())
                     .sign(algoritmo);
@@ -37,11 +46,9 @@ public class TokenService {
     }
     public String getSubject(String tokenJWT) {
         try {
-
             var algoritmo = Algorithm.HMAC256(secret);
             return JWT.require(algoritmo)
-                    .withIssuer("auth0")
-                    //antes do ponto e virgula adiciono
+                    .withIssuer("loja-online")
                     .build()
                     .verify(tokenJWT)
                     .getSubject();
@@ -51,6 +58,6 @@ public class TokenService {
     }
 
     private Instant dataExpiracao() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return Instant.now().plus(2, ChronoUnit.HOURS);
     }
 }
