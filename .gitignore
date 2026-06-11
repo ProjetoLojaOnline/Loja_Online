@@ -35,6 +35,3 @@ build/
 # Ignorar arquivo de logs
 app.log
 build.log
-
-### .env files ###
-*.env
