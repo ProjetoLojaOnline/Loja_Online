@@ -1,16 +1,13 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.dto.LoginRequest;
-import br.com.loja_online.model.Login;
-import br.com.loja_online.service.LoginService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.dto.LoginRequest;
+import br.com.loja_online.service.LoginService;
 
 @RestController
 @RequestMapping("/login")

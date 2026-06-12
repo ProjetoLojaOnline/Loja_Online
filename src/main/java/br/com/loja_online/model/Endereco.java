@@ -1,9 +1,11 @@
 package br.com.loja_online.model;
 
 
-import jakarta.persistence.*;
-import lombok.*;
 import java.io.Serializable;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -28,7 +30,8 @@ public class Endereco implements Serializable {
   @JoinColumn(name = "id_usuario")
   private Usuario usuario;
 
-  public Endereco(String logradouro, Integer numero, String bairro, String complemento, String referencia, String cep, String cidade, String estado) {
+  public Endereco(String logradouro, Integer numero, String bairro, String complemento,
+      String referencia, String cep, String cidade, String estado) {
     this.logradouro = logradouro;
     this.numero = numero;
     this.bairro = bairro;
