@@ -221,6 +221,27 @@ git commit -m "feat!: altera contrato do endpoint de login (breaking change)"
 
 O hook `commit-msg` avisa se a mensagem estiver fora do padrão — o commit ainda é realizado, mas vale ajustar antes de abrir o PR.
 
+### Branches e Pull Requests
+
+O projeto usa um fluxo hierárquico de branches:
+
+```
+main  ←  develop  ←  epic/nome  ←  feat/nome-da-task
+```
+
+| Branch | Criada a partir de | Merge para |
+|---|---|---|
+| `develop` | `main` | `main` (quando estável) |
+| `epic/nome` | `develop` | `develop` (quando o épico estiver completo) |
+| `feat/nome`, `fix/nome`, `chore/nome` | `epic/nome` | `epic/nome` (ao concluir a task) |
+
+**Regras:**
+
+- Nunca crie branch diretamente a partir de `main` (exceto `develop`)
+- Cada task vira uma branch separada dentro do seu épico
+- PRs de task → épico, PRs de épico → `develop`, PRs de `develop` → `main`
+- `main` só recebe código estável e validado em `develop`
+
 ### Variáveis de ambiente e segredos
 
 - **Nunca versione** arquivos `.env.*` com valores reais — eles estão no `.gitignore`
