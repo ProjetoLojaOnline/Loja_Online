@@ -23,7 +23,7 @@ services:
   app:
     build: .
     container_name: app_loja_online
-    restart: unless-stopped
+    restart: on-failure
     ports:
       - "${SERVER_PORT:-8080}:8080"
     depends_on:

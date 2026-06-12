@@ -28,7 +28,7 @@ public class LoginController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-      String msg = service.login(loginRequest.getEmail(), loginRequest.getSenha());
-      return ResponseEntity.ok(msg);
-        }
+        String msg = service.login(loginRequest.getEmail(), loginRequest.getSenha());
+        return ResponseEntity.ok(msg);
     }
+}
