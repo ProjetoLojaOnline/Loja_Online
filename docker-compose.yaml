@@ -1,46 +1,46 @@
 services:
   db:
-    image: mysql:8.0
+    image: postgres:17-alpine
     container_name: loja_online_db
-    restart: always
+    restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-5432}:5432"
     environment:
-      - MYSQL_DATABASE=loja_online
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_USER=app_user
-      - MYSQL_PASSWORD=app_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - mysql-volume:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
     networks:
-      - my-network
+      - loja-network
 
-  app_loja_online:
+  app:
     build: .
     container_name: app_loja_online
-    restart: "no"
+    restart: unless-stopped
     ports:
-      - '8080:8080'
+      - "${SERVER_PORT:-8080}:8080"
     depends_on:
       db:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/loja_online
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
+      SERVER_PORT: ${SERVER_PORT:-8080}
     networks:
-      - my-network
+      - loja-network
 
 volumes:
-  mysql-volume:
-    driver: local
+  postgres-data:
 
 networks:
-  my-network:
+  loja-network:
     driver: bridge
