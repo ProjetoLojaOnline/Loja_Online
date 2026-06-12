@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!--
+        Spring Data JPA usa underscore para navegar em propriedades aninhadas:
+        findByLogin_Login → busca pelo campo "login" dentro do relacionamento "login"
+        Não é violação de nomenclatura, é convenção do framework.
+    -->
+    <suppress checks="MethodName" files="Repository\.java$"/>
+</suppressions>
