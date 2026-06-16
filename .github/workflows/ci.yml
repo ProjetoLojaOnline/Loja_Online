@@ -6,6 +6,9 @@ on:
       - main
       - develop
 
+permissions:
+  contents: read
+
 jobs:
   security-scan:
     name: Security scan
@@ -18,20 +21,28 @@ jobs:
           fetch-depth: 0
 
       - name: Scan for secrets
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.82.12
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
           extra_args: --only-verified
 
+      - name: Cache NVD database
+        uses: actions/cache@v4
+        with:
+          path: ~/.dependency-check
+          key: ${{ runner.os }}-dependency-check-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-dependency-check-
+
       - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: dependency-check/Dependency-Check_Action@v1.1.0
         with:
           project: ${{ github.repository }}
           path: .
           format: HTML
-          args: --failOnCVSS 7
+          args: --failOnCVSS 7 --nvdApiKey ${{ secrets.NVD_API_KEY }}
 
       - name: Upload OWASP report
         uses: actions/upload-artifact@v4
@@ -65,28 +76,3 @@ jobs:
           name: surefire-reports
           path: target/surefire-reports/
 
-  commitlint:
-    name: Commit messages
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install commitlint
-        run: npm install --no-save @commitlint/cli @commitlint/config-conventional
-
-      - name: Lint commit messages
-        run: |
-          npx commitlint \
-            --from ${{ github.event.pull_request.base.sha }} \
-            --to ${{ github.event.pull_request.head.sha }} \
-            --verbose
-        continue-on-error: true
