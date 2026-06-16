@@ -26,7 +26,7 @@ public class TokenService {
     @PostConstruct
     public void validaSecret() {
         if (secret == null || secret.isBlank() || secret.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 32) {
-            throw new RuntimeException("Secret do JWT inválida: deve ter no mínimo 32 bytes");
+            throw new IllegalStateException("Secret do JWT inválida: deve ter no mínimo 32 bytes");
         }
     }
 

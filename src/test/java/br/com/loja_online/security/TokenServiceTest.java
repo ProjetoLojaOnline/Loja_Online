@@ -105,18 +105,18 @@ public class TokenServiceTest {
     }
 
     @Test
-    @DisplayName("deveRetornar403AoAcessarRotaProtegidaSemToken")
-    void deveRetornar403AoAcessarRotaProtegidaSemToken() throws Exception {
+    @DisplayName("deveRetornar401AoAcessarRotaProtegidaSemToken")
+    void deveRetornar401AoAcessarRotaProtegidaSemToken() throws Exception {
         mockMvc.perform(get("/api/usuarios"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("deveRetornar403AoAcessarRotaProtegidaComTokenInvalido")
-    void deveRetornar403AoAcessarRotaProtegidaComTokenInvalido() throws Exception {
+    @DisplayName("deveRetornar401AoAcessarRotaProtegidaComTokenInvalido")
+    void deveRetornar401AoAcessarRotaProtegidaComTokenInvalido() throws Exception {
         mockMvc.perform(get("/api/usuarios")
                         .header("Authorization", "Bearer token.invalido.aqui"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

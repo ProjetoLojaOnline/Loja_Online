@@ -91,9 +91,9 @@ public class AutenticacaoServiceTest {
     }
 
     @Test
-    @DisplayName("deveRetornar403QuandoAcessarRotaProtegidaSemToken")
-    void deveRetornar403QuandoAcessarRotaProtegidaSemToken() throws Exception {
+    @DisplayName("deveRetornar401QuandoAcessarRotaProtegidaSemToken")
+    void deveRetornar401QuandoAcessarRotaProtegidaSemToken() throws Exception {
         mockMvc.perform(get("/api/usuarios"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }
