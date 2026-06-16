@@ -1,7 +1,9 @@
 package br.com.loja_online.model;
 
 import java.sql.Date;
+
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,5 +30,3 @@ public class Cartao {
     private Usuario usuario;
     private Boolean defaultCard;
 }
-
-

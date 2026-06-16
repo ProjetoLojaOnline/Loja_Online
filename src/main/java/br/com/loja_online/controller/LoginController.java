@@ -1,10 +1,13 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.model.Login;
-import br.com.loja_online.service.LoginService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.service.LoginService;
 
 @RestController
 @RequestMapping("/login")

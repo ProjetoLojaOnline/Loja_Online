@@ -1,0 +1,47 @@
+#!/bin/sh
+# Executado automaticamente antes de cada git push.
+# Para configurar: sh scripts/setup-hooks.sh
+
+# ── 1. Formatação (Spotless) ──────────────────────────────────────────────────
+printf "🔍 Verificando formatação do código...\n"
+FORMAT_OUTPUT=$(./mvnw spotless:check --no-transfer-progress 2>&1)
+FORMAT_EXIT=$?
+
+if [ $FORMAT_EXIT -ne 0 ]; then
+  printf "\n❌ ERRO: código com formatação incorreta.\n"
+  printf "   Arquivos com problema:\n"
+  echo "$FORMAT_OUTPUT" | grep -E "patch needed|\.java" | sed 's/^/   /'
+  printf "\n   ✏️  Solução: rode  make lint  e faça commit das correções.\n\n"
+  exit 1
+fi
+printf "✅ Formatação OK.\n"
+
+# ── 2. Padrão de código (Checkstyle) ─────────────────────────────────────────
+printf "🔍 Verificando padrão de código (Checkstyle)...\n"
+STYLE_OUTPUT=$(./mvnw checkstyle:check --no-transfer-progress 2>&1)
+STYLE_EXIT=$?
+
+if [ $STYLE_EXIT -ne 0 ]; then
+  printf "\n❌ ERRO: violações de estilo encontradas.\n"
+  printf "   Detalhes:\n"
+  echo "$STYLE_OUTPUT" | grep "\[ERROR\].*\.java" | sed 's/\[ERROR\] //' | sed 's/^/   /'
+  printf "\n   ⚠️  Spotless não corrige esses erros automaticamente.\n"
+  printf "       Corrija manualmente e rode  make lint  para verificar.\n\n"
+  exit 1
+fi
+printf "✅ Checkstyle OK.\n"
+
+# ── 3. Testes ─────────────────────────────────────────────────────────────────
+printf "🔍 Rodando testes...\n"
+TEST_OUTPUT=$(./mvnw test --no-transfer-progress 2>&1)
+TEST_EXIT=$?
+
+if [ $TEST_EXIT -ne 0 ]; then
+  printf "\n❌ ERRO: testes falharam. Push bloqueado.\n"
+  printf "   Falhas encontradas:\n"
+  echo "$TEST_OUTPUT" | grep -E "FAILED|ERROR|Tests run:" | grep -v "Tests run: 0" | sed 's/^/   /'
+  printf "\n   Corrija os testes e tente novamente.\n\n"
+  exit 1
+fi
+printf "✅ Todos os testes passaram.\n\n"
+printf "🚀 Push autorizado!\n"

@@ -1,10 +1,11 @@
 package br.com.loja_online.service;
 
-import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.model.Login;
-import br.com.loja_online.repository.LoginRepository;
-import br.com.loja_online.repository.UsuarioRepository;
-import br.com.loja_online.service.exceptions.ObjectNotFoundException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,25 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.model.Login;
+import br.com.loja_online.repository.LoginRepository;
+import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class LoginServiceTest {
 
     @Mock
     private LoginRepository loginRepository;
-
-    @Mock
-    private UsuarioRepository usuarioRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private LoginService loginService;

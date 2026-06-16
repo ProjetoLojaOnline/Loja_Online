@@ -1,5 +1,14 @@
 package br.com.loja_online.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
@@ -13,13 +22,6 @@ import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ConflictException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {

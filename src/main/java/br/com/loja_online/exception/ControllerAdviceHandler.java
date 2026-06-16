@@ -1,7 +1,7 @@
 package br.com.loja_online.exception;
 
-import br.com.loja_online.service.exceptions.ConflictException;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import br.com.loja_online.service.exceptions.ConflictException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @ControllerAdvice
