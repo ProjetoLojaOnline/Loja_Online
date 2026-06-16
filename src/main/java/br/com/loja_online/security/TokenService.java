@@ -1,23 +1,21 @@
 package br.com.loja_online.security;
 
-import br.com.loja_online.model.Login;
-import br.com.loja_online.model.Usuario;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+
+import br.com.loja_online.exception.InvalidTokenException;
+import br.com.loja_online.exception.TokenGenerationException;
+import br.com.loja_online.model.Login;
+
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-
-import static com.auth0.jwt.JWT.require;
 
 @Service
 public class TokenService {
@@ -27,8 +25,8 @@ public class TokenService {
 
     @PostConstruct
     public void validaSecret() {
-        if (secret == null || secret.isBlank() || secret.length() < 32) {
-            throw new RuntimeException("Secret do JWT inválida");
+        if (secret == null || secret.isBlank() || secret.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 32) {
+            throw new RuntimeException("Secret do JWT inválida: deve ter no mínimo 32 bytes");
         }
     }
 
@@ -41,9 +39,10 @@ public class TokenService {
                     .withExpiresAt(dataExpiracao())
                     .sign(algoritmo);
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Erro ao gerar token JWT ", exception);
+            throw new TokenGenerationException("Erro ao gerar token JWT", exception);
         }
     }
+
     public String getSubject(String tokenJWT) {
         try {
             var algoritmo = Algorithm.HMAC256(secret);
@@ -53,7 +52,7 @@ public class TokenService {
                     .verify(tokenJWT)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Toke JWT inválido ou exprirado!");
+            throw new InvalidTokenException("Token JWT inválido ou expirado");
         }
     }
 

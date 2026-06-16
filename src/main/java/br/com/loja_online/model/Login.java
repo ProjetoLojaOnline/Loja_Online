@@ -3,6 +3,7 @@ package br.com.loja_online.model;
 import br.com.loja_online.model.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import lombok.*;
@@ -37,6 +38,7 @@ public class Login implements UserDetails {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
+    @NotNull(message = "Role é obrigatória")
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;

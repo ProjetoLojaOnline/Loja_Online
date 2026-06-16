@@ -536,11 +536,11 @@ UsuarioControllerTest {
                                 .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
                         .andExpect(status().isCreated());
 
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"joao@example.com\",\"senha\":\"senha123\"}"))
+                                .content("{\"login\":\"joao\",\"senha\":\"senha123\"}"))
                         .andExpect(status().isOk())
-                        .andExpect(content().string("Login realizado com sucesso"));
+                        .andExpect(jsonPath("$.token").isNotEmpty());
         }
 
         @Test
@@ -558,45 +558,45 @@ UsuarioControllerTest {
                                 .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
                         .andExpect(status().isCreated());
 
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"joao@example.com\",\"senha\":\"senhaerrada\"}"))
+                                .content("{\"login\":\"joao\",\"senha\":\"senhaerrada\"}"))
                         .andExpect(status().isUnauthorized());
         }
 
         @Test
         @DisplayName("deveRetornar401QuandoLoginComUsuarioInvalido")
         void deveRetornar401QuandoLoginComUsuarioInvalido() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"senha123\"}"))
+                                .content("{\"login\":\"naoexiste\",\"senha\":\"senha123\"}"))
                         .andExpect(status().isUnauthorized());
         }
 
         @Test
         @DisplayName("deveRetornar401QuandoLoginComUsuarioESenhaInvalidos")
         void deveRetornar401QuandoLoginComUsuarioESenhaInvalidos() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"senhaerrada\"}"))
+                                .content("{\"login\":\"naoexiste\",\"senha\":\"senhaerrada\"}"))
                         .andExpect(status().isUnauthorized());
         }
 
         @Test
-        @DisplayName("deveRetornar400QuandoLoginComEmailInvalido")
-        void deveRetornar400QuandoLoginComEmailInvalido() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+        @DisplayName("deveRetornar400QuandoLoginEmBranco")
+        void deveRetornar400QuandoLoginEmBranco() throws Exception {
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"email-invalido\",\"senha\":\"senha123\"}"))
+                                .content("{\"login\":\"\",\"senha\":\"senha123\"}"))
                         .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("deveRetornar400QuandoLoginComSenhaVazia")
         void deveRetornar400QuandoLoginComSenhaVazia() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"joao@example.com\",\"senha\":\"\"}"))
+                                .content("{\"login\":\"joao\",\"senha\":\"\"}"))
                         .andExpect(status().isBadRequest());
         }
 }
