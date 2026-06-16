@@ -3,6 +3,8 @@ package br.com.loja_online.security;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +17,6 @@ import br.com.loja_online.exception.InvalidTokenException;
 import br.com.loja_online.exception.TokenGenerationException;
 import br.com.loja_online.model.Login;
 
-import jakarta.annotation.PostConstruct;
-
 @Service
 public class TokenService {
 
@@ -25,7 +25,8 @@ public class TokenService {
 
     @PostConstruct
     public void validaSecret() {
-        if (secret == null || secret.isBlank() || secret.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 32) {
+        byte[] secretBytes = secret == null ? new byte[0] : secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        if (secret == null || secret.isBlank() || secretBytes.length < 32) {
             throw new IllegalStateException("Secret do JWT inválida: deve ter no mínimo 32 bytes");
         }
     }

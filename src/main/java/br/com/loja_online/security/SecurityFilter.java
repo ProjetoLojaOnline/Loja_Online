@@ -2,6 +2,11 @@ package br.com.loja_online.security;
 
 import java.io.IOException;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -17,15 +22,10 @@ import br.com.loja_online.exception.StandardError;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.repository.LoginRepository;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityFilter.class);
 
     private final TokenService tokenService;
     private final LoginRepository loginRepository;
@@ -65,7 +65,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             } catch (RuntimeException ex) {
                 SecurityContextHolder.clearContext();
-                log.error("Erro inesperado ao processar token de autenticação", ex);
+                LOG.error("Erro inesperado ao processar token de autenticação", ex);
                 writeErrorJson(response, request, HttpServletResponse.SC_SERVICE_UNAVAILABLE,
                         "Serviço temporariamente indisponível");
                 return;
@@ -88,7 +88,9 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private String recuperarToken(HttpServletRequest request) {
         var header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) return null;
+        if (header == null || !header.startsWith("Bearer ")) {
+            return null;
+        }
         return header.substring(7);
     }
 }

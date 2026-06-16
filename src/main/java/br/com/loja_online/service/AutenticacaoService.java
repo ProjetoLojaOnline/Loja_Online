@@ -12,7 +12,7 @@ import br.com.loja_online.service.exceptions.AuthenticationException;
 @Service
 public class AutenticacaoService implements UserDetailsService {
 
-    private static final Logger log = LoggerFactory.getLogger(AutenticacaoService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AutenticacaoService.class);
 
     private final LoginRepository repository;
 
@@ -22,10 +22,10 @@ public class AutenticacaoService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        log.info("Tentativa de autenticação para usuário: {}", username);
+        LOG.info("Tentativa de autenticação para usuário: {}", username);
         return repository.findByLogin(username)
                 .orElseThrow(() -> {
-                    log.warn("Falha de autenticação: usuário '{}' não encontrado", username);
+                    LOG.warn("Falha de autenticação: usuário '{}' não encontrado", username);
                     return new AuthenticationException("Credenciais inválidas");
                 });
     }

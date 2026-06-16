@@ -75,8 +75,9 @@ public class ControllerAdviceHandler {
                                                                 }
 
   @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
-  public ResponseEntity<StandardError> handleSpringAuthentication(org.springframework.security.core.AuthenticationException ex,
-                                                                  HttpServletRequest request) {
+  public ResponseEntity<StandardError> handleSpringAuthentication(
+          org.springframework.security.core.AuthenticationException ex,
+          HttpServletRequest request) {
     StandardError standardError = new StandardError(
             System.currentTimeMillis(),
             401,
