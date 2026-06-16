@@ -2,12 +2,14 @@ package br.com.loja_online.controller;
 
 import java.net.URI;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +19,7 @@ import br.com.loja_online.dto.CartaoDTO;
 import br.com.loja_online.mapper.CartaoMapper;
 import br.com.loja_online.model.Cartao;
 import br.com.loja_online.service.CartaoService;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,5 +52,5 @@ public class CartaoController {
     public ResponseEntity<CartaoDTO> updateCartao(@PathVariable Integer id, @Valid @RequestBody CartaoDTO dto) {
         Cartao cartao = cartaoService.atualizarCartao(id, CartaoMapper.paraCartao(dto));
         return ResponseEntity.status(200).body(CartaoMapper.paraDto(cartao));
-    }   
+    }
 }

@@ -1,13 +1,12 @@
 package br.com.loja_online.service;
 
-import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.mapper.LoginMapper;
-import br.com.loja_online.model.Login;
-import br.com.loja_online.model.Usuario;
-import br.com.loja_online.repository.LoginRepository;
-import br.com.loja_online.repository.UsuarioRepository;
-import br.com.loja_online.service.exceptions.AuthenticationException;
-import br.com.loja_online.service.exceptions.ObjectNotFoundException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,13 +17,14 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.mapper.LoginMapper;
+import br.com.loja_online.model.Login;
+import br.com.loja_online.model.Usuario;
+import br.com.loja_online.repository.LoginRepository;
+import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.service.exceptions.AuthenticationException;
+import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class LoginServiceTest {

@@ -1,15 +1,17 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.ProdutoDTO;
-import br.com.loja_online.service.ProdutoService;
+import java.net.URI;
+
 import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import br.com.loja_online.dto.ProdutoDTO;
+import br.com.loja_online.service.ProdutoService;
 
 @RestController
 @RequestMapping(value = "/produto")

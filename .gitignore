@@ -38,3 +38,5 @@ build.log
 
 ### .env files ###
 *.env
+envs/.env.*
+!envs/.env.example
