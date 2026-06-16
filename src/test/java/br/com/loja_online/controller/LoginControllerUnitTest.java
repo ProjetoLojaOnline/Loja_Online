@@ -1,10 +1,9 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.LoginRequest;
-import br.com.loja_online.exception.ControllerAdviceHandler;
-import br.com.loja_online.service.LoginService;
-import br.com.loja_online.service.exceptions.AuthenticationException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,9 +15,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.com.loja_online.dto.LoginRequest;
+import br.com.loja_online.exception.ControllerAdviceHandler;
+import br.com.loja_online.service.LoginService;
+import br.com.loja_online.service.exceptions.AuthenticationException;
 
 @ExtendWith(MockitoExtension.class)
 class LoginControllerUnitTest {

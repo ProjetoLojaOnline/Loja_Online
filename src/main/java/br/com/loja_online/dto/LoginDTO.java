@@ -1,15 +1,17 @@
 package br.com.loja_online.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Builder;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LoginDTO(
         @NotBlank(message = "Login é obrigatório")
-        @Size(min = 3, message = "Login deve ter no mínimo 3 caracteres")
+        @Size(min = 3, max = 50, message = "Login deve ter entre 3 e 50 caracteres")
         String login,
 
         @NotBlank(message = "Senha é obrigatória")

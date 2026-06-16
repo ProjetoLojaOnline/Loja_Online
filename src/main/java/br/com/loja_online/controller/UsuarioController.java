@@ -1,15 +1,17 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.*;
-import br.com.loja_online.service.UsuarioService;
+import java.util.List;
+
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.util.List;
+import br.com.loja_online.dto.UsuarioCadastroWrapper;
+import br.com.loja_online.dto.UsuarioResponseDTO;
+import br.com.loja_online.dto.UsuarioUpdateDTO;
+import br.com.loja_online.service.UsuarioService;
 
 @RestController
 @RequestMapping("/api/usuarios")

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="config/checkstyle-suppressions.xml"/>
+    </module>
+
+    <!-- Sem tabs: usar espaços -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- Arquivo deve terminar com nova linha -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!-- Máximo de 120 caracteres por linha (ignora imports e URLs) -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|https?://"/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <!-- ── Imports ─────────────────────────────────────────────────── -->
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+
+        <!--
+            Sem wildcard imports do próprio projeto.
+            jakarta.persistence, lombok e anotações Spring são permitidos
+            pois importam muitos símbolos e é prática consolidada.
+        -->
+        <module name="AvoidStarImport">
+            <property name="excludes"
+                value="jakarta.persistence,
+                       lombok,
+                       org.springframework.web.bind.annotation,
+                       org.junit.jupiter.api"/>
+        </module>
+
+        <!-- ── Nomenclatura ─────────────────────────────────────────────── -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9_]*)*$"/>
+        </module>
+        <module name="TypeName"/>
+        <module name="MethodName"/>
+        <module name="ParameterName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="ConstantName"/>
+
+        <!-- ── Blocos: chaves obrigatórias em if/else/for/while ─────────── -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+
+        <!-- ── Modificadores na ordem correta ──────────────────────────── -->
+        <!-- ex.: public static final, não static public final -->
+        <module name="ModifierOrder"/>
+
+        <!-- ── Estilo geral ─────────────────────────────────────────────── -->
+        <!-- L maiúsculo em long literals: 100L e não 100l -->
+        <module name="UpperEll"/>
+        <!-- int[] args e não int args[] -->
+        <module name="ArrayTypeStyle"/>
+        <!-- Ponto-e-vírgula isolado = statement vazio -->
+        <module name="EmptyStatement"/>
+
+    </module>
+</module>

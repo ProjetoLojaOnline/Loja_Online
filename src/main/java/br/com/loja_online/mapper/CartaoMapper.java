@@ -4,7 +4,7 @@ import br.com.loja_online.dto.CartaoDTO;
 import br.com.loja_online.model.Cartao;
 
 public class CartaoMapper {
-    
+
     public static CartaoDTO paraDto(Cartao cartao) {
         if (cartao == null) {
             return null;
