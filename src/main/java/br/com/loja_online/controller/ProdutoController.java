@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -22,13 +23,13 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProdutoDTO>> findAll(Pageable pageable) {
+    public ResponseEntity<Page<ProdutoDTO>> findAll(@NonNull Pageable pageable) {
         Page<ProdutoDTO> produtos = produtoService.findAll(pageable);
         return ResponseEntity.ok(produtos);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ProdutoDTO> findById(@PathVariable Integer id) {
+    public ResponseEntity<ProdutoDTO> findById(@NonNull @PathVariable Integer id) {
         ProdutoDTO produto = produtoService.findById(id);
         return ResponseEntity.ok(produto);
     }
@@ -43,7 +44,7 @@ public class ProdutoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ProdutoDTO> delete(@PathVariable Integer id) {
+    public ResponseEntity<ProdutoDTO> delete(@NonNull @PathVariable Integer id) {
         produtoService.delete(id);
         return ResponseEntity.noContent().build();
     }

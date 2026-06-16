@@ -7,10 +7,9 @@ import br.com.loja_online.repository.ProdutoRepository;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class ProdutoService {
@@ -22,13 +21,13 @@ public class ProdutoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoDTO> findAll(Pageable pageable) {
+    public Page<ProdutoDTO> findAll(@NonNull Pageable pageable) {
         Page<Produto> produtos = produtoRepository.findAll(pageable);
         return produtos.map(ProdutoMapper::paraDto);
     }
 
     @Transactional(readOnly = true)
-    public ProdutoDTO findById(Integer id) {
+    public ProdutoDTO findById(@NonNull Integer id) {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado com o ID: " + id));
         return ProdutoMapper.paraDto(produto);
@@ -45,7 +44,7 @@ public class ProdutoService {
 
 
     @Transactional
-    public void delete(Integer id) {
+    public void delete(@NonNull Integer id) {
         produtoRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado com o ID: " + id));
         produtoRepository.deleteById(id);
     }

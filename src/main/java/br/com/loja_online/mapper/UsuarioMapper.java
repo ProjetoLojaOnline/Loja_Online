@@ -4,8 +4,6 @@ import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.model.*;
 
-import java.util.List;
-import java.util.ArrayList;
 
 public class UsuarioMapper {
     public static UsuarioResponseDTO paraDTO(Usuario usuario) {

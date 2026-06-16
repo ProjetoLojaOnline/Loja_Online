@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,7 +28,7 @@ public class CartaoController {
     private final CartaoService cartaoService;
 
     @PostMapping("/create")
-    public ResponseEntity<CartaoDTO> insert(@Valid @RequestBody CartaoDTO dto){
+    public ResponseEntity<CartaoDTO> insert(@Valid @NonNull @RequestBody CartaoDTO dto){
         Cartao cartao = cartaoService.criarCartao(CartaoMapper.paraCartao(dto));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(cartao.getId()).toUri();
@@ -35,19 +36,19 @@ public class CartaoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CartaoDTO> getCartaoPorId(@PathVariable Integer id) {
+    public ResponseEntity<CartaoDTO> getCartaoPorId(@NonNull @PathVariable Integer id) {
         Cartao cartao = cartaoService.getCartaoPorId(id);
         return ResponseEntity.status(200).body(CartaoMapper.paraDto(cartao));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCartao(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteCartao(@NonNull @PathVariable Integer id) {
         cartaoService.deletarCartao(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CartaoDTO> updateCartao(@PathVariable Integer id, @Valid @RequestBody CartaoDTO dto) {
+    public ResponseEntity<CartaoDTO> updateCartao(@NonNull @PathVariable Integer id, @Valid @NonNull @RequestBody CartaoDTO dto) {
         Cartao cartao = cartaoService.atualizarCartao(id, CartaoMapper.paraCartao(dto));
         return ResponseEntity.status(200).body(CartaoMapper.paraDto(cartao));
     }   

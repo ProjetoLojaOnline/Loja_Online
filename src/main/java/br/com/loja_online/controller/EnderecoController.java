@@ -7,6 +7,7 @@ import br.com.loja_online.service.EnderecoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -20,7 +21,7 @@ public class EnderecoController {
   private final EnderecoService enderecoService;
 
   @PostMapping("/create")
-  public ResponseEntity<Endereco> insert(@Valid @RequestBody EnderecoDTO dto){
+  public ResponseEntity<Endereco> insert(@Valid @NonNull @RequestBody EnderecoDTO dto){
     Endereco endereco = enderecoService.criarEndereco(EnderecoMapper.paraEndereco(dto));
     URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
             .buildAndExpand(endereco.getId()).toUri();
@@ -28,7 +29,7 @@ public class EnderecoController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<EnderecoDTO> getEnderecoPorId(@PathVariable Integer id) {
+  public ResponseEntity<EnderecoDTO> getEnderecoPorId(@NonNull @PathVariable Integer id) {
     Endereco endereco = enderecoService.getEnderecoPorId(id);
     return ResponseEntity.status(200).body(EnderecoMapper.paraDto(endereco));
   }

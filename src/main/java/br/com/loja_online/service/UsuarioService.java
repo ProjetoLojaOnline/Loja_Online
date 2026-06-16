@@ -14,6 +14,7 @@ import br.com.loja_online.service.exceptions.ConflictException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -75,21 +76,22 @@ public class UsuarioService {
         return UsuarioMapper.paraDTO(usuario);
     }
 
-    public UsuarioResponseDTO findById(Long id) {
+    public UsuarioResponseDTO findById(@NonNull Long id) {
         return usuarioRepository.findById(id)
                 .map(UsuarioMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(@NonNull Long id) {
         if (!usuarioRepository.existsById(id)) {
             throw new ObjectNotFoundException("Usuário não encontrado para deletar");
         }
         usuarioRepository.deleteById(id);
     }
 
+    @SuppressWarnings("null")
     @Transactional
-    public UsuarioResponseDTO atualizaUsuario(Long id, @Valid  UsuarioUpdateDTO dto) {
+    public UsuarioResponseDTO atualizaUsuario(@NonNull Long id, @Valid UsuarioUpdateDTO dto) {
         Usuario dados = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuario Não encontrado com o ID: " + id));
         UsuarioUpadateMapper.updateUsuarioDTO(dto, dados);

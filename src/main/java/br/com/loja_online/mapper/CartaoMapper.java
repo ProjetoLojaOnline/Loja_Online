@@ -2,13 +2,11 @@ package br.com.loja_online.mapper;
 
 import br.com.loja_online.dto.CartaoDTO;
 import br.com.loja_online.model.Cartao;
+import org.springframework.lang.NonNull;
 
 public class CartaoMapper {
-    
+
     public static CartaoDTO paraDto(Cartao cartao) {
-        if (cartao == null) {
-            return null;
-        }
         return new CartaoDTO(
                 cartao.getNumeroCartao(),
                 cartao.getNomeCartao(),
@@ -18,10 +16,8 @@ public class CartaoMapper {
         );
     }
 
-    public static Cartao paraCartao(CartaoDTO dto) {
-        if (dto == null) {
-            return null;
-        }
+    @SuppressWarnings("null")
+    public static @NonNull Cartao paraCartao(@NonNull CartaoDTO dto) {
         return Cartao.builder()
                 .numeroCartao(dto.getNumeroCartao())
                 .nomeCartao(dto.getNomeCartao())
