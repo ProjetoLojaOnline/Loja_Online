@@ -1,0 +1,47 @@
+#!/bin/sh
+# Valida o formato Conventional Commits (não-bloqueante — só avisa).
+# Para ativar: make setup-hooks
+
+COMMIT_MSG_FILE="$1"
+
+# Remove linhas de comentário do git (começam com #) e lê a primeira linha real
+FIRST_LINE=$(grep -v "^#" "$COMMIT_MSG_FILE" | head -1)
+
+# Ignora commits automáticos do git (merge, revert, fixup)
+case "$FIRST_LINE" in
+    Merge\ *|Revert\ *|fixup\!*|squash\!*) exit 0 ;;
+esac
+
+# Padrão: type(escopo opcional)!?: descrição (máx 72 chars na primeira linha)
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .{1,72}$"
+
+if ! echo "$FIRST_LINE" | grep -qE "$PATTERN"; then
+    printf "\n"
+    printf "⚠️  AVISO: mensagem fora do padrão Conventional Commits.\n"
+    printf "   Mensagem atual: %s\n" "$FIRST_LINE"
+    printf "\n"
+    printf "   Formato:  <tipo>(escopo): descrição curta\n"
+    printf "\n"
+    printf "   Tipos válidos:\n"
+    printf "     feat     → nova funcionalidade\n"
+    printf "     fix      → correção de bug\n"
+    printf "     refactor → refatoração sem mudança de comportamento\n"
+    printf "     test     → adição ou correção de testes\n"
+    printf "     chore    → manutenção (deps, config, build)\n"
+    printf "     docs     → documentação\n"
+    printf "     ci       → pipelines e automação\n"
+    printf "     style    → formatação sem mudança de lógica\n"
+    printf "     perf     → melhoria de performance\n"
+    printf "     revert   → reverte um commit anterior\n"
+    printf "\n"
+    printf "   Exemplos corretos:\n"
+    printf "     feat(usuario): adiciona busca por CPF\n"
+    printf "     fix: corrige NPE ao salvar cartão sem usuário\n"
+    printf "     chore: atualiza dependências para versão LTS\n"
+    printf "     feat!: muda contrato do endpoint de login (breaking change)\n"
+    printf "\n"
+    printf "   ℹ️  Commit realizado mesmo assim — não-bloqueante por decisão do projeto.\n"
+    printf "\n"
+fi
+
+exit 0
