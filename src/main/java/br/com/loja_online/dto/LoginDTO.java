@@ -9,6 +9,7 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LoginDTO(
         @NotBlank(message = "Login é obrigatório")
+        @Size(min = 3, message = "Login deve ter no mínimo 3 caracteres")
         String login,
 
         @NotBlank(message = "Senha é obrigatória")

@@ -37,7 +37,7 @@ jobs:
             ${{ runner.os }}-dependency-check-
 
       - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@v1.1.0
+        uses: dependency-check/Dependency-Check_Action@1.1.0
         with:
           project: ${{ github.repository }}
           path: .

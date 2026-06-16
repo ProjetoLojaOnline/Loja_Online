@@ -171,7 +171,7 @@ class UsuarioServiceTest {
         // When & Then
         assertThatThrownBy(() -> usuarioService.insert(usuarioRequestDTO, loginDTO))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Esse telefone já está em usso!");
+                .hasMessage("Esse telefone já está em uso!");
     }
 
     @Test
