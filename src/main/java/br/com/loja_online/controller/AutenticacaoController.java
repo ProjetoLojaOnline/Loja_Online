@@ -1,5 +1,7 @@
 package br.com.loja_online.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,8 +15,6 @@ import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.security.DadosToken;
 import br.com.loja_online.security.TokenService;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
