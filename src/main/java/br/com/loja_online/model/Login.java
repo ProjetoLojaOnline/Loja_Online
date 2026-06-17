@@ -25,10 +25,13 @@ import lombok.*;
 @Table(name = "login")
 public class Login implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy =
+        GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "login", nullable = false, unique = true)
+
+
     private String login;
 
     @Column(name = "senha", nullable = false, length = 255)
