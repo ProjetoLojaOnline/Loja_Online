@@ -22,14 +22,14 @@ public class UsuarioBuilder {
     private UsuarioBuilder() {}
 
     public static UsuarioBuilder padrao() {
-        UsuarioBuilder b = new UsuarioBuilder();
-        b.nome = faker.name().fullName();
-        b.email = faker.internet().emailAddress();
-        b.cpf = faker.numerify("###########");
-        b.telefone = faker.numerify("##########");
-        b.login = "user" + faker.number().digits(6);
-        b.senha = faker.internet().password(6, 20, true, false);
-        return b;
+        UsuarioBuilder builder = new UsuarioBuilder();
+        builder.nome = faker.name().fullName();
+        builder.email = faker.internet().emailAddress();
+        builder.cpf = faker.numerify("###########");
+        builder.telefone = faker.numerify("##########");
+        builder.login = "user" + faker.number().digits(6);
+        builder.senha = faker.internet().password(6, 20, true, false);
+        return builder;
     }
 
     public UsuarioBuilder comEmail(String email) {

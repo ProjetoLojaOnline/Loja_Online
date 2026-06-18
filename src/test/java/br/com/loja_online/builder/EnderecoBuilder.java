@@ -23,16 +23,16 @@ public class EnderecoBuilder {
     private EnderecoBuilder() {}
 
     public static EnderecoBuilder padrao() {
-        EnderecoBuilder b = new EnderecoBuilder();
-        b.logradouro = faker.address().streetName();
-        b.numero = faker.number().numberBetween(1, 9999);
-        b.bairro = faker.address().cityName();
-        b.complemento = "Apto " + faker.number().numberBetween(1, 200);
-        b.referencia = "Próximo ao " + faker.address().cityName();
-        b.cep = faker.numerify("#####") + "-" + faker.numerify("###");
-        b.cidade = faker.address().city();
-        b.estado = faker.address().stateAbbr();
-        return b;
+        EnderecoBuilder builder = new EnderecoBuilder();
+        builder.logradouro = faker.address().streetName();
+        builder.numero = faker.number().numberBetween(1, 9999);
+        builder.bairro = faker.address().cityName();
+        builder.complemento = "Apto " + faker.number().numberBetween(1, 200);
+        builder.referencia = "Próximo ao " + faker.address().cityName();
+        builder.cep = faker.numerify("#####") + "-" + faker.numerify("###");
+        builder.cidade = faker.address().city();
+        builder.estado = faker.address().stateAbbr();
+        return builder;
     }
 
     public EnderecoBuilder comCep(String cep) {
@@ -50,7 +50,6 @@ public class EnderecoBuilder {
     }
 
     public Endereco buildModel() {
-        Endereco e = new Endereco(logradouro, numero, bairro, complemento, referencia, cep, cidade, estado);
-        return e;
+        return new Endereco(logradouro, numero, bairro, complemento, referencia, cep, cidade, estado);
     }
 }

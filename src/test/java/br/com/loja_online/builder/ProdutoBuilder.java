@@ -24,15 +24,16 @@ public class ProdutoBuilder {
     private ProdutoBuilder() {}
 
     public static ProdutoBuilder padrao() {
-        ProdutoBuilder b = new ProdutoBuilder();
-        b.id = null;
-        b.nome = faker.commerce().productName();
-        b.descricao = faker.lorem().sentence();
-        b.categoria = faker.commerce().department();
-        b.quantidade = faker.number().numberBetween(0, 100);
-        b.preco = BigDecimal.valueOf(faker.number().randomDouble(2, 1, 999)).setScale(2, RoundingMode.HALF_UP);
-        b.cor = faker.color().name();
-        return b;
+        ProdutoBuilder builder = new ProdutoBuilder();
+        builder.id = null;
+        builder.nome = faker.commerce().productName();
+        builder.descricao = faker.lorem().sentence();
+        builder.categoria = faker.commerce().department();
+        builder.quantidade = faker.number().numberBetween(0, 100);
+        builder.preco =
+                BigDecimal.valueOf(faker.number().randomDouble(2, 1, 999)).setScale(2, RoundingMode.HALF_UP);
+        builder.cor = faker.color().name();
+        return builder;
     }
 
     public ProdutoBuilder comId(Integer id) {

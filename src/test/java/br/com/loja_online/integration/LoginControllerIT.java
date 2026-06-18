@@ -86,15 +86,15 @@ class LoginControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveManterIntegridadeQuandoBuscarLoginAposCriacao")
     void deveManterIntegridadeQuandoBuscarLoginAposCriacao() throws Exception {
-        UsuarioBuilder b1 = UsuarioBuilder.padrao().comLogin("integlogin1");
-        UsuarioBuilder b2 = UsuarioBuilder.padrao().comLogin("integlogin2");
+        UsuarioBuilder primeiroBuilder = UsuarioBuilder.padrao().comLogin("integlogin1");
+        UsuarioBuilder segundoBuilder = UsuarioBuilder.padrao().comLogin("integlogin2");
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(b1.buildWrapper())))
+                        .content(objectMapper.writeValueAsString(primeiroBuilder.buildWrapper())))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(b2.buildWrapper())))
+                        .content(objectMapper.writeValueAsString(segundoBuilder.buildWrapper())))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(get("/login/buscar/{login}", "integlogin1").header("Authorization", "Bearer " + authToken))
