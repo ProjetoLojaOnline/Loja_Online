@@ -21,19 +21,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EnderecoController {
 
-  private final EnderecoService enderecoService;
+    private final EnderecoService enderecoService;
 
-  @PostMapping("/create")
-  public ResponseEntity<Endereco> insert(@Valid @NonNull @RequestBody EnderecoDTO dto){
-    Endereco endereco = enderecoService.criarEndereco(EnderecoMapper.paraEndereco(dto));
-    URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-            .buildAndExpand(endereco.getId()).toUri();
-    return ResponseEntity.created(uri).body(endereco);
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<EnderecoDTO> buscarPorId(@NonNull @PathVariable Integer id) {
+        return ResponseEntity.ok(EnderecoMapper.paraDto(enderecoService.findById(id)));
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<EnderecoDTO> getEnderecoPorId(@NonNull @PathVariable Integer id) {
-    Endereco endereco = enderecoService.getEnderecoPorId(id);
-    return ResponseEntity.status(200).body(EnderecoMapper.paraDto(endereco));
-  }
+    @PostMapping("/create")
+    public ResponseEntity<EnderecoDTO> insert(@Valid @NonNull @RequestBody EnderecoDTO dto) {
+        Endereco endereco = enderecoService.criarEndereco(EnderecoMapper.paraEndereco(dto));
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .replacePath("/endereco/{id}")
+                .buildAndExpand(endereco.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(EnderecoMapper.paraDto(endereco));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@NonNull @PathVariable Integer id) {
+        enderecoService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
