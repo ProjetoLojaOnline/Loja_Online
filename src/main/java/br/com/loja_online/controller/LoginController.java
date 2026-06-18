@@ -48,13 +48,14 @@ public class LoginController {
     @Operation(summary = "Autenticar usuário", description = "Retorna JWT Bearer token. Rota pública.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Token JWT gerado"),
-        @ApiResponse(responseCode = "400", description = "E-mail inválido, username/e-mail ausente, ou senha em branco"),
+        @ApiResponse(
+                responseCode = "400",
+                description = "E-mail inválido, username/e-mail ausente, ou senha em branco"),
         @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
     })
     public ResponseEntity<String> login(@Valid @RequestBody AutenticacaoRequestDTO loginRequest) {
-        String identificador = StringUtils.hasText(loginRequest.username())
-                ? loginRequest.username()
-                : loginRequest.email();
+        String identificador =
+                StringUtils.hasText(loginRequest.username()) ? loginRequest.username() : loginRequest.email();
         return ResponseEntity.ok(service.login(identificador, loginRequest.senha()));
     }
 }

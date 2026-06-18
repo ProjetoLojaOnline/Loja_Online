@@ -48,8 +48,7 @@ public class SecurityConfig {
                         // Qualquer autenticado (verificação de propriedade feita no serviço)
                         .anyRequest()
                         .authenticated())
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
                                 (req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Não autorizado"))
                         .accessDeniedHandler(
                                 (req, res, e) -> res.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado")))

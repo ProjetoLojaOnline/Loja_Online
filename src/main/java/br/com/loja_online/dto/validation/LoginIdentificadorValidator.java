@@ -12,7 +12,9 @@ public class LoginIdentificadorValidator
 
     @Override
     public boolean isValid(AutenticacaoRequestDTO dto, ConstraintValidatorContext context) {
-        if (dto == null) return true;
+        if (dto == null) {
+            return true;
+        }
         return StringUtils.hasText(dto.email()) || StringUtils.hasText(dto.username());
     }
 }
