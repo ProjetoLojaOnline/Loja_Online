@@ -23,8 +23,7 @@ public class CartaoBuilder {
 
     public static CartaoBuilder padrao() {
         CartaoBuilder b = new CartaoBuilder();
-        b.numeroCartao = Long.parseLong(
-                faker.finance().creditCard().replaceAll("[^0-9]", "").substring(0, 16));
+        b.numeroCartao = Long.parseLong(faker.numerify("################"));
         b.nomeCartao = faker.name().fullName();
         b.dataValidade = Date.valueOf(LocalDate.now().plusYears(2));
         b.cvv = faker.number().numberBetween(100, 999);
