@@ -11,14 +11,16 @@ import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ForbiddenException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class EnderecoService {
 
     private final EnderecoRepository enderecoRepository;
     private final UsuarioRepository usuarioRepository;
+
+    public EnderecoService(EnderecoRepository enderecoRepository, UsuarioRepository usuarioRepository) {
+        this.enderecoRepository = enderecoRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
 
     @Transactional
     public Endereco criarEndereco(@NonNull Endereco endereco, @NonNull String emailProprietario) {

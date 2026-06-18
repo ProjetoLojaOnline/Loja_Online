@@ -17,6 +17,7 @@ import br.com.loja_online.mapper.UsuarioMapper;
 import br.com.loja_online.mapper.UsuarioUpadateMapper;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
+import br.com.loja_online.model.enums.Role;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ConflictException;
@@ -58,6 +59,7 @@ public class UsuarioService {
         Login login = new Login();
         login.setLogin(loginDTO.login());
         login.setSenha(passwordEncoder.encode(loginDTO.senha()));
+        login.setRole(Role.ROLE_USER);
         login.setUsuario(novoUsuario);
         novoUsuario.setLogin(login);
 

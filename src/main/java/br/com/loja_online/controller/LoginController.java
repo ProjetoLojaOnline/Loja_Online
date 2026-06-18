@@ -3,7 +3,12 @@ package br.com.loja_online.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.LoginRequest;
@@ -46,6 +51,6 @@ public class LoginController {
         @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
     })
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(service.login(loginRequest.getEmail(), loginRequest.getSenha()));
+        return ResponseEntity.ok(service.login(loginRequest.email(), loginRequest.senha()));
     }
 }

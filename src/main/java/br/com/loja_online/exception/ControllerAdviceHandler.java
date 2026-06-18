@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -42,6 +43,14 @@ public class ControllerAdviceHandler {
             AuthenticationException ex, HttpServletRequest request) {
         StandardError standardError = new StandardError(
                 System.currentTimeMillis(), 401, "Unauthorized", ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(standardError);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<StandardError> badCredentialsException(
+            BadCredentialsException ex, HttpServletRequest request) {
+        StandardError standardError = new StandardError(
+                System.currentTimeMillis(), 401, "Unauthorized", "Credenciais inválidas", request.getRequestURI());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(standardError);
     }
 

@@ -14,16 +14,24 @@ import br.com.loja_online.security.TokenService;
 import br.com.loja_online.service.exceptions.AuthenticationException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class LoginService {
 
     private final LoginRepository loginRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+
+    public LoginService(
+            LoginRepository loginRepository,
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            TokenService tokenService) {
+        this.loginRepository = loginRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
+    }
 
     @Transactional(readOnly = true)
     public LoginDTO buscarPorLogin(String login) {

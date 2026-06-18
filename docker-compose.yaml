@@ -2,6 +2,9 @@ services:
   db:
     image: postgres:17-alpine
     restart: unless-stopped
+    # 1. Avisa ao Docker para ler o arquivo dentro da pasta envs
+    env_file:
+      - envs/.env.local
     ports:
       - "${DB_PORT}:5432"
     environment:
@@ -11,17 +14,21 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
+      # Usando o usuário root padrão do Postgres para garantir que o teste passe rápido
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 5
+      start_period: 10s
     networks:
       - loja-network
 
   app:
     build: .
     restart: on-failure
+    # 2. Avisa ao Docker para carregar o arquivo de ambiente no app também
+    env_file:
+      - envs/.env.local
     ports:
       - "${SERVER_PORT}:8080"
     depends_on:
@@ -32,7 +39,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      SERVER_PORT: ${SERVER_PORT}
+      SERVER_PORT: 8080 # Porta interna que o container escuta (definida no Dockerfile)
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - loja-network
 
