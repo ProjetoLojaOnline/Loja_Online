@@ -2,21 +2,17 @@ package br.com.loja_online.mapper;
 
 import java.util.List;
 
-import br.com.loja_online.dto.CartaoDTO;
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.model.Usuario;
 
 public class UsuarioMapper {
+
     public static UsuarioResponseDTO paraDTO(Usuario usuario) {
         if (usuario == null) {
             return null;
         }
-
-        List<CartaoDTO> cartoes = usuario.getCartoes() != null
-                ? usuario.getCartoes().stream().map(CartaoMapper::paraDto).toList()
-                : java.util.Collections.emptyList();
 
         List<EnderecoDTO> enderecos = usuario.getEnderecos() != null
                 ? usuario.getEnderecos().stream().map(EnderecoMapper::paraDto).toList()
@@ -32,7 +28,6 @@ public class UsuarioMapper {
                 .genero(usuario.getGenero())
                 .foto(usuario.getFoto())
                 .tipo(usuario.getTipo())
-                .cartoes(cartoes)
                 .enderecos(enderecos)
                 .build();
     }
@@ -52,11 +47,6 @@ public class UsuarioMapper {
                 .foto(usuarioDTO.getFoto())
                 .tipo(usuarioDTO.getTipo())
                 .build();
-
-        if (usuarioDTO.getCartoes() != null) {
-            usuarioDTO.getCartoes().forEach(cartao -> cartao.setUsuario(usuario));
-            usuario.setCartoes(usuarioDTO.getCartoes());
-        }
 
         if (usuarioDTO.getEnderecos() != null) {
             usuarioDTO.getEnderecos().forEach(endereco -> endereco.setUsuario(usuario));

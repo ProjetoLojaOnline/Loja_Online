@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import br.com.loja_online.model.Cartao;
 import br.com.loja_online.model.Endereco;
 
 import lombok.*;
@@ -38,8 +37,7 @@ public class UsuarioRequestDTO {
     private String genero;
     private String foto;
     private String tipo;
-    @Builder.Default
-    private List<Cartao> cartoes = new ArrayList<>();
+
     @Builder.Default
     private List<Endereco> enderecos = new ArrayList<>();
 }

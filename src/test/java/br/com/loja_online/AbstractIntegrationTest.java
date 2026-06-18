@@ -17,6 +17,7 @@ import br.com.loja_online.builder.UsuarioBuilder;
 import br.com.loja_online.dto.LoginRequest;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 
+@SuppressWarnings("null")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

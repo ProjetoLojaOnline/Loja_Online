@@ -16,6 +16,7 @@ import br.com.loja_online.service.UsuarioService;
 
 import lombok.RequiredArgsConstructor;
 
+@SuppressWarnings("null")
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor

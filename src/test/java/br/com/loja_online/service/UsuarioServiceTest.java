@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,7 +25,6 @@ import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
 import br.com.loja_online.mapper.UsuarioMapper;
 import br.com.loja_online.mapper.UsuarioUpadateMapper;
-import br.com.loja_online.model.Cartao;
 import br.com.loja_online.model.Endereco;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
@@ -64,7 +62,6 @@ class UsuarioServiceTest {
                 .email(EMAIL_AUTENTICADO)
                 .cpf("12345678901")
                 .telefone("11999999999")
-                .cartoes(Collections.emptyList())
                 .enderecos(Collections.emptyList())
                 .build();
 
@@ -76,7 +73,6 @@ class UsuarioServiceTest {
                 .email(EMAIL_AUTENTICADO)
                 .cpf("12345678901")
                 .telefone("11999999999")
-                .cartoes(Collections.emptyList())
                 .enderecos(Collections.emptyList())
                 .build();
 
@@ -224,7 +220,6 @@ class UsuarioServiceTest {
     @Test
     @DisplayName("deveMapearTodosOsCamposQuandoUsuarioMapperParaDTO")
     void deveMapearTodosOsCamposQuandoUsuarioMapperParaDTO() {
-        Cartao cartao = Cartao.builder().id(10L).nomeCartao("Cartão Teste").build();
         Endereco endereco = new Endereco("Rua A", 1, "Centro", null, null, "01001-000", "São Paulo", "SP");
         Usuario usuarioCompleto = Usuario.builder()
                 .id(1L)
@@ -234,7 +229,6 @@ class UsuarioServiceTest {
                 .telefone("11999999999")
                 .genero("M")
                 .tipo("CLIENTE")
-                .cartoes(java.util.List.of(cartao))
                 .enderecos(java.util.List.of(endereco))
                 .build();
 
@@ -248,7 +242,6 @@ class UsuarioServiceTest {
         assertThat(result.getTelefone()).isEqualTo("11999999999");
         assertThat(result.getGenero()).isEqualTo("M");
         assertThat(result.getTipo()).isEqualTo("CLIENTE");
-        assertThat(result.getCartoes()).hasSize(1);
         assertThat(result.getEnderecos()).hasSize(1);
     }
 
@@ -303,26 +296,22 @@ class UsuarioServiceTest {
     }
 
     @Test
-    @DisplayName("deveLidarComListasVaziasQuandoUsuarioComCartoesEEnderecosVazios")
-    void deveLidarComListasVaziasQuandoUsuarioComCartoesEEnderecosVazios() {
-        usuarioRequestDTO.setCartoes(Collections.emptyList());
+    @DisplayName("deveLidarComListaVaziaQuandoUsuarioComEnderecosVazios")
+    void deveLidarComListaVaziaQuandoUsuarioComEnderecosVazios() {
         usuarioRequestDTO.setEnderecos(Collections.emptyList());
 
         Usuario result = UsuarioMapper.paraUsuario(usuarioRequestDTO);
 
-        assertThat(result.getCartoes()).isEmpty();
         assertThat(result.getEnderecos()).isEmpty();
     }
 
     @Test
-    @DisplayName("deveLidarComListasNulasQuandoUsuarioComCartoesEEnderecosNulos")
-    void deveLidarComListasNulasQuandoUsuarioComCartoesEEnderecosNulos() {
-        usuarioRequestDTO.setCartoes(null);
+    @DisplayName("deveLidarComListaNulaQuandoUsuarioComEnderecosNulos")
+    void deveLidarComListaNulaQuandoUsuarioComEnderecosNulos() {
         usuarioRequestDTO.setEnderecos(null);
 
         Usuario result = UsuarioMapper.paraUsuario(usuarioRequestDTO);
 
-        assertThat(result.getCartoes()).isNullOrEmpty();
         assertThat(result.getEnderecos()).isNullOrEmpty();
     }
 

@@ -23,6 +23,7 @@ import br.com.loja_online.service.EnderecoService;
 
 import lombok.RequiredArgsConstructor;
 
+@SuppressWarnings("null")
 @RestController
 @RequestMapping("/endereco")
 @RequiredArgsConstructor

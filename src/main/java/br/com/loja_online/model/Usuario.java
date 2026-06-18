@@ -29,15 +29,11 @@ import lombok.Setter;
 public class Usuario {
 
     public Usuario() {
-        this.cartoes = new ArrayList<>();
         this.enderecos = new ArrayList<>();
     }
 
     @PostLoad
     private void inicializarColecoes() {
-        if (this.cartoes == null) {
-            this.cartoes = new ArrayList<>();
-        }
         if (this.enderecos == null) {
             this.enderecos = new ArrayList<>();
         }
@@ -65,10 +61,6 @@ public class Usuario {
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Login login;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cartao> cartoes = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)

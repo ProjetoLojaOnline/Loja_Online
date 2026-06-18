@@ -23,8 +23,5 @@ public class UsuarioResponseDTO {
     private String tipo;
 
     @Builder.Default
-    private List<CartaoDTO> cartoes = new ArrayList<>();
-
-    @Builder.Default
     private List<EnderecoDTO> enderecos = new ArrayList<>();
 }

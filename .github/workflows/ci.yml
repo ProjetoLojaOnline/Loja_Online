@@ -41,8 +41,8 @@ jobs:
         with:
           project: ${{ github.repository }}
           path: .
-          format: HTML
-          args: --failOnCVSS 7 --nvdApiKey ${{ secrets.NVD_API_KEY }}
+          format: "HTML"
+          args: "--failOnCVSS 7 --nvdApiKey ${{ secrets.NVD_API_KEY }}"
 
       - name: Upload OWASP report
         uses: actions/upload-artifact@v4
