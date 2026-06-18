@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
 
-import net.datafaker.Faker;
-
 import br.com.loja_online.dto.ProdutoDTO;
 import br.com.loja_online.model.Produto;
+
+import net.datafaker.Faker;
 
 public class ProdutoBuilder {
 
@@ -30,8 +30,7 @@ public class ProdutoBuilder {
         b.descricao = faker.lorem().sentence();
         b.categoria = faker.commerce().department();
         b.quantidade = faker.number().numberBetween(0, 100);
-        b.preco = BigDecimal.valueOf(faker.number().randomDouble(2, 1, 999))
-                .setScale(2, RoundingMode.HALF_UP);
+        b.preco = BigDecimal.valueOf(faker.number().randomDouble(2, 1, 999)).setScale(2, RoundingMode.HALF_UP);
         b.cor = faker.color().name();
         return b;
     }

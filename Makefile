@@ -1,4 +1,4 @@
-.PHONY: lint lint-check test test-docker up down setup-hooks
+.PHONY: lint lint-check test test-integration test-all test-docker up down setup-hooks
 
 ## Corrige automaticamente: formatação, imports, trailing whitespace
 lint:
@@ -34,22 +34,38 @@ down:
 test:
 	@./mvnw test --no-transfer-progress
 
-## Roda todos os testes (PostgreSQL via Testcontainers) e faz push automático ao final
-## Requer Docker em execução. Falha → mostra testes quebrados. Sucesso → git push.
+## Roda os testes de integração (Testcontainers — requer Docker)
+test-integration:
+	@./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress
+
+## Roda todos os testes: unitários + integração (requer Docker)
+test-all:
+	@./mvnw test --no-transfer-progress
+	@./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress
+
+## Roda todos os testes e faz push automático ao final.
+## Falha → mostra quais testes quebraram. Sucesso → git push.
 test-docker:
 	@TEST_LOG=$$(mktemp /tmp/loja-test-XXXXXX.log); \
 	EXIT_FILE=$$(mktemp); \
-	echo "🔍 Rodando testes contra PostgreSQL (Testcontainers)..."; \
+	echo "🔍 Rodando testes unitários..."; \
 	(./mvnw test --no-transfer-progress; echo $$? > $$EXIT_FILE) 2>&1 | tee $$TEST_LOG; \
-	TEST_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
-	echo ""; \
-	if [ "$$TEST_EXIT" != "0" ]; then \
-	  echo "❌ Testes falharam — corrija antes de fazer push:"; \
-	  echo ""; \
+	UNIT_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
+	if [ "$$UNIT_EXIT" != "0" ]; then \
+	  echo "❌ Testes unitários falharam — corrija antes de fazer push:"; \
 	  grep -e "<<< FAILURE" -e "<<< ERROR" $$TEST_LOG \
-	    | sed 's/\[ERROR\] /  /' \
-	    | sed 's/ Time elapsed.*<<< /  <<< /'; \
-	  echo ""; \
+	    | sed 's/\[ERROR\] /  /' | sed 's/ Time elapsed.*<<< /  <<< /'; \
+	  echo "   Log completo: $$TEST_LOG"; \
+	  exit 1; \
+	fi; \
+	echo ""; \
+	echo "🔍 Rodando testes de integração (Testcontainers)..."; \
+	(./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress; echo $$? > $$EXIT_FILE) 2>&1 | tee -a $$TEST_LOG; \
+	IT_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
+	if [ "$$IT_EXIT" != "0" ]; then \
+	  echo "❌ Testes de integração falharam — corrija antes de fazer push:"; \
+	  grep -e "<<< FAILURE" -e "<<< ERROR" $$TEST_LOG \
+	    | sed 's/\[ERROR\] /  /' | sed 's/ Time elapsed.*<<< /  <<< /'; \
 	  echo "   Log completo: $$TEST_LOG"; \
 	  exit 1; \
 	fi; \

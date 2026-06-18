@@ -43,8 +43,7 @@ class LoginControllerIT extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/login/buscar/{login}", "logintest1")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/login/buscar/{login}", "logintest1").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("logintest1"))
                 .andExpect(jsonPath("$.senha").doesNotExist());
@@ -53,8 +52,7 @@ class LoginControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar404QuandoGetPorLoginInexistente")
     void deveRetornar404QuandoGetPorLoginInexistente() throws Exception {
-        mockMvc.perform(get("/login/buscar/{login}", "naoexiste")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/login/buscar/{login}", "naoexiste").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -67,8 +65,7 @@ class LoginControllerIT extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(builder.buildWrapper())))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/login/buscar/{login}", "logintest2")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/login/buscar/{login}", "logintest2").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.senha").doesNotExist());
     }
@@ -76,15 +73,13 @@ class LoginControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar401QuandoGetPorLoginSemToken")
     void deveRetornar401QuandoGetPorLoginSemToken() throws Exception {
-        mockMvc.perform(get("/login/buscar/{login}", "qualquer"))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/login/buscar/{login}", "qualquer")).andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("deveRetornar404QuandoGetPorLoginComParametroVazio")
     void deveRetornar404QuandoGetPorLoginComParametroVazio() throws Exception {
-        mockMvc.perform(get("/login/buscar/{login}", "")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/login/buscar/{login}", "").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -102,12 +97,10 @@ class LoginControllerIT extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(b2.buildWrapper())))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/login/buscar/{login}", "integlogin1")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/login/buscar/{login}", "integlogin1").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("integlogin1"));
-        mockMvc.perform(get("/login/buscar/{login}", "integlogin2")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/login/buscar/{login}", "integlogin2").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("integlogin2"));
     }

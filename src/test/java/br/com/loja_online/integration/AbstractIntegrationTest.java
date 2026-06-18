@@ -39,7 +39,9 @@ public abstract class AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         Long id = objectMapper.readTree(response).get("id").asLong();
 
         LoginRequest loginRequest = new LoginRequest(builder.getEmail(), builder.getSenha());
@@ -47,7 +49,9 @@ public abstract class AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         return new UsuarioCriado(id, token);
     }
 

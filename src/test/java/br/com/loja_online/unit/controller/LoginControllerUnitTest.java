@@ -50,8 +50,7 @@ class LoginControllerUnitTest {
     void deveRetornar200QuandoLoginComCredenciaisValidas() throws Exception {
         LoginRequest loginRequest = new LoginRequest("user@example.com", "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
-        when(loginService.login("user@example.com", "password123"))
-                .thenReturn("header.payload.signature");
+        when(loginService.login("user@example.com", "password123")).thenReturn("header.payload.signature");
 
         mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)

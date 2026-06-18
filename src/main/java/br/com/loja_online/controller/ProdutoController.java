@@ -4,12 +4,6 @@ import java.net.URI;
 
 import jakarta.validation.Valid;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +13,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.com.loja_online.dto.ProdutoDTO;
 import br.com.loja_online.service.ProdutoService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/produto")
@@ -59,7 +59,9 @@ public class ProdutoController {
     public ResponseEntity<ProdutoDTO> save(@Valid @RequestBody ProdutoDTO produtoDTO) {
         produtoDTO = produtoService.insert(produtoDTO);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(produtoDTO.id()).toUri();
+                .path("/{id}")
+                .buildAndExpand(produtoDTO.id())
+                .toUri();
         return ResponseEntity.created(uri).body(produtoDTO);
     }
 

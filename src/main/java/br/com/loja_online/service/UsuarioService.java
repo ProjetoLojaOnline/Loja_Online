@@ -94,7 +94,8 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO atualizaUsuario(@NonNull Long id, @Valid UsuarioUpdateDTO dto, @NonNull String emailAutenticado) {
+    public UsuarioResponseDTO atualizaUsuario(
+            @NonNull Long id, @Valid UsuarioUpdateDTO dto, @NonNull String emailAutenticado) {
         Usuario usuario = usuarioRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));

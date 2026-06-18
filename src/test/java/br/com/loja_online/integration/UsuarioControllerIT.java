@@ -54,7 +54,12 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @DisplayName("deveRetornar400QuandoPostComCamposObrigatoriosVazios")
     void deveRetornar400QuandoPostComCamposObrigatoriosVazios() throws Exception {
         UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(
-                UsuarioRequestDTO.builder().nome("").email("").cpf("").telefone("").build(),
+                UsuarioRequestDTO.builder()
+                        .nome("")
+                        .email("")
+                        .cpf("")
+                        .telefone("")
+                        .build(),
                 new LoginDTO("", ""));
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -67,7 +72,10 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     void deveRetornar400QuandoPostComEmailInvalido() throws Exception {
         UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(
                 UsuarioRequestDTO.builder()
-                        .nome("Teste").email("email-invalido").cpf("12345678901").telefone("11999999999")
+                        .nome("Teste")
+                        .email("email-invalido")
+                        .cpf("12345678901")
+                        .telefone("11999999999")
                         .build(),
                 new LoginDTO("teste123", "senha123"));
         mockMvc.perform(post("/api/usuarios")
@@ -84,11 +92,12 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         Long userId = objectMapper.readTree(response).get("id").asLong();
 
-        mockMvc.perform(get("/api/usuarios/{id}", userId)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/api/usuarios/{id}", userId).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userId));
     }
@@ -96,15 +105,13 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar401QuandoGetSemToken")
     void deveRetornar401QuandoGetSemToken() throws Exception {
-        mockMvc.perform(get("/api/usuarios/{id}", 1L))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/usuarios/{id}", 1L)).andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("deveRetornar404QuandoGetPorIdInexistente")
     void deveRetornar404QuandoGetPorIdInexistente() throws Exception {
-        mockMvc.perform(get("/api/usuarios/{id}", 999999L)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/api/usuarios/{id}", 999999L).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -112,7 +119,9 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @DisplayName("deveAtualizarUsuarioQuandoPutValido")
     void deveAtualizarUsuarioQuandoPutValido() throws Exception {
         UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
-                .nome("Nome Atualizado").telefone("11888888888").build();
+                .nome("Nome Atualizado")
+                .telefone("11888888888")
+                .build();
         mockMvc.perform(put("/api/usuarios/{id}", authUsuarioId)
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -124,8 +133,8 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar401QuandoPutSemToken")
     void deveRetornar401QuandoPutSemToken() throws Exception {
-        UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
-                .nome("Teste").telefone("11999999999").build();
+        UsuarioUpdateDTO update =
+                UsuarioUpdateDTO.builder().nome("Teste").telefone("11999999999").build();
         mockMvc.perform(put("/api/usuarios/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
@@ -137,7 +146,9 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     void deveRetornar403QuandoPutEmOutroUsuario() throws Exception {
         UsuarioCriado outroUsuario = criarUsuarioComToken(UsuarioBuilder.padrao());
         UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
-                .nome("Invasor").telefone("11988887777").build();
+                .nome("Invasor")
+                .telefone("11988887777")
+                .build();
 
         mockMvc.perform(put("/api/usuarios/{id}", outroUsuario.id())
                         .header("Authorization", "Bearer " + authToken)
@@ -149,8 +160,8 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar404QuandoPutParaIdInexistente")
     void deveRetornar404QuandoPutParaIdInexistente() throws Exception {
-        UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
-                .nome("Teste").telefone("11999999999").build();
+        UsuarioUpdateDTO update =
+                UsuarioUpdateDTO.builder().nome("Teste").telefone("11999999999").build();
         mockMvc.perform(put("/api/usuarios/{id}", 999999L)
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -161,16 +172,14 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveDeletarUsuarioQuandoDeletePorIdExistente")
     void deveDeletarUsuarioQuandoDeletePorIdExistente() throws Exception {
-        mockMvc.perform(delete("/api/usuarios/{id}", authUsuarioId)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(delete("/api/usuarios/{id}", authUsuarioId).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @DisplayName("deveRetornar401QuandoDeleteSemToken")
     void deveRetornar401QuandoDeleteSemToken() throws Exception {
-        mockMvc.perform(delete("/api/usuarios/{id}", 1L))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(delete("/api/usuarios/{id}", 1L)).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -178,16 +187,14 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     void deveRetornar403QuandoDeleteEmOutroUsuario() throws Exception {
         UsuarioCriado outroUsuario = criarUsuarioComToken(UsuarioBuilder.padrao());
 
-        mockMvc.perform(delete("/api/usuarios/{id}", outroUsuario.id())
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(delete("/api/usuarios/{id}", outroUsuario.id()).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("deveRetornar404QuandoDeletePorIdInexistente")
     void deveRetornar404QuandoDeletePorIdInexistente() throws Exception {
-        mockMvc.perform(delete("/api/usuarios/{id}", 999999L)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(delete("/api/usuarios/{id}", 999999L).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -237,8 +244,7 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar405QuandoMetodoDeleteForInvalido")
     void deveRetornar405QuandoMetodoDeleteForInvalido() throws Exception {
-        mockMvc.perform(delete("/api/usuarios")
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(delete("/api/usuarios").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isMethodNotAllowed());
     }
 }

@@ -2,11 +2,11 @@ package br.com.loja_online.builder;
 
 import java.util.Locale;
 
-import net.datafaker.Faker;
-
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.dto.UsuarioRequestDTO;
+
+import net.datafaker.Faker;
 
 public class UsuarioBuilder {
 

@@ -73,17 +73,20 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Lint check
+        run: mvn spotless:check checkstyle:check --batch-mode --no-transfer-progress
+
       - name: Unit tests
         run: mvn test --batch-mode --no-transfer-progress
 
       - name: Integration tests
         run: mvn failsafe:integration-test failsafe:verify --batch-mode --no-transfer-progress
 
-      - name: Upload test report
+      - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: surefire-reports
+          name: test-reports
           path: |
             target/surefire-reports/
             target/failsafe-reports/

@@ -73,11 +73,12 @@ class EnderecoControllerIT extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andReturn().getResponse().getHeader("Location");
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
         Integer id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
 
-        mockMvc.perform(get("/endereco/{id}", id)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/endereco/{id}", id).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cep").value(dto.cep()));
     }
@@ -85,15 +86,13 @@ class EnderecoControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("getByIdDeveRetornar401SemToken")
     void getByIdDeveRetornar401SemToken() throws Exception {
-        mockMvc.perform(get("/endereco/{id}", 1))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/endereco/{id}", 1)).andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("getByIdDeveRetornar404QuandoNaoExiste")
     void getByIdDeveRetornar404QuandoNaoExiste() throws Exception {
-        mockMvc.perform(get("/endereco/{id}", 999999)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/endereco/{id}", 999999).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -105,18 +104,18 @@ class EnderecoControllerIT extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andReturn().getResponse().getHeader("Location");
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
         Integer id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
 
-        mockMvc.perform(delete("/endereco/{id}", id)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(delete("/endereco/{id}", id).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @DisplayName("deleteDeveRetornar401SemToken")
     void deleteDeveRetornar401SemToken() throws Exception {
-        mockMvc.perform(delete("/endereco/{id}", 1))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(delete("/endereco/{id}", 1)).andExpect(status().isUnauthorized());
     }
 }

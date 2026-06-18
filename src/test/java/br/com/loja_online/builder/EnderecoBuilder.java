@@ -2,10 +2,10 @@ package br.com.loja_online.builder;
 
 import java.util.Locale;
 
-import net.datafaker.Faker;
-
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.model.Endereco;
+
+import net.datafaker.Faker;
 
 public class EnderecoBuilder {
 

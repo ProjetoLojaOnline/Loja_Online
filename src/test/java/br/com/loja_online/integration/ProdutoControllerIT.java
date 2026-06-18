@@ -44,7 +44,9 @@ class ProdutoControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getHeader("Location");
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
         Integer id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
 
         mockMvc.perform(get("/produto/{id}", id))
@@ -55,8 +57,7 @@ class ProdutoControllerIT extends AbstractIntegrationTest {
     @Test
     @DisplayName("getByIdDeveRetornar404QuandoNaoExiste")
     void getByIdDeveRetornar404QuandoNaoExiste() throws Exception {
-        mockMvc.perform(get("/produto/{id}", 999999))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/produto/{id}", 999999)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -104,18 +105,18 @@ class ProdutoControllerIT extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andReturn().getResponse().getHeader("Location");
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
         Integer id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
 
-        mockMvc.perform(delete("/produto/{id}", id)
-                        .header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(delete("/produto/{id}", id).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @DisplayName("deleteDeveRetornar401SemToken")
     void deleteDeveRetornar401SemToken() throws Exception {
-        mockMvc.perform(delete("/produto/{id}", 1))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(delete("/produto/{id}", 1)).andExpect(status().isUnauthorized());
     }
 }

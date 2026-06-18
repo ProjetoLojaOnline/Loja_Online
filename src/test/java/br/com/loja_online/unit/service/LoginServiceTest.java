@@ -79,7 +79,8 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveMapearLoginParaDTOSemExporSenha")
     void deveMapearLoginParaDTOSemExporSenha() {
-        Login loginModel = Login.builder().login("usuario123").senha("hashSuperSecreto").build();
+        Login loginModel =
+                Login.builder().login("usuario123").senha("hashSuperSecreto").build();
 
         LoginDTO result = LoginMapper.paraDTO(loginModel);
 

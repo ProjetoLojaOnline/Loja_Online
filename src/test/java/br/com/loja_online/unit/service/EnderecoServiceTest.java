@@ -20,8 +20,8 @@ import br.com.loja_online.builder.EnderecoBuilder;
 import br.com.loja_online.model.Endereco;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.EnderecoRepository;
-import br.com.loja_online.service.EnderecoService;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.service.EnderecoService;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @SuppressWarnings("null")

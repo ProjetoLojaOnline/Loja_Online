@@ -288,7 +288,8 @@ class UsuarioServiceTest {
     @Test
     @DisplayName("deveManterDadosExistentesQuandoAtualizacaoParcial")
     void deveManterDadosExistentesQuandoAtualizacaoParcial() {
-        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder().nome("Novo Nome").build();
+        UsuarioUpdateDTO updateDTO =
+                UsuarioUpdateDTO.builder().nome("Novo Nome").build();
 
         UsuarioUpadateMapper.updateUsuarioDTO(updateDTO, usuario);
 
@@ -389,7 +390,8 @@ class UsuarioServiceTest {
     @Test
     @DisplayName("deveAtualizarApenasNomeQuandoUpdateDTOTiverApenasNome")
     void deveAtualizarApenasNomeQuandoUpdateDTOTiverApenasNome() {
-        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder().nome("Nome Novo").build();
+        UsuarioUpdateDTO updateDTO =
+                UsuarioUpdateDTO.builder().nome("Nome Novo").build();
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
@@ -401,7 +403,8 @@ class UsuarioServiceTest {
     @Test
     @DisplayName("deveAtualizarApenasTelefoneQuandoUpdateDTOTiverApenasTelefone")
     void deveAtualizarApenasTelefoneQuandoUpdateDTOTiverApenasTelefone() {
-        UsuarioUpdateDTO updateDTO = UsuarioUpdateDTO.builder().telefone("11988888777").build();
+        UsuarioUpdateDTO updateDTO =
+                UsuarioUpdateDTO.builder().telefone("11988888777").build();
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
