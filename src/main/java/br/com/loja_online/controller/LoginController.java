@@ -3,6 +3,7 @@ package br.com.loja_online.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,10 +48,13 @@ public class LoginController {
     @Operation(summary = "Autenticar usuário", description = "Retorna JWT Bearer token. Rota pública.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Token JWT gerado"),
-        @ApiResponse(responseCode = "400", description = "Email ou senha inválidos (formato)"),
+        @ApiResponse(responseCode = "400", description = "E-mail inválido, username/e-mail ausente, ou senha em branco"),
         @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
     })
     public ResponseEntity<String> login(@Valid @RequestBody AutenticacaoRequestDTO loginRequest) {
-        return ResponseEntity.ok(service.login(loginRequest.identificador(), loginRequest.senha()));
+        String identificador = StringUtils.hasText(loginRequest.username())
+                ? loginRequest.username()
+                : loginRequest.email();
+        return ResponseEntity.ok(service.login(identificador, loginRequest.senha()));
     }
 }

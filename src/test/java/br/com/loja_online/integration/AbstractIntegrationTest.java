@@ -50,7 +50,7 @@ public abstract class AbstractIntegrationTest {
                 .getContentAsString();
         Long id = objectMapper.readTree(response).get("id").asLong();
 
-        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), builder.getSenha());
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), null, builder.getSenha());
         String token = mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
@@ -75,7 +75,7 @@ public abstract class AbstractIntegrationTest {
         login.setRole(Role.ROLE_VENDEDOR);
         loginRepository.save(login);
 
-        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), builder.getSenha());
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), null, builder.getSenha());
         return mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
