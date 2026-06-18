@@ -219,16 +219,16 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     void deveRetornar401QuandoLoginComCredenciaisInexistentes() throws Exception {
         mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"joao@example.com\",\"senha\":\"senha123\"}"))
+                        .content("{\"identificador\":\"joao@example.com\",\"senha\":\"senha123\"}"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("deveRetornar400QuandoLoginComEmailInvalido")
-    void deveRetornar400QuandoLoginComEmailInvalido() throws Exception {
+    @DisplayName("deveRetornar400QuandoIdentificadorVazio")
+    void deveRetornar400QuandoIdentificadorVazio() throws Exception {
         mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"email-invalido\",\"senha\":\"senha123\"}"))
+                        .content("{\"identificador\":\"\",\"senha\":\"senha123\"}"))
                 .andExpect(status().isBadRequest());
     }
 

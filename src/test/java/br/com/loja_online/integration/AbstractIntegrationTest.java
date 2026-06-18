@@ -15,8 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.loja_online.TestcontainersConfiguration;
 import br.com.loja_online.builder.UsuarioBuilder;
-import br.com.loja_online.dto.LoginRequest;
+import br.com.loja_online.dto.AutenticacaoRequestDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
+import br.com.loja_online.model.Login;
+import br.com.loja_online.model.enums.Role;
+import br.com.loja_online.repository.LoginRepository;
 
 @SuppressWarnings("null")
 @SpringBootTest
@@ -31,6 +34,9 @@ public abstract class AbstractIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Autowired
+    private LoginRepository loginRepository;
+
     public record UsuarioCriado(Long id, String token) {}
 
     protected UsuarioCriado criarUsuarioComToken(UsuarioBuilder builder) throws Exception {
@@ -44,7 +50,7 @@ public abstract class AbstractIntegrationTest {
                 .getContentAsString();
         Long id = objectMapper.readTree(response).get("id").asLong();
 
-        LoginRequest loginRequest = new LoginRequest(builder.getEmail(), builder.getSenha());
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), builder.getSenha());
         String token = mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
@@ -57,5 +63,25 @@ public abstract class AbstractIntegrationTest {
 
     protected String criarUsuarioEObterToken() throws Exception {
         return criarUsuarioComToken(UsuarioBuilder.padrao()).token();
+    }
+
+    protected String criarVendedorEObterToken() throws Exception {
+        UsuarioBuilder builder = UsuarioBuilder.padrao();
+        criarUsuarioComToken(builder);
+
+        Login login = loginRepository
+                .findByLogin(builder.getLogin())
+                .orElseThrow(() -> new IllegalStateException("Login não encontrado após criação"));
+        login.setRole(Role.ROLE_VENDEDOR);
+        loginRepository.save(login);
+
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), builder.getSenha());
+        return mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
     }
 }

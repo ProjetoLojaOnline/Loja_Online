@@ -42,16 +42,17 @@ public class LoginService {
     }
 
     @Transactional(readOnly = true)
-    public String login(String email, String senha) {
-        Usuario usuario = usuarioRepository
-                .findByEmail(email)
+    public String login(String identificador, String senha) {
+        Login login = loginRepository
+                .findByLogin(identificador)
+                .or(() -> usuarioRepository.findByEmail(identificador).map(Usuario::getLogin))
                 .orElseThrow(() -> new AuthenticationException("Credenciais inválidas"));
 
-        Login login = usuario.getLogin();
-        if (login == null || !passwordEncoder.matches(senha, login.getSenha())) {
+        if (login.getUsuario() == null || !passwordEncoder.matches(senha, login.getSenha())) {
             throw new AuthenticationException("Credenciais inválidas");
         }
 
+        String email = login.getUsuario().getEmail();
         String role = login.getRole() != null ? login.getRole().name() : null;
         return tokenService.gerarToken(email, role);
     }

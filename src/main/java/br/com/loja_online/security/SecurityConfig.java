@@ -25,7 +25,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/login/authenticate")
+                .authorizeHttpRequests(auth -> auth
+                        // Rotas públicas
+                        .requestMatchers(HttpMethod.POST, "/login/authenticate")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios")
                         .permitAll()
@@ -33,6 +35,17 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html")
                         .permitAll()
+                        .requestMatchers("/actuator/health")
+                        .permitAll()
+                        // Gestão de produtos: admin ou vendedor
+                        .requestMatchers(HttpMethod.POST, "/produto")
+                        .hasAnyRole("ADMIN", "VENDEDOR")
+                        .requestMatchers(HttpMethod.DELETE, "/produto/**")
+                        .hasAnyRole("ADMIN", "VENDEDOR")
+                        // Listagem de todos os usuários: apenas admin
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios")
+                        .hasRole("ADMIN")
+                        // Qualquer autenticado (verificação de propriedade feita no serviço)
                         .anyRequest()
                         .authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.loja_online.dto.AutenticacaoRequestDTO;
 import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.dto.LoginRequest;
 import br.com.loja_online.service.LoginService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,7 +50,7 @@ public class LoginController {
         @ApiResponse(responseCode = "400", description = "Email ou senha inválidos (formato)"),
         @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
     })
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(service.login(loginRequest.email(), loginRequest.senha()));
+    public ResponseEntity<String> login(@Valid @RequestBody AutenticacaoRequestDTO loginRequest) {
+        return ResponseEntity.ok(service.login(loginRequest.identificador(), loginRequest.senha()));
     }
 }

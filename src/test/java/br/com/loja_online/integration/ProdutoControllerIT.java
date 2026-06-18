@@ -24,7 +24,7 @@ class ProdutoControllerIT extends AbstractIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         produtoRepository.deleteAll();
-        authToken = criarUsuarioEObterToken();
+        authToken = criarVendedorEObterToken();
     }
 
     @Test

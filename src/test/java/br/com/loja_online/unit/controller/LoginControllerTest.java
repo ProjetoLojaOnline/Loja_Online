@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.loja_online.controller.LoginController;
-import br.com.loja_online.dto.LoginRequest;
+import br.com.loja_online.dto.AutenticacaoRequestDTO;
 import br.com.loja_online.exception.ControllerAdviceHandler;
 import br.com.loja_online.service.LoginService;
 import br.com.loja_online.service.exceptions.AuthenticationException;
@@ -48,7 +48,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar200QuandoLoginComCredenciaisValidas")
     void deveRetornar200QuandoLoginComCredenciaisValidas() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("user@example.com", "password123");
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO("user@example.com", "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
         when(loginService.login("user@example.com", "password123")).thenReturn("header.payload.signature");
 
@@ -62,7 +62,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar401QuandoCredenciaisInvalidas")
     void deveRetornar401QuandoCredenciaisInvalidas() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("user@example.com", "wrongpassword");
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO("user@example.com", "wrongpassword");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
         when(loginService.login("user@example.com", "wrongpassword"))
                 .thenThrow(new AuthenticationException("Credenciais inválidas"));
@@ -76,7 +76,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar401QuandoEmailNaoExiste")
     void deveRetornar401QuandoEmailNaoExiste() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("naoexiste@example.com", "password123");
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO("naoexiste@example.com", "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
         when(loginService.login("naoexiste@example.com", "password123"))
                 .thenThrow(new AuthenticationException("Credenciais inválidas"));
@@ -90,7 +90,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar401QuandoSenhaIncorreta")
     void deveRetornar401QuandoSenhaIncorreta() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("user@example.com", "senhaerrada");
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO("user@example.com", "senhaerrada");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
         when(loginService.login("user@example.com", "senhaerrada"))
                 .thenThrow(new AuthenticationException("Credenciais inválidas"));
@@ -113,7 +113,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar400QuandoEmailNulo")
     void deveRetornar400QuandoEmailNulo() throws Exception {
-        LoginRequest loginRequest = new LoginRequest(null, "password123");
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(null, "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
 
         mockMvc.perform(post("/login/authenticate")
@@ -125,7 +125,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar400QuandoSenhaNula")
     void deveRetornar400QuandoSenhaNula() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("user@example.com", null);
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO("user@example.com", null);
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
 
         mockMvc.perform(post("/login/authenticate")
@@ -137,7 +137,7 @@ class LoginControllerTest {
     @Test
     @DisplayName("deveRetornar415QuandoContentTypeInvalido")
     void deveRetornar415QuandoContentTypeInvalido() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("user@example.com", "password123");
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO("user@example.com", "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
 
         mockMvc.perform(post("/login/authenticate")
