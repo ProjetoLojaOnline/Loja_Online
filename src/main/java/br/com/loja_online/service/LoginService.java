@@ -52,6 +52,7 @@ public class LoginService {
             throw new AuthenticationException("Credenciais inválidas");
         }
 
-        return tokenService.gerarToken(email);
+        String role = login.getRole() != null ? login.getRole().name() : null;
+        return tokenService.gerarToken(email, role);
     }
 }

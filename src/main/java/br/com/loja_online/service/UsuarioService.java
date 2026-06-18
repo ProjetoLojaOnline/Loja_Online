@@ -14,7 +14,7 @@ import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
 import br.com.loja_online.mapper.UsuarioMapper;
-import br.com.loja_online.mapper.UsuarioUpadateMapper;
+import br.com.loja_online.mapper.UsuarioUpdateMapper;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.model.enums.Role;
@@ -104,7 +104,7 @@ public class UsuarioService {
         if (!usuario.getEmail().equals(emailAutenticado)) {
             throw new ForbiddenException("Acesso negado: você não pode alterar dados de outro usuário");
         }
-        UsuarioUpadateMapper.updateUsuarioDTO(dto, usuario);
+        UsuarioUpdateMapper.updateUsuarioDTO(dto, usuario);
         return UsuarioMapper.paraDTO(usuarioRepository.save(usuario));
     }
 }

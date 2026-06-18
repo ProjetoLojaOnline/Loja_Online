@@ -24,7 +24,7 @@ import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
 import br.com.loja_online.mapper.UsuarioMapper;
-import br.com.loja_online.mapper.UsuarioUpadateMapper;
+import br.com.loja_online.mapper.UsuarioUpdateMapper;
 import br.com.loja_online.model.Endereco;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
@@ -278,7 +278,7 @@ class UsuarioServiceTest {
                 .telefone("11777777777")
                 .build();
 
-        UsuarioUpadateMapper.updateUsuarioDTO(updateDTO, usuario);
+        UsuarioUpdateMapper.updateUsuarioDTO(updateDTO, usuario);
 
         assertThat(usuario.getNome()).isEqualTo("Novo Nome");
         assertThat(usuario.getTelefone()).isEqualTo("11777777777");
@@ -291,7 +291,7 @@ class UsuarioServiceTest {
         UsuarioUpdateDTO updateDTO =
                 UsuarioUpdateDTO.builder().nome("Novo Nome").build();
 
-        UsuarioUpadateMapper.updateUsuarioDTO(updateDTO, usuario);
+        UsuarioUpdateMapper.updateUsuarioDTO(updateDTO, usuario);
 
         assertThat(usuario.getNome()).isEqualTo("Novo Nome");
         assertThat(usuario.getEmail()).isEqualTo(EMAIL_AUTENTICADO);

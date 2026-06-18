@@ -24,11 +24,12 @@ public class TokenService {
         this.expirationMs = expirationMs;
     }
 
-    public String gerarToken(String email) {
+    public String gerarToken(String email, String role) {
         Date agora = new Date();
         Date expiracao = new Date(agora.getTime() + expirationMs);
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role)
                 .issuedAt(agora)
                 .expiration(expiracao)
                 .signWith(secretKey)
@@ -37,6 +38,10 @@ public class TokenService {
 
     public String extrairEmail(String token) {
         return parsearClaims(token).getSubject();
+    }
+
+    public String extrairRole(String token) {
+        return parsearClaims(token).get("role", String.class);
     }
 
     public boolean tokenValido(String token) {

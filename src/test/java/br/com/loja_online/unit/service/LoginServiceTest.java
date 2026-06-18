@@ -131,12 +131,12 @@ class LoginServiceTest {
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
-        when(tokenService.gerarToken(email)).thenReturn(tokenEsperado);
+        when(tokenService.gerarToken(email, "ROLE_USER")).thenReturn(tokenEsperado);
 
         String result = loginService.login(email, senha);
 
         assertThat(result).isEqualTo(tokenEsperado);
-        verify(tokenService).gerarToken(email);
+        verify(tokenService).gerarToken(email, "ROLE_USER");
     }
 
     @Test
@@ -216,12 +216,12 @@ class LoginServiceTest {
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
-        when(tokenService.gerarToken(email)).thenReturn("token-mock");
+        when(tokenService.gerarToken(email, "ROLE_USER")).thenReturn("token-mock");
 
         loginService.login(email, senha);
 
         verify(usuarioRepository).findByEmail(email);
         verify(passwordEncoder).matches(senha, login.getSenha());
-        verify(tokenService).gerarToken(email);
+        verify(tokenService).gerarToken(email, "ROLE_USER");
     }
 }

@@ -26,7 +26,7 @@ import br.com.loja_online.service.exceptions.AuthenticationException;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
-class LoginControllerUnitTest {
+class LoginControllerTest {
 
     private MockMvc mockMvc;
 

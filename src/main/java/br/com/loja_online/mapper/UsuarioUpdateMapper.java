@@ -3,7 +3,7 @@ package br.com.loja_online.mapper;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
 import br.com.loja_online.model.Usuario;
 
-public class UsuarioUpadateMapper {
+public class UsuarioUpdateMapper {
 
     public static void updateUsuarioDTO(UsuarioUpdateDTO dto, Usuario user) {
         if (dto == null || user == null) {

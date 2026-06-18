@@ -1,6 +1,7 @@
 package br.com.loja_online.security;
 
 import java.io.IOException;
+import java.util.List;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -33,8 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token) && tokenService.tokenValido(token)) {
             String email = tokenService.extrairEmail(token);
+            String role = tokenService.extrairRole(token);
+            List<SimpleGrantedAuthority> authorities =
+                    role != null ? List.of(new SimpleGrantedAuthority(role)) : List.of();
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(email, null, java.util.Collections.emptyList());
+                    new UsernamePasswordAuthenticationToken(email, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
