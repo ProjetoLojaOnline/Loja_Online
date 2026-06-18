@@ -31,10 +31,14 @@ public class EnderecoService {
         return enderecoRepository.save(endereco);
     }
 
-    public Endereco findById(@NonNull Integer id) {
-        return enderecoRepository
+    public Endereco findById(@NonNull Integer id, @NonNull String emailProprietario) {
+        Endereco endereco = enderecoRepository
                 .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Endereço não encontrado com o ID: " + id));
+        if (endereco.getUsuario() == null || !endereco.getUsuario().getEmail().equals(emailProprietario)) {
+            throw new ForbiddenException("Acesso negado: este endereço pertence a outro usuário");
+        }
+        return endereco;
     }
 
     @Transactional

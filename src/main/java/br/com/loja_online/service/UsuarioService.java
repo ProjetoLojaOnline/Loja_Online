@@ -71,18 +71,24 @@ public class UsuarioService {
         return usuarioRepository.findAll().stream().map(UsuarioMapper::paraDTO).toList();
     }
 
-    public UsuarioResponseDTO findByLogin(@NonNull String login) {
-        return usuarioRepository
+    public UsuarioResponseDTO findByLogin(@NonNull String login, @NonNull String emailAutenticado) {
+        Usuario usuario = usuarioRepository
                 .findByLogin_Login(login)
-                .map(UsuarioMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o login: " + login));
+        if (!usuario.getEmail().equals(emailAutenticado)) {
+            throw new ForbiddenException("Acesso negado: você não pode visualizar dados de outro usuário");
+        }
+        return UsuarioMapper.paraDTO(usuario);
     }
 
-    public UsuarioResponseDTO findById(@NonNull Long id) {
-        return usuarioRepository
+    public UsuarioResponseDTO findById(@NonNull Long id, @NonNull String emailAutenticado) {
+        Usuario usuario = usuarioRepository
                 .findById(id)
-                .map(UsuarioMapper::paraDTO)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
+        if (!usuario.getEmail().equals(emailAutenticado)) {
+            throw new ForbiddenException("Acesso negado: você não pode visualizar dados de outro usuário");
+        }
+        return UsuarioMapper.paraDTO(usuario);
     }
 
     public void deleteById(@NonNull Long id, @NonNull String emailAutenticado) {

@@ -1,5 +1,6 @@
 package br.com.loja_online.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.dto.UsuarioResponseDTO;
@@ -31,18 +33,24 @@ public class UsuarioController {
 
     @GetMapping("/login/{login}")
     public ResponseEntity<UsuarioResponseDTO> buscarPorLogin(@NonNull @PathVariable String login) {
-        return ResponseEntity.ok(usuarioService.findByLogin(login));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(usuarioService.findByLogin(login, email));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> buscarPorId(@NonNull @PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.findById(id));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(usuarioService.findById(id, email));
     }
 
     @PostMapping
     public ResponseEntity<UsuarioResponseDTO> criar(@Valid @RequestBody UsuarioCadastroWrapper request) {
         UsuarioResponseDTO resultado = usuarioService.insert(request.usuario(), request.login());
-        return ResponseEntity.status(201).body(resultado);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(resultado.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(resultado);
     }
 
     @PutMapping("/{id}")

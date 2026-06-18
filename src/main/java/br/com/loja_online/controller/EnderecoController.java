@@ -37,10 +37,12 @@ public class EnderecoController {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Endereço encontrado"),
         @ApiResponse(responseCode = "401", description = "Não autorizado"),
+        @ApiResponse(responseCode = "403", description = "Proibido — endereço pertence a outro usuário"),
         @ApiResponse(responseCode = "404", description = "Endereço não encontrado")
     })
     public ResponseEntity<EnderecoDTO> buscarPorId(@NonNull @PathVariable Integer id) {
-        return ResponseEntity.ok(EnderecoMapper.paraDto(enderecoService.findById(id)));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(EnderecoMapper.paraDto(enderecoService.findById(id, email)));
     }
 
     @PostMapping("/create")

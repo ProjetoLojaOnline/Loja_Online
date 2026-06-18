@@ -48,8 +48,11 @@ public class SecurityConfig {
                         // Qualquer autenticado (verificação de propriedade feita no serviço)
                         .anyRequest()
                         .authenticated())
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                        (req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Não autorizado")))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(
+                                (req, res, e) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Não autorizado"))
+                        .accessDeniedHandler(
+                                (req, res, e) -> res.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado")))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
