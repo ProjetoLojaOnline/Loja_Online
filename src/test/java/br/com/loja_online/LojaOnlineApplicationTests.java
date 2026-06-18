@@ -8,8 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Disabled("Desabilitado para evitar conexão real com o banco nos testes de contexto")
 class LojaOnlineApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {}
 }

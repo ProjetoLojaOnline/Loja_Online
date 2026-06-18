@@ -1,5 +1,6 @@
-package br.com.loja_online.controller;
+package br.com.loja_online.unit.controller;
 
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.loja_online.controller.LoginController;
 import br.com.loja_online.dto.LoginRequest;
 import br.com.loja_online.exception.ControllerAdviceHandler;
 import br.com.loja_online.service.LoginService;
@@ -46,30 +48,26 @@ class LoginControllerUnitTest {
     @Test
     @DisplayName("deveRetornar200QuandoLoginComCredenciaisValidas")
     void deveRetornar200QuandoLoginComCredenciaisValidas() throws Exception {
-        // Given
         LoginRequest loginRequest = new LoginRequest("user@example.com", "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
-        when(loginService.login("user@example.com", "password123")).thenReturn("Login realizado com sucesso");
+        when(loginService.login("user@example.com", "password123"))
+                .thenReturn("header.payload.signature");
 
-        // When & Then
         mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Login realizado com sucesso"));
+                .andExpect(content().string(matchesPattern("[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+")));
     }
 
     @Test
     @DisplayName("deveRetornar401QuandoCredenciaisInvalidas")
     void deveRetornar401QuandoCredenciaisInvalidas() throws Exception {
-        // Given
         LoginRequest loginRequest = new LoginRequest("user@example.com", "wrongpassword");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
-
         when(loginService.login("user@example.com", "wrongpassword"))
                 .thenThrow(new AuthenticationException("Credenciais inválidas"));
 
-        // When & Then
         mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
@@ -81,7 +79,6 @@ class LoginControllerUnitTest {
     void deveRetornar401QuandoEmailNaoExiste() throws Exception {
         LoginRequest loginRequest = new LoginRequest("naoexiste@example.com", "password123");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
-
         when(loginService.login("naoexiste@example.com", "password123"))
                 .thenThrow(new AuthenticationException("Credenciais inválidas"));
 
@@ -96,7 +93,6 @@ class LoginControllerUnitTest {
     void deveRetornar401QuandoSenhaIncorreta() throws Exception {
         LoginRequest loginRequest = new LoginRequest("user@example.com", "senhaerrada");
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
-
         when(loginService.login("user@example.com", "senhaerrada"))
                 .thenThrow(new AuthenticationException("Credenciais inválidas"));
 

@@ -1,4 +1,4 @@
-package br.com.loja_online.controller;
+package br.com.loja_online.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,13 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import br.com.loja_online.AbstractIntegrationTest;
 import br.com.loja_online.builder.ProdutoBuilder;
 import br.com.loja_online.dto.ProdutoDTO;
 import br.com.loja_online.repository.ProdutoRepository;
 
 @SuppressWarnings("null")
-class ProdutoControllerTest extends AbstractIntegrationTest {
+class ProdutoControllerIT extends AbstractIntegrationTest {
 
     @Autowired
     private ProdutoRepository produtoRepository;

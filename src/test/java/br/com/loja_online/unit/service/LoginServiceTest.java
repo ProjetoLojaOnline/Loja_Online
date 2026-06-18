@@ -1,8 +1,8 @@
-package br.com.loja_online.service;
+package br.com.loja_online.unit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,6 +22,8 @@ import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.security.TokenService;
+import br.com.loja_online.service.LoginService;
 import br.com.loja_online.service.exceptions.AuthenticationException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
@@ -38,6 +39,9 @@ class LoginServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private TokenService tokenService;
+
     @InjectMocks
     private LoginService loginService;
 
@@ -45,81 +49,60 @@ class LoginServiceTest {
 
     @BeforeEach
     void setUp() {
-        login = Login.builder()
-                .login("testuser")
-                .senha("encodedpassword")
-                .build();
+        login = Login.builder().login("testuser").senha("encodedpassword").build();
     }
 
     @Test
     @DisplayName("deveRetornarLoginDTOQuandoBuscarPorLoginExistente")
     void deveRetornarLoginDTOQuandoBuscarPorLoginExistente() {
-        // Given
         String loginStr = "testuser";
         when(loginRepository.findByLogin(loginStr)).thenReturn(Optional.of(login));
 
-        // When
         LoginDTO result = loginService.buscarPorLogin(loginStr);
 
-        // Then
         assertThat(result).isNotNull();
         assertThat(result.login()).isEqualTo("testuser");
-        assertThat(result.senha()).isNull(); // Senha nula conforme LoginMapper
+        assertThat(result.senha()).isNull();
     }
 
     @Test
     @DisplayName("deveLancarExcecaoQuandoBuscarPorLoginInexistente")
     void deveLancarExcecaoQuandoBuscarPorLoginInexistente() {
-        // Given
         String loginStr = "nonexistent";
         when(loginRepository.findByLogin(loginStr)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> loginService.buscarPorLogin(loginStr))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Login não encontrado: nonexistent");
     }
 
     @Test
-    @DisplayName("deveMapearParaDTOCorretamenteQuandoLoginMapperParaDTO")
-    void deveMapearParaDTOCorretamenteQuandoLoginMapperParaDTO() {
-        // Given & When & Then
-        try (MockedStatic<LoginMapper> mockedMapper = mockStatic(LoginMapper.class)) {
-            mockedMapper.when(() -> LoginMapper.paraDTO(login)).thenReturn(new LoginDTO("testuser", null));
+    @DisplayName("deveMapearLoginParaDTOSemExporSenha")
+    void deveMapearLoginParaDTOSemExporSenha() {
+        Login loginModel = Login.builder().login("usuario123").senha("hashSuperSecreto").build();
 
-            LoginDTO result = LoginMapper.paraDTO(login);
+        LoginDTO result = LoginMapper.paraDTO(loginModel);
 
-            assertThat(result.login()).isEqualTo("testuser");
-            assertThat(result.senha()).isNull();
-            mockedMapper.verify(() -> LoginMapper.paraDTO(login));
-        }
+        assertThat(result.login()).isEqualTo("usuario123");
+        assertThat(result.senha()).isNull();
     }
 
     @Test
-    @DisplayName("deveMapearParaLoginCorretamenteQuandoLoginMapperParaLogin")
-    void deveMapearParaLoginCorretamenteQuandoLoginMapperParaLogin() {
-        // Given
-        LoginDTO loginDTO = new LoginDTO("testuser", "password");
+    @DisplayName("deveMapearDTOParaLoginComLoginESenha")
+    void deveMapearDTOParaLoginComLoginESenha() {
+        LoginDTO loginDTO = new LoginDTO("usuario123", "senha123");
 
-        // When & Then
-        try (MockedStatic<LoginMapper> mockedMapper = mockStatic(LoginMapper.class)) {
-            mockedMapper.when(() -> LoginMapper.paraLogin(loginDTO)).thenReturn(login);
+        Login result = LoginMapper.paraLogin(loginDTO);
 
-            Login result = LoginMapper.paraLogin(loginDTO);
-
-            assertThat(result.getLogin()).isEqualTo("testuser");
-            assertThat(result.getSenha()).isEqualTo("encodedpassword");
-            mockedMapper.verify(() -> LoginMapper.paraLogin(loginDTO));
-        }
+        assertThat(result.getLogin()).isEqualTo("usuario123");
+        assertThat(result.getSenha()).isEqualTo("senha123");
     }
 
     @Test
     @DisplayName("deveLidarComLoginNuloQuandoBuscarPorLoginComParametroNulo")
     void deveLidarComLoginNuloQuandoBuscarPorLoginComParametroNulo() {
-        // Given
         when(loginRepository.findByLogin(null)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> loginService.buscarPorLogin(null))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Login não encontrado: null");
@@ -128,47 +111,40 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLidarComLoginVazioQuandoBuscarPorLoginComParametroVazio")
     void deveLidarComLoginVazioQuandoBuscarPorLoginComParametroVazio() {
-        // Given
         String loginStr = "";
         when(loginRepository.findByLogin(loginStr)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> loginService.buscarPorLogin(loginStr))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Login não encontrado: ");
     }
 
     @Test
-    @DisplayName("deveRetornarMensagemSucessoQuandoLoginComCredenciaisValidas")
-    void deveRetornarMensagemSucessoQuandoLoginComCredenciaisValidas() {
-        // Given
+    @DisplayName("deveRetornarTokenJwtQuandoCredenciaisValidas")
+    void deveRetornarTokenJwtQuandoCredenciaisValidas() {
         String email = "user@example.com";
         String senha = "password123";
-        Usuario usuario = Usuario.builder()
-                .email(email)
-                .login(login)
-                .build();
+        String tokenEsperado = "header.payload.signature";
+        Usuario usuario = Usuario.builder().email(email).login(login).build();
         login.setUsuario(usuario);
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
+        when(tokenService.gerarToken(email)).thenReturn(tokenEsperado);
 
-        // When
         String result = loginService.login(email, senha);
 
-        // Then
-        assertThat(result).isEqualTo("Login realizado com sucesso");
+        assertThat(result).isEqualTo(tokenEsperado);
+        verify(tokenService).gerarToken(email);
     }
 
     @Test
     @DisplayName("deveLancarExcecaoQuandoUsuarioNaoEncontrado")
     void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
-        // Given
         String email = "nonexistent@example.com";
         String senha = "password123";
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThatThrownBy(() -> loginService.login(email, senha))
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
@@ -177,19 +153,14 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLancarExcecaoQuandoSenhaIncorreta")
     void deveLancarExcecaoQuandoSenhaIncorreta() {
-        // Given
         String email = "user@example.com";
         String senha = "wrongpassword";
-        Usuario usuario = Usuario.builder()
-                .email(email)
-                .login(login)
-                .build();
+        Usuario usuario = Usuario.builder().email(email).login(login).build();
         login.setUsuario(usuario);
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(false);
 
-        // When & Then
         assertThatThrownBy(() -> loginService.login(email, senha))
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
@@ -198,17 +169,12 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLancarExcecaoQuandoLoginDoUsuarioNulo")
     void deveLancarExcecaoQuandoLoginDoUsuarioNulo() {
-        // Given
         String email = "user@example.com";
         String senha = "password123";
-        Usuario usuario = Usuario.builder()
-                .email(email)
-                .login(null)
-                .build();
+        Usuario usuario = Usuario.builder().email(email).login(null).build();
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
 
-        // When & Then
         assertThatThrownBy(() -> loginService.login(email, senha))
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
@@ -217,13 +183,9 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLancarExcecaoQuandoEmailNulo")
     void deveLancarExcecaoQuandoEmailNulo() {
-        // Given
-        String email = null;
-        String senha = "password123";
-        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(usuarioRepository.findByEmail(null)).thenReturn(Optional.empty());
 
-        // When & Then
-        assertThatThrownBy(() -> loginService.login(email, senha))
+        assertThatThrownBy(() -> loginService.login(null, "password123"))
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
     }
@@ -231,65 +193,34 @@ class LoginServiceTest {
     @Test
     @DisplayName("deveLancarExcecaoQuandoSenhaNula")
     void deveLancarExcecaoQuandoSenhaNula() {
-        // Given
         String email = "user@example.com";
-        String senha = null;
-        Usuario usuario = Usuario.builder()
-                .email(email)
-                .login(login)
-                .build();
+        Usuario usuario = Usuario.builder().email(email).login(login).build();
         login.setUsuario(usuario);
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
-        when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(false);
+        when(passwordEncoder.matches(null, login.getSenha())).thenReturn(false);
 
-        // When & Then
-        assertThatThrownBy(() -> loginService.login(email, senha))
+        assertThatThrownBy(() -> loginService.login(email, null))
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessage("Credenciais inválidas");
     }
 
     @Test
-    @DisplayName("deveRetornarMensagemSucessoQuandoEmailESenhaValidos")
-    void deveRetornarMensagemSucessoQuandoEmailESenhaValidos() {
-        // Given
+    @DisplayName("deveChamarTokenServiceQuandoLoginBemSucedido")
+    void deveChamarTokenServiceQuandoLoginBemSucedido() {
         String email = "user@example.com";
         String senha = "password123";
-        Usuario usuario = Usuario.builder()
-                .email(email)
-                .login(login)
-                .build();
+        Usuario usuario = Usuario.builder().email(email).login(login).build();
         login.setUsuario(usuario);
 
         when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
         when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
+        when(tokenService.gerarToken(email)).thenReturn("token-mock");
 
-        // When
-        String result = loginService.login(email, senha);
-
-        // Then
-        assertThat(result).isEqualTo("Login realizado com sucesso");
-    }
-
-    @Test
-    @DisplayName("deveChamarBuscarPorEmailQuandoLogin")
-    void deveChamarBuscarPorEmailQuandoLogin() {
-        // Given
-        String email = "user@example.com";
-        String senha = "password123";
-        Usuario usuario = Usuario.builder()
-                .email(email)
-                .login(login)
-                .build();
-        login.setUsuario(usuario);
-
-        when(usuarioRepository.findByEmail(email)).thenReturn(Optional.of(usuario));
-        when(passwordEncoder.matches(senha, login.getSenha())).thenReturn(true);
-
-        // When
         loginService.login(email, senha);
 
-        // Then
-        // O teste verifica que os métodos foram chamados
+        verify(usuarioRepository).findByEmail(email);
+        verify(passwordEncoder).matches(senha, login.getSenha());
+        verify(tokenService).gerarToken(email);
     }
 }

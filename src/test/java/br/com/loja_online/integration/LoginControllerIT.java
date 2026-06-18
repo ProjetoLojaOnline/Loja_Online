@@ -1,4 +1,4 @@
-package br.com.loja_online.controller;
+package br.com.loja_online.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -10,14 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import br.com.loja_online.AbstractIntegrationTest;
 import br.com.loja_online.builder.UsuarioBuilder;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 
 @SuppressWarnings("null")
-class LoginControllerTest extends AbstractIntegrationTest {
+class LoginControllerIT extends AbstractIntegrationTest {
 
     @Autowired
     private UsuarioRepository usuarioRepository;

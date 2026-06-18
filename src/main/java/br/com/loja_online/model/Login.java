@@ -1,6 +1,5 @@
 package br.com.loja_online.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,5 +30,4 @@ public class Login {
     @OneToOne
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
-
 }

@@ -1,4 +1,4 @@
-package br.com.loja_online.controller;
+package br.com.loja_online.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,13 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import br.com.loja_online.AbstractIntegrationTest;
 import br.com.loja_online.builder.EnderecoBuilder;
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.repository.EnderecoRepository;
 
 @SuppressWarnings("null")
-class EnderecoControllerTest extends AbstractIntegrationTest {
+class EnderecoControllerIT extends AbstractIntegrationTest {
 
     @Autowired
     private EnderecoRepository enderecoRepository;

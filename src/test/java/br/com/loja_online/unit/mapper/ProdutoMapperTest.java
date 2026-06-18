@@ -1,4 +1,4 @@
-package br.com.loja_online.mapper;
+package br.com.loja_online.unit.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import br.com.loja_online.builder.ProdutoBuilder;
 import br.com.loja_online.dto.ProdutoDTO;
+import br.com.loja_online.mapper.ProdutoMapper;
 import br.com.loja_online.model.Produto;
 
 class ProdutoMapperTest {

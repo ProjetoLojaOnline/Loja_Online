@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: loja_online_db
     restart: unless-stopped
     ports:
       - "${DB_PORT}:5432"
@@ -22,7 +21,6 @@ services:
 
   app:
     build: .
-    container_name: app_loja_online
     restart: on-failure
     ports:
       - "${SERVER_PORT}:8080"

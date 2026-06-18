@@ -29,7 +29,8 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public ProdutoDTO findById(@NonNull Integer id) {
-        Produto produto = produtoRepository.findById(id)
+        Produto produto = produtoRepository
+                .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado com o ID: " + id));
         return ProdutoMapper.paraDto(produto);
     }
@@ -42,11 +43,10 @@ public class ProdutoService {
         return ProdutoMapper.paraDto(novoProduto);
     }
 
-
-
     @Transactional
     public void delete(@NonNull Integer id) {
-        produtoRepository.findById(id)
+        produtoRepository
+                .findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado com o ID: " + id));
         produtoRepository.deleteById(id);
     }

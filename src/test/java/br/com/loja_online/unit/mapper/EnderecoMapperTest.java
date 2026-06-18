@@ -1,4 +1,4 @@
-package br.com.loja_online.mapper;
+package br.com.loja_online.unit.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import br.com.loja_online.builder.EnderecoBuilder;
 import br.com.loja_online.dto.EnderecoDTO;
+import br.com.loja_online.mapper.EnderecoMapper;
 import br.com.loja_online.model.Endereco;
 
 @SuppressWarnings("null")

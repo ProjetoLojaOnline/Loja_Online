@@ -1,4 +1,4 @@
-package br.com.loja_online.service;
+package br.com.loja_online.unit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,6 +30,7 @@ import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.service.UsuarioService;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @SuppressWarnings("null")

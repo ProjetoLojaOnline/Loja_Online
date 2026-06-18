@@ -1,4 +1,4 @@
-package br.com.loja_online;
+package br.com.loja_online.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.loja_online.TestcontainersConfiguration;
 import br.com.loja_online.builder.UsuarioBuilder;
 import br.com.loja_online.dto.LoginRequest;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;

@@ -28,6 +28,7 @@ public class Carrinho {
 
     @ManyToMany
     private List<Produto> produtos;
+
     private double valorTotal;
     private double valorFrete;
 }

@@ -1,4 +1,4 @@
-package br.com.loja_online.controller;
+package br.com.loja_online.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import br.com.loja_online.AbstractIntegrationTest;
 import br.com.loja_online.builder.UsuarioBuilder;
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
@@ -19,7 +18,7 @@ import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 
 @SuppressWarnings("null")
-class UsuarioControllerTest extends AbstractIntegrationTest {
+class UsuarioControllerIT extends AbstractIntegrationTest {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -137,7 +136,8 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     @DisplayName("deveRetornar403QuandoPutEmOutroUsuario")
     void deveRetornar403QuandoPutEmOutroUsuario() throws Exception {
         UsuarioCriado outroUsuario = criarUsuarioComToken(UsuarioBuilder.padrao());
-        UsuarioUpdateDTO update = UsuarioUpdateDTO.builder().nome("Invasor").telefone("11988887777").build();
+        UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
+                .nome("Invasor").telefone("11988887777").build();
 
         mockMvc.perform(put("/api/usuarios/{id}", outroUsuario.id())
                         .header("Authorization", "Bearer " + authToken)
@@ -229,7 +229,7 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     @DisplayName("deveRetornar415QuandoContentTypeInvalido")
     void deveRetornar415QuandoContentTypeInvalido() throws Exception {
         mockMvc.perform(post("/api/usuarios")
-                        .contentType(org.springframework.http.MediaType.APPLICATION_XML)
+                        .contentType(MediaType.APPLICATION_XML)
                         .content("{}"))
                 .andExpect(status().isUnsupportedMediaType());
     }

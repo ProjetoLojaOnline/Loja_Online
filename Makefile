@@ -1,4 +1,4 @@
-.PHONY: lint lint-check test test-docker setup-hooks
+.PHONY: lint lint-check test test-docker up down setup-hooks
 
 ## Corrige automaticamente: formatação, imports, trailing whitespace
 lint:
@@ -17,32 +17,33 @@ lint:
 lint-check:
 	@./mvnw spotless:check checkstyle:check --no-transfer-progress -q
 
+## Sobe o ambiente local (banco + app)
+up:
+	@if [ ! -f envs/.env.local ]; then \
+	  echo "❌ envs/.env.local não encontrado."; \
+	  echo "   Crie com: cp envs/.env.example envs/.env.local"; \
+	  exit 1; \
+	fi
+	@docker compose --env-file envs/.env.local up -d --wait
+
+## Derruba o ambiente local
+down:
+	@docker compose --env-file envs/.env.local down
+
 ## Roda os testes unitários (sem Docker)
 test:
 	@./mvnw test --no-transfer-progress
 
-## Sobe o ambiente de test, roda os testes e derruba tudo (limpo)
-## Falha  → mostra quais testes quebraram + docker down -v (ambiente limpo)
-## Sucesso → docker down -v + git push automático
+## Roda todos os testes (PostgreSQL via Testcontainers) e faz push automático ao final
+## Requer Docker em execução. Falha → mostra testes quebrados. Sucesso → git push.
 test-docker:
-	@if [ ! -f envs/.env.test ]; then \
-	  echo "❌ envs/.env.test não encontrado."; \
-	  echo "   Crie com: cp envs/.env.example envs/.env.test"; \
-	  exit 1; \
-	fi
-	@echo "🐳 Subindo ambiente de test..."
-	@docker compose --env-file envs/.env.test up -d --wait \
-	  || (docker compose --env-file envs/.env.test down -v; exit 1)
 	@TEST_LOG=$$(mktemp /tmp/loja-test-XXXXXX.log); \
 	EXIT_FILE=$$(mktemp); \
-	echo "🔍 Rodando testes..."; \
+	echo "🔍 Rodando testes contra PostgreSQL (Testcontainers)..."; \
 	(./mvnw test --no-transfer-progress; echo $$? > $$EXIT_FILE) 2>&1 | tee $$TEST_LOG; \
 	TEST_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
 	echo ""; \
-	echo "🧹 Derrubando ambiente de test..."; \
-	docker compose --env-file envs/.env.test down -v; \
 	if [ "$$TEST_EXIT" != "0" ]; then \
-	  echo ""; \
 	  echo "❌ Testes falharam — corrija antes de fazer push:"; \
 	  echo ""; \
 	  grep -e "<<< FAILURE" -e "<<< ERROR" $$TEST_LOG \
