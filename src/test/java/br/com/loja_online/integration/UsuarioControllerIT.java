@@ -85,21 +85,11 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("deveRecuperarUsuarioAposCriacaoQuandoPostESeguidoDeGet")
+    @DisplayName("deveRecuperarProprioUsuarioAposCriacaoQuandoPostESeguidoDeGet")
     void deveRecuperarUsuarioAposCriacaoQuandoPostESeguidoDeGet() throws Exception {
-        UsuarioCadastroWrapper wrapper = UsuarioBuilder.padrao().buildWrapper();
-        String response = mockMvc.perform(post("/api/usuarios")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(wrapper)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        Long userId = objectMapper.readTree(response).get("id").asLong();
-
-        mockMvc.perform(get("/api/usuarios/{id}", userId).header("Authorization", "Bearer " + authToken))
+        mockMvc.perform(get("/api/usuarios/{id}", authUsuarioId).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId));
+                .andExpect(jsonPath("$.id").value(authUsuarioId));
     }
 
     @Test
@@ -109,10 +99,32 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("deveRetornar403QuandoGetPorIdDeOutroUsuario")
+    void deveRetornar403QuandoGetPorIdDeOutroUsuario() throws Exception {
+        UsuarioCriado outroUsuario = criarUsuarioComToken(UsuarioBuilder.padrao());
+
+        mockMvc.perform(get("/api/usuarios/{id}", outroUsuario.id()).header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("deveRetornar404QuandoGetPorIdInexistente")
     void deveRetornar404QuandoGetPorIdInexistente() throws Exception {
         mockMvc.perform(get("/api/usuarios/{id}", 999999L).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("deveRetornar403QuandoGetTodosComTokenRoleUser")
+    void deveRetornar403QuandoGetTodosComTokenRoleUser() throws Exception {
+        mockMvc.perform(get("/api/usuarios").header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("deveRetornar401QuandoGetTodosSemToken")
+    void deveRetornar401QuandoGetTodosSemToken() throws Exception {
+        mockMvc.perform(get("/api/usuarios")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -212,24 +224,6 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(w2)))
                 .andExpect(status().isConflict());
-    }
-
-    @Test
-    @DisplayName("deveRetornar401QuandoLoginComCredenciaisInexistentes")
-    void deveRetornar401QuandoLoginComCredenciaisInexistentes() throws Exception {
-        mockMvc.perform(post("/login/authenticate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"identificador\":\"joao@example.com\",\"senha\":\"senha123\"}"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @DisplayName("deveRetornar400QuandoIdentificadorVazio")
-    void deveRetornar400QuandoIdentificadorVazio() throws Exception {
-        mockMvc.perform(post("/login/authenticate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"identificador\":\"\",\"senha\":\"senha123\"}"))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

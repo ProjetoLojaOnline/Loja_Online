@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import br.com.loja_online.builder.EnderecoBuilder;
+import br.com.loja_online.builder.UsuarioBuilder;
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.repository.EnderecoRepository;
+import br.com.loja_online.repository.LoginRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 
 @SuppressWarnings("null")
 class EnderecoControllerIT extends AbstractIntegrationTest {
@@ -19,11 +22,19 @@ class EnderecoControllerIT extends AbstractIntegrationTest {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
+    @Autowired
+    private LoginRepository loginRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private String authToken;
 
     @BeforeEach
     void setUp() throws Exception {
         enderecoRepository.deleteAll();
+        loginRepository.deleteAll();
+        usuarioRepository.deleteAll();
         authToken = criarUsuarioEObterToken();
     }
 
@@ -81,6 +92,25 @@ class EnderecoControllerIT extends AbstractIntegrationTest {
         mockMvc.perform(get("/endereco/{id}", id).header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cep").value(dto.cep()));
+    }
+
+    @Test
+    @DisplayName("getByIdDeveRetornar403QuandoEnderecoDeOutroUsuario")
+    void getByIdDeveRetornar403QuandoEnderecoDeOutroUsuario() throws Exception {
+        EnderecoDTO dto = EnderecoBuilder.padrao().buildDto();
+        String location = mockMvc.perform(post("/endereco/create")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+        Integer id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
+
+        String outroToken = criarUsuarioComToken(UsuarioBuilder.padrao()).token();
+
+        mockMvc.perform(get("/endereco/{id}", id).header("Authorization", "Bearer " + outroToken))
+                .andExpect(status().isForbidden());
     }
 
     @Test

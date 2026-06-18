@@ -22,6 +22,7 @@ import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.EnderecoRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.EnderecoService;
+import br.com.loja_online.service.exceptions.ForbiddenException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @SuppressWarnings("null")
@@ -68,7 +69,7 @@ class EnderecoServiceTest {
     void findByIdDeveRetornarEnderecoQuandoExiste() {
         when(enderecoRepository.findById(1)).thenReturn(Optional.of(endereco));
 
-        Endereco resultado = enderecoService.findById(1);
+        Endereco resultado = enderecoService.findById(1, PROPRIETARIO_EMAIL);
 
         assertThat(resultado).isNotNull();
         assertThat(resultado.getCep()).isEqualTo(endereco.getCep());
@@ -79,9 +80,18 @@ class EnderecoServiceTest {
     void findByIdDeveLancarExceptionQuandoNaoExiste() {
         when(enderecoRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> enderecoService.findById(99))
+        assertThatThrownBy(() -> enderecoService.findById(99, PROPRIETARIO_EMAIL))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessageContaining("99");
+    }
+
+    @Test
+    @DisplayName("findByIdDeveLancarForbiddenQuandoEmailDiferente")
+    void findByIdDeveLancarForbiddenQuandoEmailDiferente() {
+        when(enderecoRepository.findById(1)).thenReturn(Optional.of(endereco));
+
+        assertThatThrownBy(() -> enderecoService.findById(1, "outro@example.com"))
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -92,6 +102,15 @@ class EnderecoServiceTest {
         enderecoService.deleteById(1, PROPRIETARIO_EMAIL);
 
         verify(enderecoRepository).deleteById(1);
+    }
+
+    @Test
+    @DisplayName("deleteByIdDeveLancarForbiddenQuandoEmailDiferente")
+    void deleteByIdDeveLancarForbiddenQuandoEmailDiferente() {
+        when(enderecoRepository.findById(1)).thenReturn(Optional.of(endereco));
+
+        assertThatThrownBy(() -> enderecoService.deleteById(1, "outro@example.com"))
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test

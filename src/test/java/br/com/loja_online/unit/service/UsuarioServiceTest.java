@@ -31,6 +31,7 @@ import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.UsuarioService;
+import br.com.loja_online.service.exceptions.ForbiddenException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @SuppressWarnings("null")
@@ -155,7 +156,7 @@ class UsuarioServiceTest {
     void deveRetornarUsuarioQuandoFindByIdExistente() {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
 
-        UsuarioResponseDTO result = usuarioService.findById(1L);
+        UsuarioResponseDTO result = usuarioService.findById(1L, EMAIL_AUTENTICADO);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
@@ -166,9 +167,48 @@ class UsuarioServiceTest {
     void deveLancarExcecaoQuandoFindByIdInexistente() {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> usuarioService.findById(1L))
+        assertThatThrownBy(() -> usuarioService.findById(1L, EMAIL_AUTENTICADO))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Usuário não encontrado com o ID: 1");
+    }
+
+    @Test
+    @DisplayName("findByIdDeveLancarForbiddenQuandoEmailDiferente")
+    void findByIdDeveLancarForbiddenQuandoEmailDiferente() {
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> usuarioService.findById(1L, "outro@example.com"))
+                .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    @DisplayName("findByLoginDeveRetornarUsuarioQuandoLoginCorreto")
+    void findByLoginDeveRetornarUsuarioQuandoLoginCorreto() {
+        when(usuarioRepository.findByLogin_Login("joao")).thenReturn(Optional.of(usuario));
+
+        UsuarioResponseDTO result = usuarioService.findByLogin("joao", EMAIL_AUTENTICADO);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo(EMAIL_AUTENTICADO);
+    }
+
+    @Test
+    @DisplayName("findByLoginDeveLancarExceptionQuandoLoginInexistente")
+    void findByLoginDeveLancarExceptionQuandoLoginInexistente() {
+        when(usuarioRepository.findByLogin_Login("naoexiste")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> usuarioService.findByLogin("naoexiste", EMAIL_AUTENTICADO))
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessageContaining("naoexiste");
+    }
+
+    @Test
+    @DisplayName("findByLoginDeveLancarForbiddenQuandoEmailDiferente")
+    void findByLoginDeveLancarForbiddenQuandoEmailDiferente() {
+        when(usuarioRepository.findByLogin_Login("joao")).thenReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> usuarioService.findByLogin("joao", "outro@example.com"))
+                .isInstanceOf(ForbiddenException.class);
     }
 
     @Test

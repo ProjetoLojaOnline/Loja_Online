@@ -11,7 +11,9 @@ import org.springframework.http.MediaType;
 
 import br.com.loja_online.builder.ProdutoBuilder;
 import br.com.loja_online.dto.ProdutoDTO;
+import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.ProdutoRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 
 @SuppressWarnings("null")
 class ProdutoControllerIT extends AbstractIntegrationTest {
@@ -19,11 +21,19 @@ class ProdutoControllerIT extends AbstractIntegrationTest {
     @Autowired
     private ProdutoRepository produtoRepository;
 
+    @Autowired
+    private LoginRepository loginRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private String authToken;
 
     @BeforeEach
     void setUp() throws Exception {
         produtoRepository.deleteAll();
+        loginRepository.deleteAll();
+        usuarioRepository.deleteAll();
         authToken = criarVendedorEObterToken();
     }
 
@@ -83,6 +93,19 @@ class ProdutoControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("postDeveRetornar403ComTokenRoleUser")
+    void postDeveRetornar403ComTokenRoleUser() throws Exception {
+        String userToken = criarUsuarioEObterToken();
+        ProdutoDTO dto = ProdutoBuilder.padrao().buildDto();
+
+        mockMvc.perform(post("/produto")
+                        .header("Authorization", "Bearer " + userToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package br.com.loja_online.integration;
 
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import br.com.loja_online.builder.UsuarioBuilder;
+import br.com.loja_online.dto.AutenticacaoRequestDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
@@ -32,6 +34,88 @@ class LoginControllerIT extends AbstractIntegrationTest {
         usuarioRepository.deleteAll();
         authToken = criarUsuarioEObterToken();
     }
+
+    // ── POST /login/authenticate ──────────────────────────────────────────────
+
+    @Test
+    @DisplayName("deveRetornar200QuandoAutenticarPorEmail")
+    void deveRetornar200QuandoAutenticarPorEmail() throws Exception {
+        UsuarioBuilder builder = UsuarioBuilder.padrao();
+        criarUsuarioComToken(builder);
+
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(builder.getEmail(), null, builder.getSenha());
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(matchesPattern("[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+")));
+    }
+
+    @Test
+    @DisplayName("deveRetornar200QuandoAutenticarPorUsername")
+    void deveRetornar200QuandoAutenticarPorUsername() throws Exception {
+        UsuarioBuilder builder = UsuarioBuilder.padrao();
+        criarUsuarioComToken(builder);
+
+        AutenticacaoRequestDTO loginRequest = new AutenticacaoRequestDTO(null, builder.getLogin(), builder.getSenha());
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(matchesPattern("[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+")));
+    }
+
+    @Test
+    @DisplayName("deveRetornar401QuandoAutenticarComCredenciaisInexistentes")
+    void deveRetornar401QuandoAutenticarComCredenciaisInexistentes() throws Exception {
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"qualquercoisa\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("deveRetornar400QuandoNemEmailNemUsernameInformado")
+    void deveRetornar400QuandoNemEmailNemUsernameInformado() throws Exception {
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"senha\":\"senha123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("emailOuUsername"))
+                .andExpect(jsonPath("$.errors[0].message").value("Informe seu e-mail ou username"));
+    }
+
+    @Test
+    @DisplayName("deveRetornar400QuandoEmailComFormatoInvalido")
+    void deveRetornar400QuandoEmailComFormatoInvalido() throws Exception {
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"nao-e-email\",\"senha\":\"senha123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("email"))
+                .andExpect(jsonPath("$.errors[0].message").value("Formato de e-mail inválido"));
+    }
+
+    @Test
+    @DisplayName("deveRetornar400QuandoSenhaNula")
+    void deveRetornar400QuandoSenhaNula() throws Exception {
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"user@example.com\",\"senha\":null}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("senha"));
+    }
+
+    @Test
+    @DisplayName("deveRetornar415QuandoContentTypeInvalido")
+    void deveRetornar415QuandoContentTypeInvalido() throws Exception {
+        mockMvc.perform(post("/login/authenticate")
+                        .contentType(MediaType.APPLICATION_XML)
+                        .content("{\"email\":\"user@example.com\",\"senha\":\"senha123\"}"))
+                .andExpect(status().isUnsupportedMediaType());
+    }
+
+    // ── GET /login/buscar/{login} ─────────────────────────────────────────────
 
     @Test
     @DisplayName("deveRetornarLoginDTOQuandoGetPorLoginExistente")
