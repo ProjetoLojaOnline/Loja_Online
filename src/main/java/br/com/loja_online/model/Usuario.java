@@ -1,8 +1,19 @@
 package br.com.loja_online.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,17 +29,35 @@ import lombok.Setter;
 public class Usuario {
 
     public Usuario() {
-        this.cartoes = new java.util.ArrayList<>();
-        this.enderecos = new java.util.ArrayList<>();
+        this.cartoes = new ArrayList<>();
+        this.enderecos = new ArrayList<>();
+    }
+
+    @PostLoad
+    private void inicializarColecoes() {
+        if (this.cartoes == null) {
+            this.cartoes = new ArrayList<>();
+        }
+        if (this.enderecos == null) {
+            this.enderecos = new ArrayList<>();
+        }
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
+
+    @Column(unique = true)
     private String telefone;
+
+    @Column(unique = true)
     private String email;
+
+    @Column(unique = true)
     private String cpf;
+
     private String dataNascimento;
     private String genero;
     private String foto;
@@ -39,10 +68,9 @@ public class Usuario {
 
     @Builder.Default
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Cartao> cartoes = new java.util.ArrayList<>();
+    private List<Cartao> cartoes = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Endereco> enderecos = new java.util.ArrayList<>();
-
+    private List<Endereco> enderecos = new ArrayList<>();
 }

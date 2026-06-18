@@ -18,36 +18,48 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.loja_online.builder.EnderecoBuilder;
 import br.com.loja_online.model.Endereco;
+import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.EnderecoRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
 class EnderecoServiceTest {
 
+    private static final String PROPRIETARIO_EMAIL = "proprietario@example.com";
+
     @Mock
     private EnderecoRepository enderecoRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
 
     @InjectMocks
     private EnderecoService enderecoService;
 
     private Endereco endereco;
+    private Usuario proprietario;
 
     @BeforeEach
     void setUp() {
+        proprietario = Usuario.builder().email(PROPRIETARIO_EMAIL).build();
         endereco = EnderecoBuilder.padrao().buildModel();
+        endereco.setUsuario(proprietario);
     }
 
     @Test
     @DisplayName("criarEnderecoDeveRetornarEnderecoSalvo")
     void criarEnderecoDeveRetornarEnderecoSalvo() {
+        when(usuarioRepository.findByEmail(PROPRIETARIO_EMAIL)).thenReturn(Optional.of(proprietario));
         when(enderecoRepository.save(any(Endereco.class))).thenReturn(endereco);
 
-        Endereco resultado = enderecoService.criarEndereco(endereco);
+        Endereco resultado = enderecoService.criarEndereco(endereco, PROPRIETARIO_EMAIL);
 
         assertThat(resultado).isNotNull();
         assertThat(resultado.getLogradouro()).isEqualTo(endereco.getLogradouro());
-        verify(enderecoRepository).save(endereco);
+        verify(enderecoRepository).save(any(Endereco.class));
+        verify(usuarioRepository).findByEmail(PROPRIETARIO_EMAIL);
     }
 
     @Test
@@ -76,9 +88,9 @@ class EnderecoServiceTest {
     void deleteByIdDeveRemoverQuandoExiste() {
         when(enderecoRepository.findById(1)).thenReturn(Optional.of(endereco));
 
-        enderecoService.deleteById(1);
+        enderecoService.deleteById(1, PROPRIETARIO_EMAIL);
 
-        verify(enderecoRepository).delete(endereco);
+        verify(enderecoRepository).deleteById(1);
     }
 
     @Test
@@ -86,7 +98,7 @@ class EnderecoServiceTest {
     void deleteByIdDeveLancarExceptionQuandoNaoExiste() {
         when(enderecoRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> enderecoService.deleteById(99))
+        assertThatThrownBy(() -> enderecoService.deleteById(99, PROPRIETARIO_EMAIL))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessageContaining("99");
     }

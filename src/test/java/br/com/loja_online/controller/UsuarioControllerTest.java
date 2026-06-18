@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import br.com.loja_online.AbstractIntegrationTest;
 import br.com.loja_online.builder.UsuarioBuilder;
 import br.com.loja_online.dto.LoginDTO;
@@ -30,12 +28,15 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     private LoginRepository loginRepository;
 
     private String authToken;
+    private Long authUsuarioId;
 
     @BeforeEach
     void setUp() throws Exception {
         loginRepository.deleteAll();
         usuarioRepository.deleteAll();
-        authToken = criarUsuarioEObterToken();
+        UsuarioCriado criado = criarUsuarioComToken(UsuarioBuilder.padrao());
+        authToken = criado.token();
+        authUsuarioId = criado.id();
     }
 
     @Test
@@ -111,17 +112,9 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveAtualizarUsuarioQuandoPutValido")
     void deveAtualizarUsuarioQuandoPutValido() throws Exception {
-        UsuarioCadastroWrapper wrapper = UsuarioBuilder.padrao().buildWrapper();
-        String response = mockMvc.perform(post("/api/usuarios")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(wrapper)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        Long userId = objectMapper.readTree(response).get("id").asLong();
-
         UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
                 .nome("Nome Atualizado").telefone("11888888888").build();
-        mockMvc.perform(put("/api/usuarios/{id}", userId)
+        mockMvc.perform(put("/api/usuarios/{id}", authUsuarioId)
                         .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
@@ -141,6 +134,19 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    @DisplayName("deveRetornar403QuandoPutEmOutroUsuario")
+    void deveRetornar403QuandoPutEmOutroUsuario() throws Exception {
+        UsuarioCriado outroUsuario = criarUsuarioComToken(UsuarioBuilder.padrao());
+        UsuarioUpdateDTO update = UsuarioUpdateDTO.builder().nome("Invasor").telefone("11988887777").build();
+
+        mockMvc.perform(put("/api/usuarios/{id}", outroUsuario.id())
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(update)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("deveRetornar404QuandoPutParaIdInexistente")
     void deveRetornar404QuandoPutParaIdInexistente() throws Exception {
         UsuarioUpdateDTO update = UsuarioUpdateDTO.builder()
@@ -155,15 +161,7 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveDeletarUsuarioQuandoDeletePorIdExistente")
     void deveDeletarUsuarioQuandoDeletePorIdExistente() throws Exception {
-        UsuarioCadastroWrapper wrapper = UsuarioBuilder.padrao().buildWrapper();
-        String response = mockMvc.perform(post("/api/usuarios")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(wrapper)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        Long userId = objectMapper.readTree(response).get("id").asLong();
-
-        mockMvc.perform(delete("/api/usuarios/{id}", userId)
+        mockMvc.perform(delete("/api/usuarios/{id}", authUsuarioId)
                         .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNoContent());
     }
@@ -173,6 +171,16 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     void deveRetornar401QuandoDeleteSemToken() throws Exception {
         mockMvc.perform(delete("/api/usuarios/{id}", 1L))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("deveRetornar403QuandoDeleteEmOutroUsuario")
+    void deveRetornar403QuandoDeleteEmOutroUsuario() throws Exception {
+        UsuarioCriado outroUsuario = criarUsuarioComToken(UsuarioBuilder.padrao());
+
+        mockMvc.perform(delete("/api/usuarios/{id}", outroUsuario.id())
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -200,8 +208,8 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("deveRetornar200QuandoLoginComCredenciaisValidas")
-    void deveRetornar200QuandoLoginComCredenciaisValidas() throws Exception {
+    @DisplayName("deveRetornar401QuandoLoginComCredenciaisInexistentes")
+    void deveRetornar401QuandoLoginComCredenciaisInexistentes() throws Exception {
         mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"joao@example.com\",\"senha\":\"senha123\"}"))
@@ -229,7 +237,8 @@ class UsuarioControllerTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("deveRetornar405QuandoMetodoDeleteForInvalido")
     void deveRetornar405QuandoMetodoDeleteForInvalido() throws Exception {
-        mockMvc.perform(delete("/api/usuarios"))
+        mockMvc.perform(delete("/api/usuarios")
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isMethodNotAllowed());
     }
 }

@@ -18,37 +18,49 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.loja_online.builder.CartaoBuilder;
 import br.com.loja_online.model.Cartao;
+import br.com.loja_online.model.Usuario;
 import br.com.loja_online.repository.CartaoRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
 class CartaoServiceTest {
 
+    private static final String PROPRIETARIO_EMAIL = "proprietario@example.com";
+
     @Mock
     private CartaoRepository cartaoRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
 
     @InjectMocks
     private CartaoService cartaoService;
 
     private Cartao cartao;
+    private Usuario proprietario;
 
     @BeforeEach
     void setUp() {
+        proprietario = Usuario.builder().email(PROPRIETARIO_EMAIL).build();
         cartao = CartaoBuilder.padrao().buildModel();
+        cartao.setUsuario(proprietario);
     }
 
     @Test
     @DisplayName("criarCartaoDeveRetornarCartaoSalvo")
     void criarCartaoDeveRetornarCartaoSalvo() {
+        when(usuarioRepository.findByEmail(PROPRIETARIO_EMAIL)).thenReturn(Optional.of(proprietario));
         when(cartaoRepository.save(any(Cartao.class))).thenReturn(cartao);
 
-        Cartao resultado = cartaoService.criarCartao(cartao);
+        Cartao resultado = cartaoService.criarCartao(cartao, PROPRIETARIO_EMAIL);
 
         assertThat(resultado).isNotNull();
         assertThat(resultado.getId()).isEqualTo(cartao.getId());
         assertThat(resultado.getNomeCartao()).isEqualTo(cartao.getNomeCartao());
-        verify(cartaoRepository).save(cartao);
+        verify(cartaoRepository).save(any(Cartao.class));
+        verify(usuarioRepository).findByEmail(PROPRIETARIO_EMAIL);
     }
 
     @Test
@@ -77,9 +89,9 @@ class CartaoServiceTest {
     void deletarCartaoDeveRemoverQuandoExiste() {
         when(cartaoRepository.findById(1L)).thenReturn(Optional.of(cartao));
 
-        cartaoService.deletarCartao(1L);
+        cartaoService.deletarCartao(1L, PROPRIETARIO_EMAIL);
 
-        verify(cartaoRepository).delete(cartao);
+        verify(cartaoRepository).deleteById(1L);
     }
 
     @Test
@@ -87,7 +99,7 @@ class CartaoServiceTest {
     void deletarCartaoDeveLancarExceptionQuandoNaoExiste() {
         when(cartaoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> cartaoService.deletarCartao(99L))
+        assertThatThrownBy(() -> cartaoService.deletarCartao(99L, PROPRIETARIO_EMAIL))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessageContaining("99");
     }
@@ -96,10 +108,11 @@ class CartaoServiceTest {
     @DisplayName("atualizarCartaoDeveAtualizarCamposQuandoExiste")
     void atualizarCartaoDeveAtualizarCamposQuandoExiste() {
         Cartao atualizado = CartaoBuilder.padrao().comCvv(456).buildModel();
+        atualizado.setUsuario(proprietario);
         when(cartaoRepository.findById(1L)).thenReturn(Optional.of(cartao));
         when(cartaoRepository.save(any(Cartao.class))).thenReturn(atualizado);
 
-        Cartao resultado = cartaoService.atualizarCartao(1L, atualizado);
+        Cartao resultado = cartaoService.atualizarCartao(1L, atualizado, PROPRIETARIO_EMAIL);
 
         assertThat(resultado.getCvv()).isEqualTo(456);
         verify(cartaoRepository).save(any(Cartao.class));
@@ -110,7 +123,7 @@ class CartaoServiceTest {
     void atualizarCartaoDeveLancarExceptionQuandoNaoExiste() {
         when(cartaoRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> cartaoService.atualizarCartao(99L, cartao))
+        assertThatThrownBy(() -> cartaoService.atualizarCartao(99L, cartao, PROPRIETARIO_EMAIL))
                 .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessageContaining("99");
     }

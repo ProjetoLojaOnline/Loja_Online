@@ -10,13 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import br.com.loja_online.AbstractIntegrationTest;
 import br.com.loja_online.builder.UsuarioBuilder;
-import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
-import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 

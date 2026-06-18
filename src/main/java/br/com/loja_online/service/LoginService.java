@@ -33,6 +33,7 @@ public class LoginService {
                 .orElseThrow(() -> new ObjectNotFoundException("Login não encontrado: " + login));
     }
 
+    @Transactional(readOnly = true)
     public String login(String email, String senha) {
         Usuario usuario = usuarioRepository
                 .findByEmail(email)

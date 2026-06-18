@@ -29,22 +29,27 @@ public abstract class AbstractIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
-    protected String criarUsuarioEObterToken() throws Exception {
-        UsuarioBuilder builder = UsuarioBuilder.padrao();
-        UsuarioCadastroWrapper wrapper = builder.buildWrapper();
+    public record UsuarioCriado(Long id, String token) {}
 
-        mockMvc.perform(post("/api/usuarios")
+    protected UsuarioCriado criarUsuarioComToken(UsuarioBuilder builder) throws Exception {
+        UsuarioCadastroWrapper wrapper = builder.buildWrapper();
+        String response = mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Long id = objectMapper.readTree(response).get("id").asLong();
 
         LoginRequest loginRequest = new LoginRequest(builder.getEmail(), builder.getSenha());
-        return mockMvc.perform(post("/login/authenticate")
+        String token = mockMvc.perform(post("/login/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andReturn().getResponse().getContentAsString();
+        return new UsuarioCriado(id, token);
+    }
+
+    protected String criarUsuarioEObterToken() throws Exception {
+        return criarUsuarioComToken(UsuarioBuilder.padrao()).token();
     }
 }

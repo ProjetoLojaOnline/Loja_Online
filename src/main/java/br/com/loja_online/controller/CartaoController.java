@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -39,7 +40,8 @@ public class CartaoController {
         @ApiResponse(responseCode = "401", description = "Não autorizado")
     })
     public ResponseEntity<CartaoDTO> insert(@Valid @NonNull @RequestBody CartaoDTO dto) {
-        Cartao cartao = cartaoService.criarCartao(CartaoMapper.paraCartao(dto));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cartao cartao = cartaoService.criarCartao(CartaoMapper.paraCartao(dto), email);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(cartao.getId()).toUri();
         return ResponseEntity.created(uri).body(CartaoMapper.paraDto(cartao));
@@ -61,10 +63,12 @@ public class CartaoController {
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Cartão deletado"),
         @ApiResponse(responseCode = "401", description = "Não autorizado"),
+        @ApiResponse(responseCode = "403", description = "Proibido — cartão pertence a outro usuário"),
         @ApiResponse(responseCode = "404", description = "Cartão não encontrado")
     })
     public ResponseEntity<Void> deleteCartao(@NonNull @PathVariable Long id) {
-        cartaoService.deletarCartao(id);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        cartaoService.deletarCartao(id, email);
         return ResponseEntity.noContent().build();
     }
 
@@ -74,11 +78,13 @@ public class CartaoController {
         @ApiResponse(responseCode = "200", description = "Cartão atualizado"),
         @ApiResponse(responseCode = "400", description = "Dados inválidos"),
         @ApiResponse(responseCode = "401", description = "Não autorizado"),
+        @ApiResponse(responseCode = "403", description = "Proibido — cartão pertence a outro usuário"),
         @ApiResponse(responseCode = "404", description = "Cartão não encontrado")
     })
     public ResponseEntity<CartaoDTO> updateCartao(
             @NonNull @PathVariable Long id, @Valid @NonNull @RequestBody CartaoDTO dto) {
-        Cartao cartao = cartaoService.atualizarCartao(id, CartaoMapper.paraCartao(dto));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cartao cartao = cartaoService.atualizarCartao(id, CartaoMapper.paraCartao(dto), email);
         return ResponseEntity.ok(CartaoMapper.paraDto(cartao));
     }
 }

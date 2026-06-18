@@ -1,5 +1,9 @@
 package br.com.loja_online.mapper;
 
+import java.util.List;
+
+import br.com.loja_online.dto.CartaoDTO;
+import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.model.Usuario;
@@ -9,6 +13,15 @@ public class UsuarioMapper {
         if (usuario == null) {
             return null;
         }
+
+        List<CartaoDTO> cartoes = usuario.getCartoes() != null
+                ? usuario.getCartoes().stream().map(CartaoMapper::paraDto).toList()
+                : java.util.Collections.emptyList();
+
+        List<EnderecoDTO> enderecos = usuario.getEnderecos() != null
+                ? usuario.getEnderecos().stream().map(EnderecoMapper::paraDto).toList()
+                : java.util.Collections.emptyList();
+
         return UsuarioResponseDTO.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
@@ -19,8 +32,8 @@ public class UsuarioMapper {
                 .genero(usuario.getGenero())
                 .foto(usuario.getFoto())
                 .tipo(usuario.getTipo())
-                .cartoes(usuario.getCartoes())
-                .enderecos(usuario.getEnderecos())
+                .cartoes(cartoes)
+                .enderecos(enderecos)
                 .build();
     }
 
@@ -29,7 +42,6 @@ public class UsuarioMapper {
             return null;
         }
 
-        // 1. Criamos o "Pai" (Usuario) primeiro
         Usuario usuario = Usuario.builder()
                 .nome(usuarioDTO.getNome())
                 .telefone(usuarioDTO.getTelefone())
@@ -41,13 +53,11 @@ public class UsuarioMapper {
                 .tipo(usuarioDTO.getTipo())
                 .build();
 
-        // 3. Vinculamos os Cartões e avisamos o dono para cada um
         if (usuarioDTO.getCartoes() != null) {
             usuarioDTO.getCartoes().forEach(cartao -> cartao.setUsuario(usuario));
             usuario.setCartoes(usuarioDTO.getCartoes());
         }
 
-        // 4. Vinculamos os Endereços e avisamos o dono para cada um
         if (usuarioDTO.getEnderecos() != null) {
             usuarioDTO.getEnderecos().forEach(endereco -> endereco.setUsuario(usuario));
             usuario.setEnderecos(usuarioDTO.getEnderecos());
@@ -55,5 +65,4 @@ public class UsuarioMapper {
 
         return usuario;
     }
-
 }
