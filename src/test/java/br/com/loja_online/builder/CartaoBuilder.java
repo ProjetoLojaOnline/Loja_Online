@@ -11,7 +11,7 @@ import br.com.loja_online.model.Cartao;
 
 public class CartaoBuilder {
 
-    private static final Faker faker = new Faker(new Locale("pt-BR"));
+    private static final Faker faker = new Faker(Locale.forLanguageTag("pt-BR"));
 
     private Long numeroCartao;
     private String nomeCartao;

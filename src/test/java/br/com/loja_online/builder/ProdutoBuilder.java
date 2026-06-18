@@ -11,7 +11,7 @@ import br.com.loja_online.model.Produto;
 
 public class ProdutoBuilder {
 
-    private static final Faker faker = new Faker(new Locale("pt-BR"));
+    private static final Faker faker = new Faker(Locale.forLanguageTag("pt-BR"));
 
     private Integer id;
     private String nome;

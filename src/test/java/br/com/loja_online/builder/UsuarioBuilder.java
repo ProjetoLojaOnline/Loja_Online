@@ -10,7 +10,7 @@ import br.com.loja_online.dto.UsuarioRequestDTO;
 
 public class UsuarioBuilder {
 
-    private static final Faker faker = new Faker(new Locale("pt-BR"));
+    private static final Faker faker = new Faker(Locale.forLanguageTag("pt-BR"));
 
     private String nome;
     private String email;

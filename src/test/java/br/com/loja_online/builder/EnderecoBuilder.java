@@ -9,7 +9,7 @@ import br.com.loja_online.model.Endereco;
 
 public class EnderecoBuilder {
 
-    private static final Faker faker = new Faker(new Locale("pt-BR"));
+    private static final Faker faker = new Faker(Locale.forLanguageTag("pt-BR"));
 
     private String logradouro;
     private Integer numero;
