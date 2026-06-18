@@ -1,9 +1,8 @@
 package br.com.loja_online.mapper;
 
-import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
-import br.com.loja_online.model.*;
-
+import br.com.loja_online.dto.UsuarioResponseDTO;
+import br.com.loja_online.model.Usuario;
 
 public class UsuarioMapper {
     public static UsuarioResponseDTO paraDTO(Usuario usuario) {
@@ -26,8 +25,9 @@ public class UsuarioMapper {
     }
 
     public static Usuario paraUsuario(UsuarioRequestDTO usuarioDTO) {
-        if (usuarioDTO == null)
+        if (usuarioDTO == null) {
             return null;
+        }
 
         // 1. Criamos o "Pai" (Usuario) primeiro
         Usuario usuario = Usuario.builder()

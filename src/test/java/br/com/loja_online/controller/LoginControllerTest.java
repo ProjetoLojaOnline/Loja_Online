@@ -1,11 +1,9 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.dto.UsuarioCadastroWrapper;
-import br.com.loja_online.dto.UsuarioRequestDTO;
-import br.com.loja_online.repository.LoginRepository;
-import br.com.loja_online.repository.UsuarioRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,9 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.com.loja_online.dto.LoginDTO;
+import br.com.loja_online.dto.UsuarioCadastroWrapper;
+import br.com.loja_online.dto.UsuarioRequestDTO;
+import br.com.loja_online.repository.LoginRepository;
+import br.com.loja_online.repository.UsuarioRepository;
 
 @SuppressWarnings("null")
 @SpringBootTest

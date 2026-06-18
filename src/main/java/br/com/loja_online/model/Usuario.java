@@ -1,9 +1,13 @@
 package br.com.loja_online.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tb_usuario")

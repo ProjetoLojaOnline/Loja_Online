@@ -1,8 +1,9 @@
 package br.com.loja_online.mapper;
 
+import org.springframework.lang.NonNull;
+
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.model.Endereco;
-import org.springframework.lang.NonNull;
 
 public class EnderecoMapper {
   public static EnderecoDTO paraDto(Endereco endereco) {

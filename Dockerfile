@@ -1,26 +1,36 @@
-# Etapa 1: Build da aplicação
-FROM maven:3.9.9-eclipse-temurin-17 AS builder
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM maven:3.9.16-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
-# Copia o pom.xml e baixa dependências primeiro (cache eficiente)
+# Baixa dependências primeiro para aproveitar cache de camada
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B --no-transfer-progress
 
-# Copia o código-fonte
 COPY src ./src
+RUN mvn clean package -DskipTests --no-transfer-progress
 
-# Compila o projeto sem rodar testes
-RUN mvn clean package -DskipTests
-
-# Etapa 2: Imagem final e leve para execução
-FROM eclipse-temurin:17-jre-alpine
+# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Copia o JAR gerado na etapa anterior
-COPY --from=builder /app/target/*.jar app.jar
+# Usuário não-root: evita execução como root no container
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# --chown evita um RUN chown separado (menos camadas)
+COPY --from=builder --chown=appuser:appgroup /app/target/*.jar app.jar
+
+USER appuser
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "/app/app.jar"]
+# Requer spring-boot-starter-actuator no pom.xml
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget -qO- http://localhost:8080/actuator/health | grep '"status":"UP"' || exit 1
+
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]

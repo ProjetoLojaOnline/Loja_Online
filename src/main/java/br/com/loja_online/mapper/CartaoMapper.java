@@ -1,8 +1,9 @@
 package br.com.loja_online.mapper;
 
+import org.springframework.lang.NonNull;
+
 import br.com.loja_online.dto.CartaoDTO;
 import br.com.loja_online.model.Cartao;
-import org.springframework.lang.NonNull;
 
 public class CartaoMapper {
 

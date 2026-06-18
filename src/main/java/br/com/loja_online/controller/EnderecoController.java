@@ -1,17 +1,20 @@
 package br.com.loja_online.controller;
 
-import br.com.loja_online.dto.EnderecoDTO;
-import br.com.loja_online.mapper.EnderecoMapper;
-import br.com.loja_online.model.Endereco;
-import br.com.loja_online.service.EnderecoService;
+import java.net.URI;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import br.com.loja_online.dto.EnderecoDTO;
+import br.com.loja_online.mapper.EnderecoMapper;
+import br.com.loja_online.model.Endereco;
+import br.com.loja_online.service.EnderecoService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/endereco")
