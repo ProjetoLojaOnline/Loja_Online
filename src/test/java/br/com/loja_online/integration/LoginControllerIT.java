@@ -81,7 +81,7 @@ class LoginControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"senha\":\"senha123\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0].field").value("emailOuUsername"))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("emailOuUsername"))
                 .andExpect(jsonPath("$.errors[0].message").value("Informe seu e-mail ou username"));
     }
 
@@ -92,7 +92,7 @@ class LoginControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"nao-e-email\",\"senha\":\"senha123\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0].field").value("email"))
+                .andExpect(jsonPath("$.errors[0].fieldName").value("email"))
                 .andExpect(jsonPath("$.errors[0].message").value("Formato de e-mail inválido"));
     }
 
@@ -103,7 +103,7 @@ class LoginControllerIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"user@example.com\",\"senha\":null}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors[0].field").value("senha"));
+                .andExpect(jsonPath("$.errors[0].fieldName").value("senha"));
     }
 
     @Test
