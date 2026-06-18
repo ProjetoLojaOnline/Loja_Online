@@ -2,6 +2,12 @@ package br.com.loja_online.controller;
 
 import jakarta.validation.Valid;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +17,7 @@ import br.com.loja_online.service.LoginService;
 
 @RestController
 @RequestMapping("/login")
+@Tag(name = "Autenticação", description = "Login e consulta de credenciais")
 public class LoginController {
 
     private final LoginService service;
@@ -20,15 +27,25 @@ public class LoginController {
     }
 
     @GetMapping("/buscar/{login}")
+    @Operation(summary = "Buscar login por username")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login encontrado"),
+        @ApiResponse(responseCode = "401", description = "Não autorizado"),
+        @ApiResponse(responseCode = "404", description = "Login não encontrado")
+    })
+    @SecurityRequirement(name = "bearer-jwt")
     public ResponseEntity<LoginDTO> buscarPorLogin(@PathVariable String login) {
-        LoginDTO loginEncontrado = service.buscarPorLogin(login);
-        return ResponseEntity.ok(loginEncontrado);
-
+        return ResponseEntity.ok(service.buscarPorLogin(login));
     }
 
     @PostMapping("/authenticate")
+    @Operation(summary = "Autenticar usuário", description = "Retorna JWT Bearer token. Rota pública.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Token JWT gerado"),
+        @ApiResponse(responseCode = "400", description = "Email ou senha inválidos (formato)"),
+        @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
+    })
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        String msg = service.login(loginRequest.getEmail(), loginRequest.getSenha());
-        return ResponseEntity.ok(msg);
+        return ResponseEntity.ok(service.login(loginRequest.getEmail(), loginRequest.getSenha()));
     }
 }

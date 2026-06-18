@@ -5,24 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record EnderecoDTO(
-     @NotBlank()
-    String logradouro,
-    @NotNull()
-    @Min(1)
-    Integer numero,
-     @NotBlank()
-    String bairro,
-     @NotBlank()
-    String complemento,
-     @NotBlank()
-     String referencia,
-     @NotBlank()
-     @Pattern(regexp = "\\d{5}-\\d{3}" )
-    String cep,
-     @NotBlank()
-    String cidade,
-     @NotBlank()
-    String estado
-) {
-}
+        @Schema(example = "Rua das Flores") @NotBlank() String logradouro,
+        @Schema(example = "123") @NotNull() @Min(1) Integer numero,
+        @Schema(example = "Centro") @NotBlank() String bairro,
+        @Schema(example = "Apto 42") @NotBlank() String complemento,
+        @Schema(example = "Próximo ao mercado") @NotBlank() String referencia,
+        @Schema(description = "Formato #####-###", example = "01001-000") @NotBlank() @Pattern(regexp = "\\d{5}-\\d{3}") String cep,
+        @Schema(example = "São Paulo") @NotBlank() String cidade,
+        @Schema(example = "SP") @NotBlank() String estado) {}
