@@ -3,6 +3,7 @@ package br.com.loja_online.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,14 +21,16 @@ import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
+import br.com.loja_online.model.Login;
+import br.com.loja_online.model.enums.Role;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
+import br.com.loja_online.security.TokenService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class
-UsuarioControllerTest {
+class UsuarioControllerTest {
 
         @Autowired
         private MockMvc mockMvc;
@@ -40,11 +44,26 @@ UsuarioControllerTest {
         @Autowired
         private LoginRepository loginRepository;
 
+        @Autowired
+        private TokenService tokenService;
+
+        @Autowired
+        private PasswordEncoder passwordEncoder;
+
+        private String authToken;
+
         @BeforeEach
         void setUp() {
                 loginRepository.deleteAll();
                 usuarioRepository.deleteAll();
 
+                Login authLogin = Login.builder()
+                        .login("auth@test.com")
+                        .senha(passwordEncoder.encode("auth123"))
+                        .role(Role.ROLE_USER)
+                        .build();
+                loginRepository.save(authLogin);
+                authToken = tokenService.gerarToken(authLogin);
         }
 
         @Test
@@ -149,7 +168,8 @@ UsuarioControllerTest {
                 Long userId = objectMapper.readTree(response).get("id").asLong();
 
                 // When & Then: Recuperar
-                mockMvc.perform(get("/api/usuarios/{id}", userId))
+                mockMvc.perform(get("/api/usuarios/{id}", userId)
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.id").value(userId))
                         .andExpect(jsonPath("$.nome").value("João"));
@@ -159,7 +179,8 @@ UsuarioControllerTest {
         @DisplayName("deveRetornar404QuandoGetPorIdInexistente")
         void deveRetornar404QuandoGetPorIdInexistente() throws Exception {
                 // When & Then
-                mockMvc.perform(get("/api/usuarios/{id}", 999L))
+                mockMvc.perform(get("/api/usuarios/{id}", 999L)
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isNotFound());
         }
 
@@ -181,7 +202,8 @@ UsuarioControllerTest {
                         .andExpect(status().isCreated());
 
                 // When & Then
-                mockMvc.perform(get("/api/usuarios/login/{login}", "joao"))
+                mockMvc.perform(get("/api/usuarios/login/{login}", "joao")
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.nome").value("João"));
         }
@@ -190,7 +212,8 @@ UsuarioControllerTest {
         @DisplayName("deveRetornar404QuandoGetPorLoginInexistente")
         void deveRetornar404QuandoGetPorLoginInexistente() throws Exception {
                 // When & Then
-                mockMvc.perform(get("/api/usuarios/login/{login}", "nonexistent"))
+                mockMvc.perform(get("/api/usuarios/login/{login}", "nonexistent")
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isNotFound());
         }
 
@@ -220,6 +243,7 @@ UsuarioControllerTest {
 
                 // When & Then
                 mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .header("Authorization", "Bearer " + authToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateDTO)))
                         .andExpect(status().isOk())
@@ -238,6 +262,7 @@ UsuarioControllerTest {
 
                 // When & Then
                 mockMvc.perform(put("/api/usuarios/{id}", 999L)
+                                .header("Authorization", "Bearer " + authToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateDTO)))
                         .andExpect(status().isNotFound());
@@ -263,7 +288,8 @@ UsuarioControllerTest {
                 Long userId = objectMapper.readTree(response).get("id").asLong();
 
                 // When & Then
-                mockMvc.perform(delete("/api/usuarios/{id}", userId))
+                mockMvc.perform(delete("/api/usuarios/{id}", userId)
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isNoContent());
         }
 
@@ -271,7 +297,8 @@ UsuarioControllerTest {
         @DisplayName("deveRetornar404QuandoDeletePorIdInexistente")
         void deveRetornar404QuandoDeletePorIdInexistente() throws Exception {
                 // When & Then
-                mockMvc.perform(delete("/api/usuarios/{id}", 999L))
+                mockMvc.perform(delete("/api/usuarios/{id}", 999L)
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isNotFound());
         }
 
@@ -293,23 +320,26 @@ UsuarioControllerTest {
                         .andExpect(status().isCreated());
 
                 // When & Then: Verificar que senha não está no JSON
-                mockMvc.perform(get("/api/usuarios/login/{login}", "joao"))
+                mockMvc.perform(get("/api/usuarios/login/{login}", "joao")
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.senha").doesNotExist()); // Senha não deve estar presente
+                        .andExpect(jsonPath("$.senha").doesNotExist());
         }
 
         @Test
-        @DisplayName("devePermitirAcessoSemAutenticacaoQuandoGetAll")
-        void devePermitirAcessoSemAutenticacaoQuandoGetAll() throws Exception {
-                // When & Then: Deve funcionar sem auth headers
-                mockMvc.perform(get("/api/usuarios"))
+        @DisplayName("deveListarTodosComAutenticacao")
+        void deveListarTodosComAutenticacao() throws Exception {
+                // When & Then
+                mockMvc.perform(get("/api/usuarios")
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isOk());
         }
 
         @Test
         @DisplayName("deveRetornarListaVaziaQuandoNenhumUsuario")
         void deveRetornarListaVaziaQuandoNenhumUsuario() throws Exception {
-                mockMvc.perform(get("/api/usuarios"))
+                mockMvc.perform(get("/api/usuarios")
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$").isArray())
                         .andExpect(jsonPath("$").isEmpty());
@@ -337,6 +367,7 @@ UsuarioControllerTest {
                         .telefone("11999999999")
                         .build();
                 mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .header("Authorization", "Bearer " + authToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateDTO)))
                         .andExpect(status().isOk())
@@ -365,6 +396,7 @@ UsuarioControllerTest {
                         .telefone("11999999999")
                         .build();
                 mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .header("Authorization", "Bearer " + authToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateDTO)))
                         .andExpect(status().isBadRequest());
@@ -409,6 +441,7 @@ UsuarioControllerTest {
                         .telefone("11888888888")
                         .build();
                 mockMvc.perform(put("/api/usuarios/{id}", userId)
+                                .header("Authorization", "Bearer " + authToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(updateDTO)))
                         .andExpect(status().isOk())
@@ -418,7 +451,8 @@ UsuarioControllerTest {
         @Test
         @DisplayName("deveRetornar404QuandoDeleteComIdZero")
         void deveRetornar404QuandoDeleteComIdZero() throws Exception {
-                mockMvc.perform(delete("/api/usuarios/{id}", 0L))
+                mockMvc.perform(delete("/api/usuarios/{id}", 0L)
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isNotFound());
         }
 
@@ -517,7 +551,8 @@ UsuarioControllerTest {
         @Test
         @DisplayName("deveRetornar405QuandoMetodoDeleteForInvalido")
         void deveRetornar405QuandoMetodoDeleteForInvalido() throws Exception {
-                mockMvc.perform(delete("/api/usuarios"))
+                mockMvc.perform(delete("/api/usuarios")
+                                .header("Authorization", "Bearer " + authToken))
                         .andExpect(status().isMethodNotAllowed());
         }
 
@@ -536,11 +571,11 @@ UsuarioControllerTest {
                                 .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
                         .andExpect(status().isCreated());
 
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"joao@example.com\",\"senha\":\"senha123\"}"))
+                                .content("{\"login\":\"joao\",\"senha\":\"senha123\"}"))
                         .andExpect(status().isOk())
-                        .andExpect(content().string("Login realizado com sucesso"));
+                        .andExpect(jsonPath("$.token").value(Matchers.not(Matchers.emptyOrNullString())));
         }
 
         @Test
@@ -558,45 +593,45 @@ UsuarioControllerTest {
                                 .content(objectMapper.writeValueAsString(new UsuarioCadastroWrapper(usuarioDTO, loginDTO))))
                         .andExpect(status().isCreated());
 
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"joao@example.com\",\"senha\":\"senhaerrada\"}"))
+                                .content("{\"login\":\"joao\",\"senha\":\"senhaerrada\"}"))
                         .andExpect(status().isUnauthorized());
         }
 
         @Test
         @DisplayName("deveRetornar401QuandoLoginComUsuarioInvalido")
         void deveRetornar401QuandoLoginComUsuarioInvalido() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"senha123\"}"))
+                                .content("{\"login\":\"naoexiste\",\"senha\":\"senha123\"}"))
                         .andExpect(status().isUnauthorized());
         }
 
         @Test
         @DisplayName("deveRetornar401QuandoLoginComUsuarioESenhaInvalidos")
         void deveRetornar401QuandoLoginComUsuarioESenhaInvalidos() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"naoexiste@example.com\",\"senha\":\"senhaerrada\"}"))
+                                .content("{\"login\":\"naoexiste\",\"senha\":\"senhaerrada\"}"))
                         .andExpect(status().isUnauthorized());
         }
 
         @Test
-        @DisplayName("deveRetornar400QuandoLoginComEmailInvalido")
-        void deveRetornar400QuandoLoginComEmailInvalido() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+        @DisplayName("deveRetornar400QuandoLoginEmBranco")
+        void deveRetornar400QuandoLoginEmBranco() throws Exception {
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"email-invalido\",\"senha\":\"senha123\"}"))
+                                .content("{\"login\":\"\",\"senha\":\"senha123\"}"))
                         .andExpect(status().isBadRequest());
         }
 
         @Test
         @DisplayName("deveRetornar400QuandoLoginComSenhaVazia")
         void deveRetornar400QuandoLoginComSenhaVazia() throws Exception {
-                mockMvc.perform(post("/login/authenticate")
+                mockMvc.perform(post("/auth")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"email\":\"joao@example.com\",\"senha\":\"\"}"))
+                                .content("{\"login\":\"joao\",\"senha\":\"\"}"))
                         .andExpect(status().isBadRequest());
         }
 }

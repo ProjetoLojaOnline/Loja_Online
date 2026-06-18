@@ -1,12 +1,12 @@
 package br.com.loja_online.controller;
 
-import jakarta.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import br.com.loja_online.dto.LoginDTO;
-import br.com.loja_online.dto.LoginRequest;
 import br.com.loja_online.service.LoginService;
 
 @RestController
@@ -23,12 +23,5 @@ public class LoginController {
     public ResponseEntity<LoginDTO> buscarPorLogin(@PathVariable String login) {
         LoginDTO loginEncontrado = service.buscarPorLogin(login);
         return ResponseEntity.ok(loginEncontrado);
-
-    }
-
-    @PostMapping("/authenticate")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
-        String msg = service.login(loginRequest.getEmail(), loginRequest.getSenha());
-        return ResponseEntity.ok(msg);
     }
 }

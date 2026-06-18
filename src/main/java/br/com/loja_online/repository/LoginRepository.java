@@ -10,7 +10,7 @@ import br.com.loja_online.model.Login;
 @Repository
 public interface LoginRepository extends JpaRepository<Login, Long> {
 
-    boolean existsByLogin(String login);
-
     Optional<Login> findByLogin(String login);
+
+    boolean existsByLogin(String login);
 }
