@@ -94,9 +94,14 @@ class UsuarioMapperTest {
     @Test
     @DisplayName("updateUsuarioDtoDeveAtualizarCamposPermitidos")
     void updateUsuarioDtoDeveAtualizarCamposPermitidos() {
-        Usuario usuario = Usuario.builder().nome("Nome Antigo").telefone("11900000000").build();
-        UsuarioUpdateDTO dto =
-                UsuarioUpdateDTO.builder().nome("Nome Novo").telefone("11911111111").foto("foto.jpg").genero("M").build();
+        Usuario usuario =
+                Usuario.builder().nome("Nome Antigo").telefone("11900000000").build();
+        UsuarioUpdateDTO dto = UsuarioUpdateDTO.builder()
+                .nome("Nome Novo")
+                .telefone("11911111111")
+                .foto("foto.jpg")
+                .genero("M")
+                .build();
 
         UsuarioUpdateMapper.updateUsuarioDTO(dto, usuario);
 
