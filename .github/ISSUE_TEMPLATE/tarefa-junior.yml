@@ -1,0 +1,96 @@
+name: "🔵 Tarefa — Junior"
+description: Tarefas que exigem entender o fluxo do sistema (Controller → Service → Repository) e escrever testes.
+labels: ["junior"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Para quem é esta tarefa?
+
+        Para quem já entende o básico de Java e Spring Boot — sabe o que é um Controller,
+        um Service, um Repository — e quer praticar implementando funcionalidades reais com testes.
+
+        Estas tarefas têm menos detalhamento passo a passo: você precisa entender o fluxo
+        e decidir onde e como implementar.
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto e motivação
+      description: Por que esta tarefa existe? Qual problema ela resolve?
+      placeholder: |
+        Atualmente não temos um endpoint para atualizar o endereço de um usuário — apenas
+        criar e deletar. Isso obriga o usuário a deletar e recriar o endereço quando quer
+        corrigir um dado, o que é uma experiência ruim.
+    validations:
+      required: true
+
+  - type: textarea
+    id: requisitos
+    attributes:
+      label: Requisitos funcionais
+      description: O que o sistema deve fazer após a implementação.
+      placeholder: |
+        - `PUT /endereco/{id}` atualiza os dados de um endereço existente
+        - Apenas o dono do endereço pode atualizá-lo (retorna 403 para outros usuários)
+        - Campos obrigatórios: logradouro, número, cidade, estado, CEP
+        - Retorna 404 se o endereço não existir
+        - Retorna 400 se os dados de entrada forem inválidos
+    validations:
+      required: true
+
+  - type: textarea
+    id: requisitos_nao_funcionais
+    attributes:
+      label: Requisitos de qualidade
+      description: Padrões técnicos que a implementação deve seguir.
+      placeholder: |
+        - Seguir o padrão dos outros endpoints (Controller → Service → Repository)
+        - Usar DTO para entrada e saída (não expor a entidade diretamente)
+        - Escrever pelo menos: 1 teste unitário no Service e 2 cenários de integração (sucesso e erro)
+        - `make test` e `make lint-check` passando
+
+  - type: textarea
+    id: contexto_tecnico
+    attributes:
+      label: Contexto técnico
+      description: Pontos importantes da implementação atual que ajudam a entender onde mexer.
+      placeholder: |
+        - A entidade `Endereco` está em `model/Endereco.java`
+        - O padrão de ownership check (verificar se o usuário logado é o dono) já existe em
+          `EnderecoService.findById()` — siga o mesmo padrão
+        - O email do usuário logado vem de `SecurityContextHolder.getContext().getAuthentication().getName()`
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite
+      placeholder: |
+        - [ ] Endpoint funciona conforme os requisitos funcionais
+        - [ ] Usuário não-dono recebe 403
+        - [ ] Testes unitários e de integração cobrem os cenários listados
+        - [ ] `make test` passa
+        - [ ] `make lint-check` passa
+        - [ ] PR descreve o que foi feito e por quê
+    validations:
+      required: true
+
+  - type: dropdown
+    id: esforco
+    attributes:
+      label: Esforço estimado
+      options:
+        - "Pequeno — menos de 4 horas"
+        - "Médio — 1 dia"
+        - "Grande — 2 a 3 dias"
+    validations:
+      required: true
+
+  - type: textarea
+    id: referencias
+    attributes:
+      label: Referências no código
+      description: Onde procurar exemplos de implementações similares.
+      placeholder: |
+        - `EnderecoService` e `EnderecoController` para padrão de estrutura
+        - `UsuarioService.atualizaUsuario()` para padrão de update com ownership check

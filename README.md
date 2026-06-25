@@ -1,35 +1,57 @@
 # Loja Online — debug & grow
 
-> Projeto open-source educacional da comunidade **debug & grow**  
-> Foco em aprendizado de entrega de produto com qualidade profissional.
+> Backend REST de e-commerce open-source, criado pela comunidade **debug & grow** para quem quer aprender desenvolvimento profissional na prática — do código ao pull request.
+
+[![CI](https://github.com/ProjetoLojaOnline/Loja_Online/actions/workflows/ci.yml/badge.svg)](https://github.com/ProjetoLojaOnline/Loja_Online/actions/workflows/ci.yml)
+[![Java](https://img.shields.io/badge/Java-21-blue)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)](https://spring.io/projects/spring-boot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
 ## Sumário
 
-- [Sobre o Projeto](#sobre-o-projeto)
+- [O que é este projeto?](#o-que-é-este-projeto)
+- [O que você vai aprender aqui](#o-que-você-vai-aprender-aqui)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Pré-requisitos](#pré-requisitos)
-- [Rodando com Docker](#rodando-com-docker)
-- [Rodando os Testes](#rodando-os-testes)
-- [Padrões do Projeto](#padrões-do-projeto)
-- [Como Contribuir](#como-contribuir)
+- [Rodando o projeto](#rodando-o-projeto)
+- [Rodando os testes](#rodando-os-testes)
 - [Endpoints da API](#endpoints-da-api)
+- [Segurança e autenticação](#segurança-e-autenticação)
+- [Padrões do projeto](#padrões-do-projeto)
+- [Como contribuir](#como-contribuir)
 
 ---
 
-## Sobre o Projeto
+## O que é este projeto?
 
-A **Loja Online** é um backend REST de e-commerce construído pela comunidade **debug & grow**.  
-O objetivo não é apenas entregar um sistema funcional — é aprender, na prática, como times de produto trabalham:
+A **Loja Online** é um sistema de e-commerce backend — sem interface gráfica, só a API REST que um aplicativo ou front-end consumiria. Ela gerencia usuários, produtos, endereços e autenticação.
 
-- como organizar e versionar código profissionalmente
-- como garantir qualidade com testes e lint automatizados
-- como separar ambientes (local, dev, test) sem vazar configurações
-- como colaborar em open-source com padrões reais de mercado
+O objetivo principal **não é só fazer o sistema funcionar** — é aprender como times reais de produto trabalham:
 
-O projeto está em desenvolvimento ativo. Novos colaboradores são bem-vindos em qualquer nível de experiência.
+- escrever código organizado e testado
+- colaborar via pull requests com code review
+- usar ferramentas profissionais (CI, lint, Docker)
+- evoluir o projeto com segurança, sem quebrar o que já existe
+
+**Qualquer nível de experiência é bem-vindo.** Issues são categorizadas por nível para você escolher o desafio certo.
+
+---
+
+## O que você vai aprender aqui
+
+| Área | O que você pratica |
+|---|---|
+| **API REST** | Criar endpoints, tratar erros, validar dados |
+| **Spring Boot** | Controllers, Services, Repositories, injeção de dependência |
+| **Banco de dados** | JPA, relacionamentos entre entidades, PostgreSQL |
+| **Segurança** | Autenticação com JWT, controle de acesso por papel (Role) |
+| **Testes** | Testes unitários com Mockito, testes de integração com Testcontainers |
+| **Git & GitHub** | Branches, commits semânticos, pull requests, code review |
+| **Docker** | Subir a aplicação e o banco em contêineres |
+| **Qualidade** | Checkstyle, Spotless, pipelines de CI |
 
 ---
 
@@ -39,276 +61,334 @@ O projeto está em desenvolvimento ativo. Novos colaboradores são bem-vindos em
 |---|---|
 | Linguagem | Java 21 |
 | Framework | Spring Boot 3.5 |
+| Segurança | Spring Security + JWT (jjwt) |
 | Banco de dados | PostgreSQL 17 |
+| ORM | Spring Data JPA / Hibernate |
 | Containerização | Docker + Docker Compose |
 | Documentação | Swagger / OpenAPI (springdoc) |
-| Qualidade de código | Checkstyle + Spotless |
-| Testes | JUnit 5 + Mockito + MockMvc |
-| Build | Maven (wrapper incluído) |
+| Testes | JUnit 5 + Mockito + MockMvc + Testcontainers |
+| Qualidade | Checkstyle + Spotless |
+| Build | Maven (wrapper incluído — não precisa instalar Maven) |
+| CI | GitHub Actions |
 
 ---
 
 ## Arquitetura
 
-```
-src/
-└── main/java/br/com/loja_online/
-    ├── controller/     # Camada HTTP — recebe e responde requisições
-    ├── service/        # Regras de negócio
-    ├── repository/     # Acesso ao banco de dados (Spring Data JPA)
-    ├── model/          # Entidades JPA (tabelas do banco)
-    ├── dto/            # Objetos de transferência de dados (request/response)
-    ├── mapper/         # Conversão entre entidades e DTOs
-    └── exception/      # Tratamento global de erros
-```
-
-Fluxo de uma requisição:
+O projeto segue a arquitetura em camadas padrão do Spring Boot:
 
 ```
-Cliente → Controller → Service → Repository → PostgreSQL
-                ↑                       ↓
-               DTO ←── Mapper ←── Entidade
+src/main/java/br/com/loja_online/
+├── controller/     # Recebe as requisições HTTP e devolve as respostas
+├── service/        # Onde ficam as regras de negócio
+├── repository/     # Faz as consultas no banco de dados (Spring Data JPA)
+├── model/          # As entidades — representam as tabelas do banco
+├── dto/            # Objetos de entrada e saída das requisições
+├── mapper/         # Converte entre entidades e DTOs
+├── security/       # Autenticação JWT, filtros e configuração de segurança
+├── exception/      # Tratamento global de erros (retorna JSON padronizado)
+└── config/         # Configurações gerais (Swagger, CORS)
+```
+
+**Como uma requisição percorre o sistema:**
+
+```
+Cliente (Postman / Front-end)
+        │
+        ▼
+   Controller          ← valida o formato da requisição (DTO + Bean Validation)
+        │
+        ▼
+   Security Filter     ← verifica o token JWT (se a rota exige autenticação)
+        │
+        ▼
+    Service            ← executa a regra de negócio (quem pode fazer o quê)
+        │
+        ▼
+   Repository          ← consulta ou salva no banco de dados
+        │
+        ▼
+   PostgreSQL
+        │
+   (resposta volta pelo mesmo caminho, convertida via Mapper → DTO)
+```
+
+**Entidades principais:**
+
+```
+Usuario ─── Login (credenciais de acesso)
+   │
+   ├── Endereco (pode ter vários)
+   └── Carrinho
+         └── ItemVenda ─── Produto
 ```
 
 ---
 
 ## Pré-requisitos
 
-Você só precisa de um dos dois caminhos abaixo:
+Escolha **um** dos dois caminhos:
 
-**Caminho A — Docker (recomendado para iniciantes)**
+### Caminho A — Docker (recomendado para começar)
+
+Você não precisa instalar Java, Maven ou PostgreSQL. Só precisa do Docker.
+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e rodando
 
-**Caminho B — local sem Docker**
-- Java 21+
-- Maven 3.9+
-- PostgreSQL 17 rodando localmente
+### Caminho B — Ambiente local
+
+Para rodar sem Docker (útil para desenvolvimento ativo):
+
+- [JDK 21](https://adoptium.net/) instalado
+- [PostgreSQL 17](https://www.postgresql.org/download/) instalado e rodando
 
 ---
 
-## Rodando com Docker
+## Rodando o projeto
 
 ### 1. Clone o repositório
 
 ```bash
-git clone git@github.com:ProjetoLojaOnline/Loja_Online.git
+git clone https://github.com/ProjetoLojaOnline/Loja_Online.git
 cd Loja_Online
 ```
 
-### 2. Configure os git hooks (uma única vez após clonar)
+### 2. Configure as variáveis de ambiente
 
-```bash
-make setup-hooks
-```
-
-Isso ativa a validação de formatação e testes antes de cada push.
-
-### 3. Crie seu arquivo de ambiente local
+O projeto usa um arquivo `.env` para guardar configurações sensíveis (senhas, secrets). **Nunca versione valores reais.**
 
 ```bash
 cp envs/.env.example envs/.env.local
 ```
 
-Abra `envs/.env.local` e defina uma senha para `DB_PASSWORD` e `POSTGRES_PASSWORD`.  
-Esse arquivo é pessoal — **nunca** será versionado no git.
+Abra `envs/.env.local` e preencha os campos obrigatórios:
 
-### 4. Suba o projeto
-
-```bash
-docker compose --env-file envs/.env.local up --build
+```env
+POSTGRES_PASSWORD=uma_senha_qualquer
+DB_PASSWORD=uma_senha_qualquer   # deve ser igual à POSTGRES_PASSWORD
+JWT_SECRET=gere_com__openssl_rand_-hex_32
 ```
 
-Aguarde até ver a mensagem `Started LojaOnlineApplication` no terminal.
+> **Dica:** para gerar o JWT_SECRET rode `openssl rand -hex 32` no terminal.
 
-### 5. Acesse
-
-| Recurso | URL |
-|---|---|
-| API | http://localhost:8080/api/usuarios |
-| Documentação interativa (Swagger) | http://localhost:8080/swagger-ui/index.html |
-| Health check | http://localhost:8080/actuator/health |
-
-### Parar o projeto
+### 3. Configure os hooks do Git (uma vez só)
 
 ```bash
-docker compose --env-file envs/.env.local down
+make setup-hooks
 ```
 
-Para limpar volumes (apaga o banco):
+Isso ativa validação automática de mensagens de commit e proteção do branch `main`.
+
+### 4. Suba a aplicação
 
 ```bash
-docker compose --env-file envs/.env.local down -v
+make up
+```
+
+A aplicação estará disponível em `http://localhost:8080`.  
+A documentação interativa (Swagger) estará em `http://localhost:8080/swagger-ui/index.html`.
+
+### Outros comandos úteis
+
+```bash
+make down        # Para e remove os contêineres
+make lint        # Formata o código automaticamente
+make lint-check  # Verifica se o código está formatado (sem alterar)
 ```
 
 ---
 
-## Rodando os Testes
+## Rodando os testes
 
-### Testes unitários (sem Docker)
+O projeto tem dois tipos de testes:
 
-```bash
-make test
-# ou: ./mvnw test
-```
+| Tipo | O que testa | Comando |
+|---|---|---|
+| **Unitários** | Cada classe isolada (Mockito simula dependências) | `make test` |
+| **Integração** | Fluxo completo com banco de dados real (Testcontainers sobe um PostgreSQL temporário) | `make test-integration` |
+| **Todos** | Unitários + integração | `make test-all` |
 
-### Testes com ambiente Docker completo
+> Os testes de integração sobem um banco PostgreSQL em um contêiner Docker automaticamente. Você precisa do Docker rodando, mas **não precisa ter o banco local configurado**.
 
-Crie o arquivo de ambiente de test (uma única vez):
-
-```bash
-cp envs/.env.example envs/.env.test
-# Edite envs/.env.test com credenciais de test (porta 5433 para não conflitar com local)
-```
-
-Execute:
+Para rodar os testes de integração em ambiente completo (sobe tudo via Docker Compose):
 
 ```bash
 make test-docker
 ```
 
-O que acontece automaticamente:
-1. Sobe o banco PostgreSQL de test
-2. Roda todos os testes
-3. Se falhar → mostra exatamente quais testes quebraram e derruba o ambiente
-4. Se passar → derruba o ambiente e faz `git push`
+---
+
+## Endpoints da API
+
+A documentação completa e interativa está em `/swagger-ui/index.html` com o projeto rodando.
+
+### Usuários
+
+| Método | Endpoint | Autenticação | Descrição |
+|---|---|---|---|
+| `POST` | `/api/usuarios` | Pública | Cadastra novo usuário |
+| `GET` | `/api/usuarios` | ADMIN | Lista todos os usuários |
+| `GET` | `/api/usuarios/{id}` | Autenticado (próprio) | Busca usuário por ID |
+| `GET` | `/api/usuarios/login/{login}` | Autenticado (próprio) | Busca usuário por login |
+| `PUT` | `/api/usuarios/{id}` | Autenticado (próprio) | Atualiza dados do usuário |
+| `DELETE` | `/api/usuarios/{id}` | Autenticado (próprio) | Remove o usuário |
+
+### Autenticação
+
+| Método | Endpoint | Autenticação | Descrição |
+|---|---|---|---|
+| `POST` | `/login/authenticate` | Pública | Autentica e retorna o token JWT |
+| `GET` | `/login/buscar/{login}` | Autenticado | Busca credenciais por login |
+
+### Produtos
+
+| Método | Endpoint | Autenticação | Descrição |
+|---|---|---|---|
+| `GET` | `/produto` | Pública | Lista produtos (paginado) |
+| `GET` | `/produto/{id}` | Pública | Busca produto por ID |
+| `POST` | `/produto` | ADMIN ou VENDEDOR | Cadastra produto |
+| `DELETE` | `/produto/{id}` | ADMIN ou VENDEDOR | Remove produto |
+
+### Endereços
+
+| Método | Endpoint | Autenticação | Descrição |
+|---|---|---|---|
+| `POST` | `/endereco/create` | Autenticado | Adiciona endereço |
+| `GET` | `/endereco/{id}` | Autenticado (próprio) | Busca endereço por ID |
+| `DELETE` | `/endereco/{id}` | Autenticado (próprio) | Remove endereço |
+
+> **"Autenticado (próprio)"** significa que o usuário só pode acessar os próprios dados — tentar acessar dados de outro usuário retorna `403 Forbidden`.
 
 ---
 
-## Padrões do Projeto
+## Segurança e autenticação
 
-Esses padrões são cobrados nos PRs. Configure os hooks com `make setup-hooks` para ser avisado localmente antes de enviar.
+O projeto usa **JWT (JSON Web Token)** para autenticação stateless.
 
-### Formatação de código
-
-```bash
-make lint        # corrige automaticamente imports, espaços, quebras de linha
-make lint-check  # só verifica (sem alterar) — usado pelo CI
-```
-
-O projeto usa **Spotless** para formatação e **Checkstyle** para regras de estilo.  
-O pre-push hook roda `lint-check` + testes automaticamente. Se não passar, o push é bloqueado.
-
-### Mensagens de commit — Conventional Commits
-
-Todo commit deve seguir o formato:
+**Fluxo:**
 
 ```
-<tipo>(escopo opcional): descrição curta em minúsculas
+1. POST /login/authenticate  → envia { "email": "...", "senha": "..." }
+                                    ou { "username": "...", "senha": "..." }
+
+2. Resposta: { "token": "eyJ..." }
+
+3. Todas as requisições autenticadas enviam:
+   Header: Authorization: Bearer eyJ...
+```
+
+**Papéis (Roles):**
+
+| Role | O que pode fazer |
+|---|---|
+| `ROLE_USER` | Gerenciar os próprios dados (usuário, endereço) |
+| `ROLE_VENDEDOR` | Tudo do USER + cadastrar e remover produtos |
+| `ROLE_ADMIN` | Tudo do VENDEDOR + listar todos os usuários |
+
+---
+
+## Padrões do projeto
+
+### Mensagens de commit (Conventional Commits)
+
+Toda mensagem de commit deve seguir o padrão:
+
+```
+tipo(escopo opcional): descrição curta
 ```
 
 | Tipo | Quando usar |
 |---|---|
 | `feat` | nova funcionalidade |
 | `fix` | correção de bug |
-| `refactor` | refatoração sem mudar comportamento |
+| `refactor` | refatoração sem mudar comportamento externo |
 | `test` | adição ou correção de testes |
-| `chore` | manutenção (deps, configuração, build) |
+| `chore` | manutenção (dependências, configuração, build) |
 | `docs` | documentação |
 | `ci` | pipelines e automação |
 | `style` | formatação sem mudança de lógica |
 | `perf` | melhoria de performance |
-| `revert` | reverte um commit anterior |
 
 **Exemplos:**
 
 ```bash
 git commit -m "feat(usuario): adiciona endpoint de busca por CPF"
-git commit -m "fix: corrige NPE ao salvar cartão sem usuário associado"
-git commit -m "chore: atualiza dependências para versão LTS"
-git commit -m "test(login): adiciona cenário de autenticação com credencial inválida"
-git commit -m "feat!: altera contrato do endpoint de login (breaking change)"
+git commit -m "fix: corrige validação de email no cadastro"
+git commit -m "test(login): adiciona cenário de autenticação com senha inválida"
+git commit -m "docs: atualiza README com novos endpoints"
 ```
 
-O hook `commit-msg` avisa se a mensagem estiver fora do padrão — o commit ainda é realizado, mas vale ajustar antes de abrir o PR.
+O hook `commit-msg` avisa se a mensagem estiver fora do padrão.
 
 ### Branches e Pull Requests
 
-O projeto usa um fluxo hierárquico de branches:
+O projeto usa o fluxo **trunk-based**: branches de curta duração criadas a partir de `main` e integradas de volta via Pull Request.
 
 ```
-main  ←  develop  ←  epic/nome  ←  feat/nome-da-task
+main  ←  feat/nome-da-funcionalidade
+main  ←  fix/descricao-do-bug
+main  ←  chore/o-que-foi-feito
 ```
-
-| Branch | Criada a partir de | Merge para |
-|---|---|---|
-| `develop` | `main` | `main` (quando estável) |
-| `epic/nome` | `develop` | `develop` (quando o épico estiver completo) |
-| `feat/nome`, `fix/nome`, `chore/nome` | `epic/nome` | `epic/nome` (ao concluir a task) |
 
 **Regras:**
 
-- Nunca crie branch diretamente a partir de `main` (exceto `develop`)
-- Cada task vira uma branch separada dentro do seu épico
-- PRs de task → épico, PRs de épico → `develop`, PRs de `develop` → `main`
-- `main` só recebe código estável e validado em `develop`
+- Sempre crie sua branch a partir de `main` atualizado (`git pull origin main`)
+- Uma branch = uma tarefa
+- Abra um Pull Request quando a tarefa estiver pronta
+- Nunca faça push direto em `main` — o hook `pre-push` bloqueia isso
 
-### Variáveis de ambiente e segredos
+### Variáveis de ambiente
 
 - **Nunca versione** arquivos `.env.*` com valores reais — eles estão no `.gitignore`
-- Use `envs/.env.example` como template (o único arquivo de env no git)
+- Use `envs/.env.example` como template (único arquivo de env no git)
 - Perfis válidos: `local`, `dev`, `test` — **nunca `prod`** neste repositório
 
 ---
 
-## Como Contribuir
+## Como contribuir
 
-1. Verifique as [issues abertas](https://github.com/ProjetoLojaOnline/Loja_Online/issues) e comente na que deseja pegar
-2. Fork ou peça acesso ao repositório na comunidade **debug & grow**
-3. Crie uma branch a partir de `main` com o padrão:
+### Primeiros passos
+
+1. Veja as [issues abertas](https://github.com/ProjetoLojaOnline/Loja_Online/issues) — elas têm labels de nível para facilitar a escolha
+2. Comente na issue que deseja pegar para ninguém trabalhar em duplicata
+3. Fork ou peça acesso ao repositório na comunidade **debug & grow**
+
+### Escolha uma tarefa pelo seu nível
+
+| Label | Para quem é |
+|---|---|
+| `iniciante` | Nunca contribuiu para um projeto open-source ou está aprendendo Java |
+| `junior` | Conhece o básico de Java e Spring, quer praticar com mais autonomia |
+| `pleno` | Confortável com Spring Boot, quer desafios de arquitetura e performance |
+
+### Passo a passo
 
 ```bash
+# 1. Atualize a main local
+git checkout main
+git pull origin main
+
+# 2. Crie sua branch
 git checkout -b feat/nome-da-funcionalidade
-git checkout -b fix/descricao-do-bug
-git checkout -b chore/o-que-foi-feito
-```
 
-4. Configure os hooks:
-
-```bash
+# 3. Configure os hooks (se ainda não fez)
 make setup-hooks
+
+# 4. Implemente e escreva os testes
+
+# 5. Verifique lint e testes antes de commitar
+make lint
+make test
+
+# 6. Commit e push
+git add .
+git commit -m "feat(escopo): descrição do que foi feito"
+git push origin feat/nome-da-funcionalidade
+
+# 7. Abra o Pull Request no GitHub descrevendo o que foi feito e por quê
 ```
-
-5. Implemente, escreva testes e rode:
-
-```bash
-make lint   # formata o código
-make test   # valida que nada quebrou
-```
-
-6. Abra um Pull Request descrevendo o que foi feito e por quê.
 
 > **Dúvidas?** Entre na comunidade **debug & grow** e pergunte sem cerimônia — o projeto existe para aprender junto.
-
----
-
-## Endpoints da API
-
-A documentação completa e interativa está em `/swagger-ui/index.html` com o projeto rodando.  
-Visão geral dos recursos disponíveis:
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| GET | `/api/usuarios` | Lista todos os usuários |
-| GET | `/api/usuarios/{id}` | Busca usuário por ID |
-| GET | `/api/usuarios/login/{login}` | Busca usuário por login |
-| POST | `/api/usuarios` | Cadastra novo usuário |
-| PUT | `/api/usuarios/{id}` | Atualiza dados do usuário |
-| DELETE | `/api/usuarios/{id}` | Remove usuário |
-| GET | `/login/buscar/{login}` | Busca credenciais por login |
-| POST | `/login/authenticate` | Autentica usuário |
-| GET | `/produto` | Lista produtos (paginado) |
-| GET | `/produto/{id}` | Busca produto por ID |
-| POST | `/produto` | Cadastra produto |
-| PUT | `/produto/{id}` | Atualiza produto |
-| DELETE | `/produto/{id}` | Remove produto |
-| GET | `/cartao` | Lista cartões |
-| POST | `/cartao` | Adiciona cartão |
-| PATCH | `/cartao/{id}` | Atualiza cartão |
-| DELETE | `/cartao/{id}` | Remove cartão |
-| POST | `/endereco` | Adiciona endereço |
-| GET | `/endereco/{id}` | Busca endereço por ID |
-| PUT | `/endereco/{id}` | Atualiza endereço |
-| DELETE | `/endereco/{id}` | Remove endereço |
 
 ---
 

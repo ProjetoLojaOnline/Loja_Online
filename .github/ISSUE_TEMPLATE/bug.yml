@@ -1,0 +1,77 @@
+name: "🐛 Bug Report"
+description: Encontrou algo que não funciona como deveria? Reporte aqui.
+labels: ["bug", "precisa triagem"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar! Quanto mais detalhes, mais rápido conseguimos corrigir.
+
+  - type: textarea
+    id: descricao
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o problema de forma clara. O que você esperava que acontecesse vs o que realmente aconteceu.
+      placeholder: |
+        Ao chamar POST /api/usuarios com email inválido, esperava receber 400 com mensagem de erro.
+        Em vez disso, recebi 500 Internal Server Error.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Como reproduzir
+      description: Passo a passo para reproduzir o bug. Se possível, inclua a requisição HTTP (endpoint, body, headers).
+      placeholder: |
+        1. Suba o projeto com `make up`
+        2. Envie POST /api/usuarios com body: { "email": "nao-e-um-email", "nome": "Teste" }
+        3. Veja o erro 500 no response
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: request
+    attributes:
+      label: Requisição e resposta (se aplicável)
+      description: Cole o request completo e a resposta que recebeu.
+      render: http
+      placeholder: |
+        POST /api/usuarios
+        Content-Type: application/json
+
+        { "email": "nao-e-um-email" }
+
+        ---
+
+        HTTP 500
+        { "message": "..." }
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs de erro (se houver)
+      description: Cole aqui qualquer stack trace ou mensagem de erro dos logs da aplicação.
+      render: shell
+
+  - type: dropdown
+    id: ambiente
+    attributes:
+      label: Ambiente onde ocorre
+      options:
+        - Docker (make up)
+        - Local (sem Docker)
+        - Testes (make test)
+        - CI/GitHub Actions
+    validations:
+      required: true
+
+  - type: input
+    id: versao
+    attributes:
+      label: Branch ou commit onde ocorre
+      placeholder: "main, feat/minha-branch, commit abc1234"

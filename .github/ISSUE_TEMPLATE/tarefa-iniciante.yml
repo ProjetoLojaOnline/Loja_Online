@@ -1,0 +1,82 @@
+name: "🟢 Tarefa — Iniciante"
+description: Tarefas para quem está começando. Pequenas, bem delimitadas e com bastante contexto.
+labels: ["iniciante", "bom primeiro PR"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Para quem é esta tarefa?
+
+        Para quem está dando os primeiros passos — pode ser a primeira contribuição em open-source,
+        ou o primeiro contato com Spring Boot. Essas tarefas têm escopo pequeno e explicação detalhada
+        do que precisa ser feito.
+
+        **Não sabe por onde começar?** Leia o [README](../README.md) e pergunte na comunidade!
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto — o que é e por que importa
+      description: Explique em linguagem simples qual parte do sistema esta tarefa toca e por que ela precisa ser feita.
+      placeholder: |
+        Hoje, quando alguém tenta cadastrar um usuário sem informar o email, o sistema retorna uma
+        mensagem de erro genérica que não ajuda o desenvolvedor a entender o que deu errado.
+        Esta tarefa melhora essa mensagem para ser mais clara.
+    validations:
+      required: true
+
+  - type: textarea
+    id: o_que_fazer
+    attributes:
+      label: O que precisa ser feito
+      description: Liste os passos de forma clara. Ideal que qualquer pessoa consiga seguir.
+      placeholder: |
+        1. Abrir o arquivo `src/main/java/br/com/loja_online/dto/UsuarioRequestDTO.java`
+        2. Adicionar a anotação `@NotBlank(message = "Email é obrigatório")` no campo `email`
+        3. Verificar se já existe um teste que valida este cenário em `UsuarioControllerIT`
+        4. Se não existir, adicionar o teste
+        5. Rodar `make test` e confirmar que os testes passam
+    validations:
+      required: true
+
+  - type: textarea
+    id: arquivos
+    attributes:
+      label: Arquivos envolvidos
+      description: Liste os arquivos que provavelmente precisam ser alterados (ajuda a não se perder no projeto).
+      placeholder: |
+        - `src/main/java/br/com/loja_online/dto/UsuarioRequestDTO.java`
+        - `src/test/java/br/com/loja_online/integration/UsuarioControllerIT.java`
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite — como saber que está pronto?
+      description: Liste as condições mínimas para o PR ser aprovado.
+      placeholder: |
+        - [ ] O campo `email` retorna 400 com mensagem legível quando vazio
+        - [ ] `make test` passa sem erros
+        - [ ] O código segue o padrão de formatação (`make lint-check` não falha)
+    validations:
+      required: true
+
+  - type: textarea
+    id: dicas
+    attributes:
+      label: Dicas e referências
+      description: Links, exemplos no próprio código ou explicações que podem ajudar.
+      placeholder: |
+        - Veja como o campo `nome` em `UsuarioRequestDTO` usa `@NotBlank` como referência
+        - Documentação do Bean Validation: https://beanvalidation.org/2.0/spec/
+        - Em dúvida? Pergunte na comunidade antes de desistir!
+
+  - type: dropdown
+    id: nivel_estimado
+    attributes:
+      label: Esforço estimado
+      options:
+        - "Pequeno — menos de 2 horas"
+        - "Médio — meio período"
+        - "Grande — um dia inteiro"
+    validations:
+      required: true

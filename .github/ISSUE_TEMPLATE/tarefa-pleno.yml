@@ -1,0 +1,111 @@
+name: "🟠 Tarefa — Pleno"
+description: Tarefas de maior profundidade — arquitetura, performance, segurança ou refatorações transversais.
+labels: ["pleno"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Para quem é esta tarefa?
+
+        Para quem já tem conforto com Spring Boot e quer trabalhar em desafios que exigem
+        raciocínio sobre arquitetura, trade-offs técnicos, impacto em outros módulos e
+        qualidade de código em nível de produção.
+
+        Espera-se autonomia para investigar, propor a solução no PR e justificar as escolhas.
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema / Oportunidade
+      description: Descreva o problema técnico ou oportunidade de melhoria de forma precisa.
+      placeholder: |
+        A cada requisição autenticada, o filtro JWT chama `parsearClaims()` três vezes separadas
+        (em `tokenValido()`, `extrairEmail()` e `extrairRole()`), realizando três verificações
+        criptográficas de assinatura por request. Isso é desnecessário e adiciona latência em
+        todos os endpoints protegidos.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto e motivação
+      description: Por que isso importa? Qual o custo de não fazer?
+      placeholder: |
+        Em carga média, cada request autenticado paga 3× o custo de verificação JWT.
+        À medida que o projeto crescer em volume de usuários, isso pode se tornar um gargalo
+        mensurável. Além disso, dificulta a manutenção: quem editar o filtro precisará
+        entender por que há três chamadas onde poderia haver uma.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solucao_esperada
+    attributes:
+      label: Direção da solução
+      description: Descreva o que precisa ser feito sem prescrever todos os passos — você decide os detalhes.
+      placeholder: |
+        Refatorar `JwtAuthenticationFilter.doFilterInternal()` para extrair o `Claims` uma única vez
+        e reutilizar o objeto para validação, extração de email e extração de role.
+        O método `TokenService.parsearClaims()` deve continuar sendo o ponto central de parsing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: consideracoes
+    attributes:
+      label: Considerações e trade-offs
+      description: Restrições, riscos ou pontos que merecem atenção durante a implementação.
+      placeholder: |
+        - A mudança altera a interface interna de `TokenService` — avaliar se vale criar métodos
+          auxiliares ou expor o `Claims` diretamente
+        - Não quebrar o comportamento atual: token inválido → não autentica, token válido → autentica
+        - Manter os testes de integração passando
+        - Se expor `Claims` na assinatura pública de `TokenService`, documentar por que
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite
+      placeholder: |
+        - [ ] `parsearClaims()` é chamado no máximo uma vez por request no filtro
+        - [ ] Comportamento de autenticação idêntico ao atual (testes de integração passam)
+        - [ ] `make test` e `make lint-check` passando
+        - [ ] PR descreve a abordagem escolhida e justifica o trade-off (se houver)
+        - [ ] Sem regressão nos cenários de token inválido/expirado
+    validations:
+      required: true
+
+  - type: textarea
+    id: arquivos
+    attributes:
+      label: Arquivos relevantes
+      placeholder: |
+        - `src/main/java/br/com/loja_online/security/JwtAuthenticationFilter.java`
+        - `src/main/java/br/com/loja_online/security/TokenService.java`
+        - `src/test/java/br/com/loja_online/integration/LoginControllerIT.java`
+
+  - type: dropdown
+    id: categoria
+    attributes:
+      label: Categoria
+      options:
+        - "Performance"
+        - "Segurança"
+        - "Arquitetura / Refatoração"
+        - "Qualidade / Testes"
+        - "Infraestrutura / DevOps"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: esforco
+    attributes:
+      label: Esforço estimado
+      options:
+        - "Pequeno — menos de 4 horas"
+        - "Médio — 1 dia"
+        - "Grande — 2 a 3 dias"
+        - "Muito grande — sprint completa"
+    validations:
+      required: true
