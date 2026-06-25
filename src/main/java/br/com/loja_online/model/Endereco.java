@@ -1,6 +1,5 @@
 package br.com.loja_online.model;
 
-
 import java.io.Serializable;
 
 import jakarta.persistence.*;
@@ -15,30 +14,39 @@ import lombok.*;
 @EqualsAndHashCode(of = "id")
 public class Endereco implements Serializable {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
-  private String logradouro;
-  private Integer numero;
-  private String bairro;
-  private String complemento;
-  private String referencia;
-  private String cep;
-  private String cidade;
-  private String estado;
-  @ManyToOne
-  @JoinColumn(name = "id_usuario")
-  private Usuario usuario;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-  public Endereco(String logradouro, Integer numero, String bairro, String complemento,
-      String referencia, String cep, String cidade, String estado) {
-    this.logradouro = logradouro;
-    this.numero = numero;
-    this.bairro = bairro;
-    this.complemento = complemento;
-    this.referencia = referencia;
-    this.cep = cep;
-    this.cidade = cidade;
-    this.estado = estado;
-  }
+    private String logradouro;
+    private Integer numero;
+    private String bairro;
+    private String complemento;
+    private String referencia;
+    private String cep;
+    private String cidade;
+    private String estado;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
+
+    public Endereco(
+            String logradouro,
+            Integer numero,
+            String bairro,
+            String complemento,
+            String referencia,
+            String cep,
+            String cidade,
+            String estado) {
+        this.logradouro = logradouro;
+        this.numero = numero;
+        this.bairro = bairro;
+        this.complemento = complemento;
+        this.referencia = referencia;
+        this.cep = cep;
+        this.cidade = cidade;
+        this.estado = estado;
+    }
 }

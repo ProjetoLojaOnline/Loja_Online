@@ -1,63 +1,63 @@
 package br.com.loja_online.security;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
-import jakarta.annotation.PostConstruct;
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-
-import br.com.loja_online.exception.InvalidTokenException;
-import br.com.loja_online.exception.TokenGenerationException;
-import br.com.loja_online.model.Login;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class TokenService {
 
-    @Value("${api.security.token.secret}")
-    private String secret;
+    private final SecretKey secretKey;
+    private final long expirationMs;
 
-    @PostConstruct
-    public void validaSecret() {
-        byte[] secretBytes = secret == null ? new byte[0] : secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-        if (secret == null || secret.isBlank() || secretBytes.length < 32) {
-            throw new IllegalStateException("Secret do JWT inválida: deve ter no mínimo 32 bytes");
-        }
+    public TokenService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration-ms}") long expirationMs) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expirationMs = expirationMs;
     }
 
-    public String gerarToken(Login login) {
+    public String gerarToken(String email, String role) {
+        Date agora = new Date();
+        Date expiracao = new Date(agora.getTime() + expirationMs);
+        return Jwts.builder()
+                .subject(email)
+                .claim("role", role)
+                .issuedAt(agora)
+                .expiration(expiracao)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String extrairEmail(String token) {
+        return parsearClaims(token).getSubject();
+    }
+
+    public String extrairRole(String token) {
+        return parsearClaims(token).get("role", String.class);
+    }
+
+    public boolean tokenValido(String token) {
         try {
-            var algoritmo = Algorithm.HMAC256(secret);
-            return JWT.create()
-                    .withIssuer("loja-online")
-                    .withSubject(login.getLogin())
-                    .withExpiresAt(dataExpiracao())
-                    .sign(algoritmo);
-        } catch (JWTCreationException exception) {
-            throw new TokenGenerationException("Erro ao gerar token JWT", exception);
+            parsearClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
         }
     }
 
-    public String getSubject(String tokenJWT) {
-        try {
-            var algoritmo = Algorithm.HMAC256(secret);
-            return JWT.require(algoritmo)
-                    .withIssuer("loja-online")
-                    .build()
-                    .verify(tokenJWT)
-                    .getSubject();
-        } catch (JWTVerificationException exception) {
-            throw new InvalidTokenException("Token JWT inválido ou expirado");
-        }
-    }
-
-    private Instant dataExpiracao() {
-        return Instant.now().plus(2, ChronoUnit.HOURS);
+    private Claims parsearClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

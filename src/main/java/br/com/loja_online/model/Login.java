@@ -5,7 +5,6 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -24,14 +23,14 @@ import lombok.*;
 @Entity
 @Table(name = "login")
 public class Login implements UserDetails {
+
     @Id
-    @GeneratedValue(strategy =
-        GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "login", nullable = false, unique = true)
-
-
+    @NotBlank(message = "Login é obrigatório")
+    @Size(min = 3, message = "Login deve ter no mínimo 3 caracteres")
     private String login;
 
     @Column(name = "senha", nullable = false, length = 255)
@@ -43,11 +42,10 @@ public class Login implements UserDetails {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    @NotNull(message = "Role é obrigatória")
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role;
-
+    @Builder.Default
+    private Role role = Role.ROLE_USER;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

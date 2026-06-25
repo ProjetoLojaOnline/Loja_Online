@@ -1,6 +1,6 @@
 #!/bin/sh
 # Executado automaticamente antes de cada git push.
-# Para configurar: sh scripts/setup-hooks.sh
+# Para configurar: make setup-hooks
 
 # ── 1. Formatação (Spotless) ──────────────────────────────────────────────────
 printf "🔍 Verificando formatação do código...\n"
@@ -31,17 +31,31 @@ if [ $STYLE_EXIT -ne 0 ]; then
 fi
 printf "✅ Checkstyle OK.\n"
 
-# ── 3. Testes ─────────────────────────────────────────────────────────────────
-printf "🔍 Rodando testes...\n"
-TEST_OUTPUT=$(./mvnw test --no-transfer-progress 2>&1)
-TEST_EXIT=$?
+# ── 3. Testes unitários (sem Docker) ─────────────────────────────────────────
+printf "🔍 Rodando testes unitários...\n"
+UNIT_OUTPUT=$(./mvnw test --no-transfer-progress 2>&1)
+UNIT_EXIT=$?
 
-if [ $TEST_EXIT -ne 0 ]; then
-  printf "\n❌ ERRO: testes falharam. Push bloqueado.\n"
+if [ $UNIT_EXIT -ne 0 ]; then
+  printf "\n❌ ERRO: testes unitários falharam. Push bloqueado.\n"
   printf "   Falhas encontradas:\n"
-  echo "$TEST_OUTPUT" | grep -E "FAILED|ERROR|Tests run:" | grep -v "Tests run: 0" | sed 's/^/   /'
+  echo "$UNIT_OUTPUT" | grep -E "FAILED|ERROR|Tests run:" | grep -v "Tests run: 0" | sed 's/^/   /'
   printf "\n   Corrija os testes e tente novamente.\n\n"
   exit 1
 fi
-printf "✅ Todos os testes passaram.\n\n"
+printf "✅ Testes unitários OK.\n"
+
+# ── 4. Testes de integração (Testcontainers — requer Docker) ─────────────────
+printf "🔍 Rodando testes de integração (Testcontainers)...\n"
+IT_OUTPUT=$(./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress 2>&1)
+IT_EXIT=$?
+
+if [ $IT_EXIT -ne 0 ]; then
+  printf "\n❌ ERRO: testes de integração falharam. Push bloqueado.\n"
+  printf "   Falhas encontradas:\n"
+  echo "$IT_OUTPUT" | grep -E "FAILED|ERROR|Tests run:" | grep -v "Tests run: 0" | sed 's/^/   /'
+  printf "\n   Corrija os testes e tente novamente.\n\n"
+  exit 1
+fi
+printf "✅ Testes de integração OK.\n\n"
 printf "🚀 Push autorizado!\n"

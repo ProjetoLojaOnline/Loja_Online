@@ -1,4 +1,4 @@
-.PHONY: lint lint-check test test-docker setup-hooks
+.PHONY: lint lint-check test test-integration test-all test-docker up down setup-hooks
 
 ## Corrige automaticamente: formatação, imports, trailing whitespace
 lint:
@@ -17,38 +17,55 @@ lint:
 lint-check:
 	@./mvnw spotless:check checkstyle:check --no-transfer-progress -q
 
+## Sobe o ambiente local (banco + app)
+up:
+	@if [ ! -f envs/.env.local ]; then \
+	  echo "❌ envs/.env.local não encontrado."; \
+	  echo "   Crie com: cp envs/.env.example envs/.env.local"; \
+	  exit 1; \
+	fi
+	@docker compose --env-file envs/.env.local up -d --wait
+
+## Derruba o ambiente local
+down:
+	@docker compose --env-file envs/.env.local down
+
 ## Roda os testes unitários (sem Docker)
 test:
 	@./mvnw test --no-transfer-progress
 
-## Sobe o ambiente de test, roda os testes e derruba tudo (limpo)
-## Falha  → mostra quais testes quebraram + docker down -v (ambiente limpo)
-## Sucesso → docker down -v + git push automático
+## Roda os testes de integração (Testcontainers — requer Docker)
+test-integration:
+	@./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress
+
+## Roda todos os testes: unitários + integração (requer Docker)
+test-all:
+	@./mvnw test --no-transfer-progress
+	@./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress
+
+## Roda todos os testes e faz push automático ao final.
+## Falha → mostra quais testes quebraram. Sucesso → git push.
 test-docker:
-	@if [ ! -f envs/.env.test ]; then \
-	  echo "❌ envs/.env.test não encontrado."; \
-	  echo "   Crie com: cp envs/.env.example envs/.env.test"; \
-	  exit 1; \
-	fi
-	@echo "🐳 Subindo ambiente de test..."
-	@docker compose --env-file envs/.env.test up -d --wait \
-	  || (docker compose --env-file envs/.env.test down -v; exit 1)
 	@TEST_LOG=$$(mktemp /tmp/loja-test-XXXXXX.log); \
 	EXIT_FILE=$$(mktemp); \
-	echo "🔍 Rodando testes..."; \
+	echo "🔍 Rodando testes unitários..."; \
 	(./mvnw test --no-transfer-progress; echo $$? > $$EXIT_FILE) 2>&1 | tee $$TEST_LOG; \
-	TEST_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
-	echo ""; \
-	echo "🧹 Derrubando ambiente de test..."; \
-	docker compose --env-file envs/.env.test down -v; \
-	if [ "$$TEST_EXIT" != "0" ]; then \
-	  echo ""; \
-	  echo "❌ Testes falharam — corrija antes de fazer push:"; \
-	  echo ""; \
+	UNIT_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
+	if [ "$$UNIT_EXIT" != "0" ]; then \
+	  echo "❌ Testes unitários falharam — corrija antes de fazer push:"; \
 	  grep -e "<<< FAILURE" -e "<<< ERROR" $$TEST_LOG \
-	    | sed 's/\[ERROR\] /  /' \
-	    | sed 's/ Time elapsed.*<<< /  <<< /'; \
-	  echo ""; \
+	    | sed 's/\[ERROR\] /  /' | sed 's/ Time elapsed.*<<< /  <<< /'; \
+	  echo "   Log completo: $$TEST_LOG"; \
+	  exit 1; \
+	fi; \
+	echo ""; \
+	echo "🔍 Rodando testes de integração (Testcontainers)..."; \
+	(./mvnw failsafe:integration-test failsafe:verify --no-transfer-progress; echo $$? > $$EXIT_FILE) 2>&1 | tee -a $$TEST_LOG; \
+	IT_EXIT=$$(cat $$EXIT_FILE); rm -f $$EXIT_FILE; \
+	if [ "$$IT_EXIT" != "0" ]; then \
+	  echo "❌ Testes de integração falharam — corrija antes de fazer push:"; \
+	  grep -e "<<< FAILURE" -e "<<< ERROR" $$TEST_LOG \
+	    | sed 's/\[ERROR\] /  /' | sed 's/ Time elapsed.*<<< /  <<< /'; \
 	  echo "   Log completo: $$TEST_LOG"; \
 	  exit 1; \
 	fi; \

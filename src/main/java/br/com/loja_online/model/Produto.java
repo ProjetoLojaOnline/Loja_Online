@@ -18,11 +18,14 @@ public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String nome;
     private String descricao;
     private String categoria;
     private Integer quantidade;
+
     @Column(precision = 10, scale = 2)
     private BigDecimal preco;
+
     private String cor;
 }

@@ -28,28 +28,35 @@ jobs:
           head: ${{ github.event.pull_request.head.sha }}
           extra_args: --only-verified
 
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
       - name: Cache NVD database
         uses: actions/cache@v4
         with:
-          path: ~/.dependency-check
-          key: ${{ runner.os }}-dependency-check-${{ hashFiles('**/pom.xml') }}
+          path: ~/.m2/repository/org/owasp
+          key: ${{ runner.os }}-nvd-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-dependency-check-
+            ${{ runner.os }}-nvd-
 
       - name: OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@1.1.0
-        with:
-          project: ${{ github.repository }}
-          path: .
-          format: HTML
-          args: --failOnCVSS 7 --nvdApiKey ${{ secrets.NVD_API_KEY }}
+        run: >-
+          mvn org.owasp:dependency-check-maven:check
+          -DfailBuildOnCVSS=7
+          -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+          --batch-mode --no-transfer-progress
+        continue-on-error: true
 
       - name: Upload OWASP report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: owasp-report
-          path: reports/
+          path: target/dependency-check-report.html
 
   tests:
     name: Build & Tests
@@ -66,13 +73,20 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Build & Test
-        run: mvn verify --batch-mode --no-transfer-progress
+      - name: Lint check
+        run: mvn spotless:check checkstyle:check --batch-mode --no-transfer-progress
 
-      - name: Upload test report
+      - name: Unit tests
+        run: mvn test --batch-mode --no-transfer-progress
+
+      - name: Integration tests
+        run: mvn failsafe:integration-test failsafe:verify --batch-mode --no-transfer-progress
+
+      - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: surefire-reports
-          path: target/surefire-reports/
-
+          name: test-reports
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/

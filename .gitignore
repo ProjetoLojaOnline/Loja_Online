@@ -40,3 +40,6 @@ build.log
 *.env
 envs/.env.*
 !envs/.env.example
+
+### Documentos internos de ferramentas — nunca subir ###
+docs/superpowers/

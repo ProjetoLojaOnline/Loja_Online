@@ -13,6 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class FieldMessage implements Serializable {
 
-  private String fieldName;
-  private String message;
+    private String fieldName;
+    private String message;
 }

@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: loja_online_db
     restart: unless-stopped
     # 1. Avisa ao Docker para ler o arquivo dentro da pasta envs
     env_file:
@@ -26,7 +25,6 @@ services:
 
   app:
     build: .
-    container_name: app_loja_online
     restart: on-failure
     # 2. Avisa ao Docker para carregar o arquivo de ambiente no app também
     env_file:
