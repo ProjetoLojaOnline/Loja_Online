@@ -28,12 +28,14 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
 
     private String authToken;
     private Long authUsuarioId;
+    private UsuarioBuilder authBuilder;
 
     @BeforeEach
     void setUp() throws Exception {
         loginRepository.deleteAll();
         usuarioRepository.deleteAll();
-        UsuarioCriado criado = criarUsuarioComToken(UsuarioBuilder.padrao());
+        authBuilder = UsuarioBuilder.padrao();
+        UsuarioCriado criado = criarUsuarioComToken(authBuilder);
         authToken = criado.token();
         authUsuarioId = criado.id();
     }
@@ -240,5 +242,40 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
     void deveRetornar405QuandoMetodoDeleteForInvalido() throws Exception {
         mockMvc.perform(delete("/api/usuarios").header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @DisplayName("deveRetornarUsuarioPorLoginQuandoGetPorLoginValido")
+    void deveRetornarUsuarioPorLoginQuandoGetPorLoginValido() throws Exception {
+        mockMvc.perform(get("/api/usuarios/login/{login}", authBuilder.getLogin())
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(authUsuarioId));
+    }
+
+    @Test
+    @DisplayName("deveRetornar401QuandoGetPorLoginSemToken")
+    void deveRetornar401QuandoGetPorLoginSemToken() throws Exception {
+        mockMvc.perform(get("/api/usuarios/login/{login}", authBuilder.getLogin()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("deveRetornar403QuandoGetPorLoginDeOutroUsuario")
+    void deveRetornar403QuandoGetPorLoginDeOutroUsuario() throws Exception {
+        UsuarioBuilder outroBuilder = UsuarioBuilder.padrao();
+        criarUsuarioComToken(outroBuilder);
+
+        mockMvc.perform(get("/api/usuarios/login/{login}", outroBuilder.getLogin())
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("deveRetornar404QuandoGetPorLoginInexistente")
+    void deveRetornar404QuandoGetPorLoginInexistente() throws Exception {
+        mockMvc.perform(get("/api/usuarios/login/{login}", "login_que_nao_existe")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isNotFound());
     }
 }

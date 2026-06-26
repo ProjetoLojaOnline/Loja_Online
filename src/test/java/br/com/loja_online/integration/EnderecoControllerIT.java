@@ -148,4 +148,30 @@ class EnderecoControllerIT extends AbstractIntegrationTest {
     void deleteDeveRetornar401SemToken() throws Exception {
         mockMvc.perform(delete("/endereco/{id}", 1)).andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("deleteDeveRetornar403QuandoEnderecoDeOutroUsuario")
+    void deleteDeveRetornar403QuandoEnderecoDeOutroUsuario() throws Exception {
+        EnderecoDTO dto = EnderecoBuilder.padrao().buildDto();
+        String location = mockMvc.perform(post("/endereco/create")
+                        .header("Authorization", "Bearer " + authToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+        Integer id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
+
+        String outroToken = criarUsuarioComToken(UsuarioBuilder.padrao()).token();
+
+        mockMvc.perform(delete("/endereco/{id}", id).header("Authorization", "Bearer " + outroToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("deleteDeveRetornar404QuandoNaoExiste")
+    void deleteDeveRetornar404QuandoNaoExiste() throws Exception {
+        mockMvc.perform(delete("/endereco/{id}", 999999).header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isNotFound());
+    }
 }
