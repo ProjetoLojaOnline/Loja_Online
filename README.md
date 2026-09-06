@@ -173,18 +173,18 @@ O projeto usa um arquivo `.env` para guardar configurações sensíveis (senhas,
 cp envs/.env.example envs/.env.local
 ```
 
-Abra `envs/.env.local` e preencha os campos obrigatórios:
+Abra `envs/.env.local` e preencha os campos obrigatórios (na verdade, a maioria já vem preenchida no template):
 
 ```env
+DB_PASSWORD=uma_senha_qualquer     # deve ser igual à POSTGRES_PASSWORD
 POSTGRES_PASSWORD=uma_senha_qualquer
-DB_PASSWORD=uma_senha_qualquer   # deve ser igual à POSTGRES_PASSWORD
-JWT_SECRET=                      # gere com o comando abaixo
+JWT_SECRET=                        # gere com o comando abaixo
 ```
 
 Para gerar o `JWT_SECRET`, rode um dos comandos abaixo no terminal e cole o resultado no `.env.local`:
 
 ```bash
-# Linux / macOS / 
+# Linux / macOS
 openssl rand -hex 32
 ```
 
@@ -199,7 +199,7 @@ openssl rand -hex 32
 make setup-hooks
 ```
 
-Isso ativa validação automática de mensagens de commit e protehção do branch `main`.
+Isso ativa validação automática de mensagens de commit e proteção do branch `main`.
 
 ### 4. Suba a aplicação
 
@@ -258,11 +258,23 @@ O projeto tem dois tipos de testes:
 
 > Os testes de integração sobem um banco PostgreSQL em um contêiner Docker automaticamente. Você precisa do Docker rodando, mas **não precisa ter o banco local configurado**.
 
+### Rodando os testes no Windows (sem make)
+
+| Comando | Linux / macOS | Windows (PowerShell) |
+|---|---|---|
+| **Unitários** | `make test` | `.\mvnw test` |
+| **Integração** | `make test-integration` | `.\mvnw failsafe:integration-test failsafe:verify` |
+| **Todos** | `make test-all` | `.\mvnw test` + `.\mvnw failsafe:integration-test failsafe:verify` |
+
+> **Nota:** No Git Bash ou WSL, use `./mvnw` em vez de `.\mvnw`.
+
 Para rodar os testes de integração em ambiente completo (sobe tudo via Docker Compose):
 
 ```bash
 make test-docker
 ```
+
+> No Windows sem make, rode manualmente os dois comandos acima na ordem (primeiro unitários, depois integração).
 
 ---
 
