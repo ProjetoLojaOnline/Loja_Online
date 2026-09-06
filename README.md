@@ -127,6 +127,16 @@ Usuario ─── Login (credenciais de acesso)
 
 ## Pré-requisitos
 
+### Todos os caminhos
+
+- [GNU Make](https://www.gnu.org/software/make/) — necessário para rodar os comandos do projeto (`make up`, `make lint`, etc.)
+
+| SO | Como instalar |
+|---|---|
+| **Linux** | Já vem instalado na maioria das distros |
+| **macOS** | `xcode-select --install` |
+| **Windows** | `choco install make` (Chocolatey) ou `scoop install make` (Scoop) |
+
 Escolha **um** dos dois caminhos:
 
 ### Caminho A — Docker (recomendado para começar)
@@ -153,6 +163,8 @@ git clone https://github.com/ProjetoLojaOnline/Loja_Online.git
 cd Loja_Online
 ```
 
+> **Usando Windows?** Os comandos abaixo usam `make`, que não vem instalado no Windows por padrão. Consulte a seção [Rodando no Windows](#rodando-no-windows-sem-make) para ver os comandos equivalentes.
+
 ### 2. Configure as variáveis de ambiente
 
 O projeto usa um arquivo `.env` para guardar configurações sensíveis (senhas, secrets). **Nunca versione valores reais.**
@@ -161,15 +173,25 @@ O projeto usa um arquivo `.env` para guardar configurações sensíveis (senhas,
 cp envs/.env.example envs/.env.local
 ```
 
-Abra `envs/.env.local` e preencha os campos obrigatórios:
+Abra `envs/.env.local` e preencha os campos obrigatórios (na verdade, a maioria já vem preenchida no template):
 
 ```env
+DB_PASSWORD=uma_senha_qualquer     # deve ser igual à POSTGRES_PASSWORD
 POSTGRES_PASSWORD=uma_senha_qualquer
-DB_PASSWORD=uma_senha_qualquer   # deve ser igual à POSTGRES_PASSWORD
-JWT_SECRET=gere_com__openssl_rand_-hex_32
+JWT_SECRET=                        # gere com o comando abaixo
 ```
 
-> **Dica:** para gerar o JWT_SECRET rode `openssl rand -hex 32` no terminal.
+Para gerar o `JWT_SECRET`, rode um dos comandos abaixo no terminal e cole o resultado no `.env.local`:
+
+```bash
+# Linux / macOS
+openssl rand -hex 32
+```
+
+```powershell
+# Windows / Git Bash / PowerShell / WSL
+-join ((1..32) | ForEach-Object { '{0:x2}' -f (Get-Random -Maximum 256) })
+```
 
 ### 3. Configure os hooks do Git (uma vez só)
 
@@ -196,6 +218,32 @@ make lint        # Formata o código automaticamente
 make lint-check  # Verifica se o código está formatado (sem alterar)
 ```
 
+### Rodando no Windows (sem make)
+
+Se você está no Windows e não tem o `make` instalado, use os comandos equivalentes:
+
+- **Setup hooks (uma vez só):**
+  - Linux / macOS: `make setup-hooks`
+  - Windows: `git config core.hooksPath .githooks`
+
+- **Subir a aplicação:**
+  - Linux / macOS: `make up`
+  - Windows: `docker compose --env-file envs/.env.local up -d --wait`
+
+- **Derrubar a aplicação:**
+  - Linux / macOS: `make down`
+  - Windows: `docker compose --env-file envs/.env.local down`
+
+- **Formatar o código:**
+  - Linux / macOS: `make lint`
+  - Windows: `.\mvnw spotless:apply` + `.\mvnw checkstyle:check`
+
+- **Verificar formatação (sem alterar):**
+  - Linux / macOS: `make lint-check`
+  - Windows: `.\mvnw spotless:check checkstyle:check`
+
+> **Nota:** No Git Bash ou WSL, use `./mvnw` em vez de `.\mvnw`.
+
 ---
 
 ## Rodando os testes
@@ -210,11 +258,23 @@ O projeto tem dois tipos de testes:
 
 > Os testes de integração sobem um banco PostgreSQL em um contêiner Docker automaticamente. Você precisa do Docker rodando, mas **não precisa ter o banco local configurado**.
 
+### Rodando os testes no Windows (sem make)
+
+| Comando | Linux / macOS | Windows (PowerShell) |
+|---|---|---|
+| **Unitários** | `make test` | `.\mvnw test` |
+| **Integração** | `make test-integration` | `.\mvnw failsafe:integration-test failsafe:verify` |
+| **Todos** | `make test-all` | `.\mvnw test` + `.\mvnw failsafe:integration-test failsafe:verify` |
+
+> **Nota:** No Git Bash ou WSL, use `./mvnw` em vez de `.\mvnw`.
+
 Para rodar os testes de integração em ambiente completo (sobe tudo via Docker Compose):
 
 ```bash
 make test-docker
 ```
+
+> No Windows sem make, rode manualmente os dois comandos acima na ordem (primeiro unitários, depois integração).
 
 ---
 
