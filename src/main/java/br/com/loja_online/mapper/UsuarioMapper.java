@@ -1,10 +1,12 @@
 package br.com.loja_online.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
+import br.com.loja_online.model.Endereco;
 import br.com.loja_online.model.Usuario;
 
 public class UsuarioMapper {
@@ -49,8 +51,9 @@ public class UsuarioMapper {
                 .build();
 
         if (usuarioDTO.getEnderecos() != null) {
-            usuarioDTO.getEnderecos().forEach(endereco -> endereco.setUsuario(usuario));
-            usuario.setEnderecos(usuarioDTO.getEnderecos());
+            List<Endereco> enderecos = new ArrayList<>();;
+            usuarioDTO.getEnderecos().forEach(endereco -> enderecos.add(EnderecoMapper.paraEndereco(endereco)));
+            usuario.setEnderecos(enderecos);
         }
 
         return usuario;

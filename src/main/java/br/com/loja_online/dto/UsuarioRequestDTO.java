@@ -7,8 +7,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import br.com.loja_online.model.Endereco;
-
 import lombok.*;
 
 @Getter
@@ -39,5 +37,5 @@ public class UsuarioRequestDTO {
     private String tipo;
 
     @Builder.Default
-    private List<Endereco> enderecos = new ArrayList<>();
+    private List<EnderecoDTO> enderecos = new ArrayList<>();
 }
