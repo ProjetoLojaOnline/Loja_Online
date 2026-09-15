@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Optional;
 
+import br.com.loja_online.dto.validation.CpfValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.UsuarioService;
 import br.com.loja_online.service.exceptions.ForbiddenException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
@@ -467,5 +470,19 @@ class UsuarioServiceTest {
         usuarioService.atualizaUsuario(1L, updateDTO, EMAIL_AUTENTICADO);
 
         verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    @DisplayName("deveChecarCpfValido")
+    void deveChecarCpfValido() {
+        assertTrue(CpfValidator.isCpfValid("18575819038"));
+        assertTrue(CpfValidator.isCpfValid("148.621.980-23"));
+        assertFalse(CpfValidator.isCpfValid("18575819015"));
+        assertFalse(CpfValidator.isCpfValid("477.337.920-15"));
+        assertFalse(CpfValidator.isCpfValid("11111111111"));
+        assertFalse(CpfValidator.isCpfValid("111.111.111-11"));
+        assertFalse(CpfValidator.isCpfValid("1857581903"));
+        assertFalse(CpfValidator.isCpfValid("185.758.190.38"));
+        assertFalse(CpfValidator.isCpfValid(""));
     }
 }
