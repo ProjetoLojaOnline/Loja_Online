@@ -2,6 +2,8 @@ package br.com.loja_online.unit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -10,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Optional;
 
-import br.com.loja_online.dto.validation.CpfValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
+import br.com.loja_online.dto.validation.CpfValidator;
 import br.com.loja_online.mapper.UsuarioMapper;
 import br.com.loja_online.mapper.UsuarioUpdateMapper;
 import br.com.loja_online.model.Endereco;
@@ -34,8 +36,6 @@ import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.UsuarioService;
 import br.com.loja_online.service.exceptions.ForbiddenException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("null")
 @ExtendWith(MockitoExtension.class)
