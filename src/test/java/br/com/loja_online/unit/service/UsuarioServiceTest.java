@@ -2,6 +2,8 @@ package br.com.loja_online.unit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -23,6 +25,7 @@ import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
+import br.com.loja_online.dto.validation.CpfValidator;
 import br.com.loja_online.mapper.UsuarioMapper;
 import br.com.loja_online.mapper.UsuarioUpdateMapper;
 import br.com.loja_online.model.Endereco;
@@ -467,5 +470,19 @@ class UsuarioServiceTest {
         usuarioService.atualizaUsuario(1L, updateDTO, EMAIL_AUTENTICADO);
 
         verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    @DisplayName("deveChecarCpfValido")
+    void deveChecarCpfValido() {
+        assertTrue(CpfValidator.isCpfValid("18575819038"));
+        assertTrue(CpfValidator.isCpfValid("148.621.980-23"));
+        assertFalse(CpfValidator.isCpfValid("18575819015"));
+        assertFalse(CpfValidator.isCpfValid("477.337.920-15"));
+        assertFalse(CpfValidator.isCpfValid("11111111111"));
+        assertFalse(CpfValidator.isCpfValid("111.111.111-11"));
+        assertFalse(CpfValidator.isCpfValid("1857581903"));
+        assertFalse(CpfValidator.isCpfValid("185.758.190.38"));
+        assertFalse(CpfValidator.isCpfValid(""));
     }
 }
