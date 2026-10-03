@@ -1,7 +1,9 @@
 package br.com.loja_online.builder;
 
+import java.util.List;
 import java.util.Locale;
 
+import br.com.loja_online.dto.EnderecoDTO;
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.dto.UsuarioRequestDTO;
@@ -16,6 +18,7 @@ public class UsuarioBuilder {
     private String email;
     private String cpf;
     private String telefone;
+    private List<EnderecoDTO> enderecos;
     private String login;
     private String senha;
 
@@ -27,6 +30,7 @@ public class UsuarioBuilder {
         builder.email = faker.internet().emailAddress();
         builder.cpf = faker.numerify("###########");
         builder.telefone = faker.numerify("##########");
+        builder.enderecos = List.of(EnderecoBuilder.padrao().buildDto());
         builder.login = "user" + faker.number().digits(6);
         builder.senha = faker.internet().password(6, 20, true, false);
         return builder;
@@ -65,6 +69,7 @@ public class UsuarioBuilder {
                 .email(email)
                 .cpf(cpf)
                 .telefone(telefone)
+                .enderecos(enderecos)
                 .build();
         LoginDTO loginDto = new LoginDTO(login, senha);
         return new UsuarioCadastroWrapper(usuario, loginDto);

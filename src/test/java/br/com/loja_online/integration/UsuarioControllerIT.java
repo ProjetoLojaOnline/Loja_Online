@@ -76,7 +76,24 @@ class UsuarioControllerIT extends AbstractIntegrationTest {
                 UsuarioRequestDTO.builder()
                         .nome("Teste")
                         .email("email-invalido")
-                        .cpf("12345678901")
+                        .cpf("123.456.789-01")
+                        .telefone("11999999999")
+                        .build(),
+                new LoginDTO("teste123", "senha123"));
+        mockMvc.perform(post("/api/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(wrapper)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("deveRetornar400QuandoPostComCPFInvalido")
+    void deveRetornar400QuandoPostComCPFInvalido() throws Exception {
+        UsuarioCadastroWrapper wrapper = new UsuarioCadastroWrapper(
+                UsuarioRequestDTO.builder()
+                        .nome("Teste")
+                        .email("user@email.com")
+                        .cpf("11111111111")
                         .telefone("11999999999")
                         .build(),
                 new LoginDTO("teste123", "senha123"));
