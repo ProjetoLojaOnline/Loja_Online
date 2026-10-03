@@ -1,16 +1,17 @@
 package br.com.loja_online.dto.validation;
 
-import br.com.loja_online.dto.UsuarioRequestDTO;
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class CpfValidator
-    implements ConstraintValidator<ValidCpf, UsuarioRequestDTO> {
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+
+import org.springframework.util.StringUtils;
+
+import br.com.loja_online.dto.UsuarioRequestDTO;
+
+public class CpfValidator implements ConstraintValidator<ValidCpf, UsuarioRequestDTO> {
 
     @Override
     public boolean isValid(UsuarioRequestDTO dto, ConstraintValidatorContext context) {
@@ -85,4 +86,3 @@ public class CpfValidator
         return true;
     }
 }
-
