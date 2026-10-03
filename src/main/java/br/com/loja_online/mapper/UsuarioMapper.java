@@ -51,7 +51,7 @@ public class UsuarioMapper {
                 .build();
 
         if (usuarioDTO.getEnderecos() != null) {
-            List<Endereco> enderecos = new ArrayList<>();;
+            List<Endereco> enderecos = new ArrayList<>();
             usuarioDTO.getEnderecos().forEach(endereco -> enderecos.add(EnderecoMapper.paraEndereco(endereco)));
             usuario.setEnderecos(enderecos);
         }
