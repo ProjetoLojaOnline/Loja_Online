@@ -1,6 +1,5 @@
 package br.com.loja_online.dto.validation;
 
-import br.com.loja_online.dto.AutenticacaoRequestDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
