@@ -7,22 +7,18 @@ import java.util.regex.Pattern;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import org.springframework.util.StringUtils;
-
-import br.com.loja_online.dto.UsuarioRequestDTO;
-
-public class CpfValidator implements ConstraintValidator<ValidCpf, UsuarioRequestDTO> {
+public class CpfValidator implements ConstraintValidator<ValidCpf, String> {
 
     @Override
-    public boolean isValid(UsuarioRequestDTO dto, ConstraintValidatorContext context) {
-        if (dto == null) {
-            return true;
-        }
-        return StringUtils.hasText(dto.getCpf());
+    public boolean isValid(String cpf, ConstraintValidatorContext context) {
+        return validateCpf(cpf);
     }
 
     public static boolean isCpfValid(String cpf) {
+        return validateCpf(cpf);
+    }
 
+    private static boolean validateCpf(String cpf) {
         String regexCPFPontuacao = "^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$";
         String regexCPFSemPontuacao = "^\\d{11}";
 
@@ -52,26 +48,25 @@ public class CpfValidator implements ConstraintValidator<ValidCpf, UsuarioReques
         return numerosDoCPF;
     }
 
-    private static boolean calculateCpf(List<Integer> numerosDoCPF) {
-
-        int primeiraSoma = 0;
-
+    private static boolean calculateCpf(List<Integer> n) {
+        int soma1 = 0;
         for (int i = 0; i < 9; i++) {
-            int peso = 10 - i;
-            primeiraSoma += numerosDoCPF.get(i) * peso;
+            soma1 += n.get(i) * (10 - i);
         }
+        int dv1 = digitoVerificador(soma1);
 
-        int primeiroDigitoVerificador = 11 - (primeiraSoma % 11);
-        int segundaSoma = 0;
-
+        int soma2 = 0;
         for (int i = 0; i < 10; i++) {
-            int peso = 11 - i;
-            segundaSoma += numerosDoCPF.get(i) * peso;
+            soma2 += n.get(i) * (11 - i);
         }
+        int dv2 = digitoVerificador(soma2);
 
-        int segundoDigitoVerificador = 11 - (segundaSoma % 11);
+        return n.get(9) == dv1 && n.get(10) == dv2;
+    }
 
-        return numerosDoCPF.get(9) == primeiroDigitoVerificador && numerosDoCPF.get(10) == segundoDigitoVerificador;
+    private static int digitoVerificador(int soma) {
+        int resto = soma % 11;
+        return resto < 2 ? 0 : 11 - resto;
     }
 
     private static boolean isSequenceRepeated(List<Integer> numerosDoCPF) {
