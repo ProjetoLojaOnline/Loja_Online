@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import br.com.loja_online.model.Endereco;
+import br.com.loja_online.dto.validation.ValidCpf;
 
 import lombok.*;
 
@@ -30,7 +30,7 @@ public class UsuarioRequestDTO {
     private String email;
 
     @NotBlank(message = "O CPF é obrigatório")
-    @Size(min = 11, max = 11, message = "O CPF deve ter exatamente 11 dígitos")
+    @ValidCpf
     private String cpf;
 
     private String dataNascimento;
@@ -39,5 +39,5 @@ public class UsuarioRequestDTO {
     private String tipo;
 
     @Builder.Default
-    private List<Endereco> enderecos = new ArrayList<>();
+    private List<EnderecoDTO> enderecos = new ArrayList<>();
 }
