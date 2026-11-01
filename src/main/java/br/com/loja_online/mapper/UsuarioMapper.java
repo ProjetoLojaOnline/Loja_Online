@@ -30,6 +30,7 @@ public class UsuarioMapper {
                 .genero(usuario.getGenero())
                 .foto(usuario.getFoto())
                 .tipo(usuario.getTipo())
+                .statusVerificacaoCpf(usuario.getStatusVerificacaoCpf())
                 .enderecos(enderecos)
                 .build();
     }

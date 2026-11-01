@@ -6,9 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -21,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import br.com.loja_online.dto.CpfCorrecaoDTO;
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
@@ -31,9 +34,11 @@ import br.com.loja_online.mapper.UsuarioUpdateMapper;
 import br.com.loja_online.model.Endereco;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
+import br.com.loja_online.model.enums.StatusVerificacaoCpf;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.UsuarioService;
+import br.com.loja_online.service.exceptions.ConflictException;
 import br.com.loja_online.service.exceptions.ForbiddenException;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
@@ -97,14 +102,14 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
         when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
         when(passwordEncoder.encode("senha123")).thenReturn("encodedPassword");
-        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+        when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenReturn(usuario);
 
         UsuarioResponseDTO result = usuarioService.insert(usuarioRequestDTO, loginDTO);
 
         assertThat(result).isNotNull();
         assertThat(result.getNome()).isEqualTo("João");
         verify(passwordEncoder).encode("senha123");
-        verify(usuarioRepository).save(any(Usuario.class));
+        verify(usuarioRepository).saveAndFlush(any(Usuario.class));
         assertThat(usuario.getLogin().getUsuario()).isEqualTo(usuario);
     }
 
@@ -368,7 +373,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
         when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
         when(passwordEncoder.encode("senha123")).thenReturn("senhaCriptografada");
-        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+        when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenReturn(usuario);
 
         usuarioService.insert(usuarioRequestDTO, loginDTO);
 
@@ -383,7 +388,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
         when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+        when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenReturn(usuario);
 
         usuarioService.insert(usuarioRequestDTO, loginDTO);
 
@@ -398,7 +403,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsByCpf(anyString())).thenReturn(false);
         when(usuarioRepository.existsByTelefone(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
+        when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenReturn(usuario);
 
         usuarioService.insert(usuarioRequestDTO, loginDTO);
 
@@ -484,5 +489,82 @@ class UsuarioServiceTest {
         assertFalse(CpfValidator.isCpfValid("1857581903"));
         assertFalse(CpfValidator.isCpfValid("185.758.190.38"));
         assertFalse(CpfValidator.isCpfValid(""));
+    }
+
+    @Test
+    @DisplayName("deveInserirComCpfSomenteDigitosEStatusPendente")
+    void deveInserirComCpfSomenteDigitosEStatusPendente() {
+        usuarioRequestDTO.setCpf("529.982.247-25");
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
+        when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        UsuarioResponseDTO result = usuarioService.insert(usuarioRequestDTO, loginDTO);
+
+        verify(usuarioRepository).existsByCpf("52998224725");
+        assertThat(result.getCpf()).isEqualTo("52998224725");
+        assertThat(result.getStatusVerificacaoCpf()).isEqualTo(StatusVerificacaoCpf.PENDENTE);
+    }
+
+    @Test
+    @DisplayName("deveRetornarUsuarioAutenticadoQuandoFindByEmail")
+    void deveRetornarUsuarioAutenticadoQuandoFindByEmail() {
+        when(usuarioRepository.findByEmail(EMAIL_AUTENTICADO)).thenReturn(Optional.of(usuario));
+
+        UsuarioResponseDTO result = usuarioService.findByEmail(EMAIL_AUTENTICADO);
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getStatusVerificacaoCpf()).isEqualTo(StatusVerificacaoCpf.PENDENTE);
+    }
+
+    @Test
+    @DisplayName("deveCorrigirCpfEVoltarParaPendenteQuandoRejeitado")
+    void deveCorrigirCpfEVoltarParaPendenteQuandoRejeitado() {
+        usuario.setStatusVerificacaoCpf(StatusVerificacaoCpf.REJEITADO);
+        usuario.setTentativasVerificacaoCpf(3);
+        usuario.setProximaVerificacaoCpfEm(Instant.now());
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.saveAndFlush(usuario)).thenReturn(usuario);
+
+        UsuarioResponseDTO result =
+                usuarioService.corrigirCpf(1L, new CpfCorrecaoDTO("529.982.247-25"), EMAIL_AUTENTICADO);
+
+        assertThat(result.getCpf()).isEqualTo("52998224725");
+        assertThat(result.getStatusVerificacaoCpf()).isEqualTo(StatusVerificacaoCpf.PENDENTE);
+        assertThat(usuario.getTentativasVerificacaoCpf()).isZero();
+        assertThat(usuario.getProximaVerificacaoCpfEm()).isNull();
+    }
+
+    @Test
+    @DisplayName("deveLancarConflictAoCorrigirCpfQuandoNaoRejeitado")
+    void deveLancarConflictAoCorrigirCpfQuandoNaoRejeitado() {
+        usuario.setStatusVerificacaoCpf(StatusVerificacaoCpf.APROVADO);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> usuarioService.corrigirCpf(1L, new CpfCorrecaoDTO("52998224725"), EMAIL_AUTENTICADO))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("O CPF só pode ser corrigido quando a verificação foi rejeitada");
+        verify(usuarioRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    @DisplayName("deveLancarConflictAoCorrigirParaCpfDeOutroUsuario")
+    void deveLancarConflictAoCorrigirParaCpfDeOutroUsuario() {
+        usuario.setStatusVerificacaoCpf(StatusVerificacaoCpf.REJEITADO);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(usuarioRepository.existsByCpf("52998224725")).thenReturn(true);
+
+        assertThatThrownBy(() -> usuarioService.corrigirCpf(1L, new CpfCorrecaoDTO("52998224725"), EMAIL_AUTENTICADO))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("Este CPF já está cadastrado!");
+    }
+
+    @Test
+    @DisplayName("deveLancarForbiddenAoCorrigirCpfDeOutroUsuario")
+    void deveLancarForbiddenAoCorrigirCpfDeOutroUsuario() {
+        usuario.setStatusVerificacaoCpf(StatusVerificacaoCpf.REJEITADO);
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> usuarioService.corrigirCpf(1L, new CpfCorrecaoDTO("52998224725"), "outro@example.com"))
+                .isInstanceOf(ForbiddenException.class);
     }
 }

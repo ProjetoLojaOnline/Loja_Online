@@ -75,6 +75,19 @@ public class UsuarioBuilder {
         return this;
     }
 
+    public UsuarioBuilder comCpf(String cpf) {
+        this.cpf = cpf;
+        return this;
+    }
+
+    public static String novoCpfValido() {
+        return gerarCpfValido();
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
     public String getEmail() {
         return email;
     }

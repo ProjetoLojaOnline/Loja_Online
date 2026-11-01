@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import br.com.loja_online.dto.CpfCorrecaoDTO;
 import br.com.loja_online.dto.UsuarioCadastroWrapper;
 import br.com.loja_online.dto.UsuarioResponseDTO;
 import br.com.loja_online.dto.UsuarioUpdateDTO;
@@ -29,6 +30,21 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         return ResponseEntity.ok(usuarioService.findAll());
+    }
+
+    /** Dados do usuário autenticado, incluindo o status da verificação de CPF. */
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponseDTO> buscarAutenticado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(usuarioService.findByEmail(email));
+    }
+
+    /** Corrige o CPF quando a verificação foi REJEITADA; o status volta para PENDENTE. */
+    @PatchMapping("/{id}/cpf")
+    public ResponseEntity<UsuarioResponseDTO> corrigirCpf(
+            @NonNull @PathVariable Long id, @Valid @RequestBody CpfCorrecaoDTO dto) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(usuarioService.corrigirCpf(id, dto, email));
     }
 
     @GetMapping("/login/{login}")

@@ -11,11 +11,20 @@ public class CpfValidator implements ConstraintValidator<ValidCpf, String> {
 
     @Override
     public boolean isValid(String cpf, ConstraintValidatorContext context) {
+        // null é responsabilidade do @NotBlank (convenção do Bean Validation)
+        if (cpf == null) {
+            return true;
+        }
         return validateCpf(cpf);
     }
 
     public static boolean isCpfValid(String cpf) {
         return validateCpf(cpf);
+    }
+
+    /** Remove a pontuação: "529.982.247-25" vira "52998224725". */
+    public static String somenteDigitos(String cpf) {
+        return cpf == null ? null : cpf.replaceAll("\\D", "");
     }
 
     private static boolean validateCpf(String cpf) {

@@ -1,7 +1,10 @@
 package br.com.loja_online.exception;
 
+import java.util.Locale;
+
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import br.com.loja_online.service.exceptions.AuthenticationException;
 import br.com.loja_online.service.exceptions.ConflictException;
 import br.com.loja_online.service.exceptions.ForbiddenException;
+import br.com.loja_online.service.exceptions.MensagensConflito;
 import br.com.loja_online.service.exceptions.ObjectNotFoundException;
 
 @ControllerAdvice
@@ -70,5 +74,36 @@ public class ControllerAdviceHandler {
         StandardError standardError = new StandardError(
                 System.currentTimeMillis(), 409, "Conflict", ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(standardError);
+    }
+
+    /**
+     * Dois cadastros simultâneos com o mesmo CPF/e-mail/telefone/login passam juntos pela checagem do serviço e um
+     * deles estoura a constraint unique do banco. Sem este handler isso virava um 500 cru.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardError> dataIntegrityViolationException(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
+        StandardError standardError = new StandardError(
+                System.currentTimeMillis(), 409, "Conflict", mensagemConflito(ex), request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(standardError);
+    }
+
+    // O PostgreSQL informa a coluna no detalhe do erro: 'Key (cpf)=(...) already exists' / 'Chave (cpf)=(...)'.
+    // O valor duplicado nunca é devolvido ao cliente.
+    private static String mensagemConflito(DataIntegrityViolationException ex) {
+        String detalhe = String.valueOf(ex.getMostSpecificCause().getMessage()).toLowerCase(Locale.ROOT);
+        if (detalhe.contains("(cpf)")) {
+            return MensagensConflito.CPF;
+        }
+        if (detalhe.contains("(email)")) {
+            return MensagensConflito.EMAIL;
+        }
+        if (detalhe.contains("(telefone)")) {
+            return MensagensConflito.TELEFONE;
+        }
+        if (detalhe.contains("(login)")) {
+            return MensagensConflito.LOGIN;
+        }
+        return MensagensConflito.GENERICA;
     }
 }
