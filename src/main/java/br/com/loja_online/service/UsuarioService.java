@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.loja_online.dto.CpfCorrecaoDTO;
 import br.com.loja_online.dto.LoginDTO;
 import br.com.loja_online.dto.UsuarioRequestDTO;
 import br.com.loja_online.dto.UsuarioResponseDTO;
@@ -20,7 +19,6 @@ import br.com.loja_online.mapper.UsuarioUpdateMapper;
 import br.com.loja_online.model.Login;
 import br.com.loja_online.model.Usuario;
 import br.com.loja_online.model.enums.Role;
-import br.com.loja_online.model.enums.StatusVerificacaoCpf;
 import br.com.loja_online.repository.LoginRepository;
 import br.com.loja_online.repository.UsuarioRepository;
 import br.com.loja_online.service.exceptions.ConflictException;
@@ -63,8 +61,6 @@ public class UsuarioService {
         Usuario novoUsuario = UsuarioMapper.paraUsuario(usuarioDTO);
         novoUsuario.setId(null);
         novoUsuario.setCpf(cpf);
-        // A verificação na fonte externa é feita depois pelo VerificacaoCpfJob, sem atrasar o cadastro
-        novoUsuario.setStatusVerificacaoCpf(StatusVerificacaoCpf.PENDENTE);
 
         Login login = new Login();
         login.setLogin(loginDTO.login());
@@ -84,35 +80,6 @@ public class UsuarioService {
                 .findByEmail(emailAutenticado)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário autenticado não encontrado"));
         return UsuarioMapper.paraDTO(usuario);
-    }
-
-    /**
-     * Permite corrigir o CPF apenas quando a verificação foi REJEITADA (ex.: erro de digitação). O status volta para
-     * PENDENTE e o job verifica de novo.
-     */
-    @Transactional
-    public UsuarioResponseDTO corrigirCpf(
-            @NonNull Long id, @Valid CpfCorrecaoDTO dto, @NonNull String emailAutenticado) {
-        Usuario usuario = usuarioRepository
-                .findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + id));
-        if (!usuario.getEmail().equals(emailAutenticado)) {
-            throw new ForbiddenException("Acesso negado: você não pode alterar dados de outro usuário");
-        }
-        if (usuario.getStatusVerificacaoCpf() != StatusVerificacaoCpf.REJEITADO) {
-            throw new ConflictException("O CPF só pode ser corrigido quando a verificação foi rejeitada");
-        }
-
-        String cpf = CpfValidator.somenteDigitos(dto.cpf());
-        if (!cpf.equals(usuario.getCpf()) && usuarioRepository.existsByCpf(cpf)) {
-            throw new ConflictException(MensagensConflito.CPF);
-        }
-
-        usuario.setCpf(cpf);
-        usuario.setStatusVerificacaoCpf(StatusVerificacaoCpf.PENDENTE);
-        usuario.setTentativasVerificacaoCpf(0);
-        usuario.setProximaVerificacaoCpfEm(null);
-        return UsuarioMapper.paraDTO(usuarioRepository.saveAndFlush(usuario));
     }
 
     public List<UsuarioResponseDTO> findAll() {
